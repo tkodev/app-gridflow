@@ -73,7 +73,7 @@ interface PostProps {
 
 | Folder | Purpose |
 | --- | --- |
-| [`utils/`](/utils/) | Pure helpers, formatting, small algorithms, and integration glue that does not belong elsewhere (e.g. Supabase `createClient` for browser/server, middleware helpers, Tailwind `cn`). Post media (ordering, upload file extensions) — [`post-media.ts`](/utils/post-media.ts); Supabase posts bucket (URL paths, folder cleanup) — [`post-storage.ts`](/utils/post-storage.ts). |
+| [`utils/`](/utils/) | Pure helpers, formatting, small algorithms, and integration glue that does not belong elsewhere (e.g. Supabase `createClient` for browser/server, proxy/session helpers, Tailwind `cn`). |
 | [`types/`](/types/) | Shared TypeScript shapes used in multiple places (domain models, mutation inputs, etc.). |
 | [`queries/`](/queries/) | TanStack Query only: `useMutation` / `useQuery`, `mutationFn` / `queryFn`, and [`keys.ts`](/queries/keys.ts). No React providers and no generic utilities here. |
 | [`constants/`](/constants/) | App-wide constants (Supabase table and bucket names, query defaults, routes, limits such as max post media). |
