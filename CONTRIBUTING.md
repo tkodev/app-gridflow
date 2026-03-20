@@ -4,18 +4,11 @@ Everything a developer needs to understand and work on GridFlow.
 
 ## Docs
 
-| File | Owns |
-| --- | --- |
-| [product.md](/docs/product.md) | Business behaviour, features, and MVP/stretch boundaries |
-| [tech.md](/docs/tech.md) | Tech stack, routes, page structure, and code conventions |
-| [design.md](/docs/design.md) | Visual design principles and Figma references |
-| [git.md](/docs/git.md) | Branch naming, commit conventions, and PR guidelines |
+Please read all files before contributing.
 
-Please read all files in here before contributing
-
-## Quick Reference
-
-- **What does this feature do?** → [product.md](/docs/product.md)
-- **How do I build it?** → [tech.md](/docs/tech.md)
-- **What should it look like?** → [design.md](/docs/design.md)
-- **How do I commit/PR?** → [git.md](/docs/git.md)
+| File | Owns | Ask when… |
+| --- | --- | --- |
+| [product.md](/docs/product.md) | Business behaviour, features, and MVP/stretch boundaries | What does this product or feature do? |
+| [tech.md](/docs/tech.md) | Tech stack, routes, page structure, and code conventions | How do I build it? |
+| [design.md](/docs/design.md) | Visual design principles and Figma references | What should it look like? |
+| [git.md](/docs/git.md) | Branch naming, commit conventions, and PR guidelines | How do I commit/PR? |
