@@ -1,8 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { Music } from "lucide-react";
+import { Music, MoreHorizontal, Pencil } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { Post } from "./posts-grid";
 
 interface Profile {
@@ -15,11 +22,11 @@ interface Profile {
 export function FeedView({
   posts,
   profile,
-  onPostClick,
+  onEditClick,
 }: {
   posts: Post[];
   profile: Profile;
-  onPostClick: (post: Post) => void;
+  onEditClick: (post: Post) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -45,16 +52,24 @@ export function FeedView({
                 </div>
               )}
             </div>
-            <span className="text-xs text-muted-foreground capitalize px-2 py-0.5 rounded-full bg-muted">
-              {post.status}
-            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreHorizontal className="h-5 w-5" />
+                  <span className="sr-only">Post options</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditClick(post)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit Post
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
-          {/* Image */}
-          <button
-            className="relative aspect-[4/5] w-full overflow-hidden bg-muted"
-            onClick={() => onPostClick(post)}
-          >
+          {/* Image - no click action */}
+          <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
             <Image
               src={post.image_url}
               alt={post.caption || "Post image"}
@@ -62,11 +77,18 @@ export function FeedView({
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 500px"
             />
-          </button>
+          </div>
+
+          {/* Status badge */}
+          <div className="px-3 pt-2.5">
+            <span className="text-xs text-muted-foreground capitalize px-2 py-0.5 rounded-full bg-muted">
+              {post.status}
+            </span>
+          </div>
 
           {/* Footer - Username + Caption */}
           {post.caption && (
-            <div className="px-3 py-2.5">
+            <div className="px-3 pt-2">
               <p className="text-sm">
                 <span className="font-semibold mr-1.5">{profile.username}</span>
                 <span className="text-foreground/90">{post.caption}</span>
@@ -75,7 +97,7 @@ export function FeedView({
           )}
 
           {/* Timestamp */}
-          <div className="px-3 pb-2.5">
+          <div className="px-3 pb-2.5 pt-1">
             <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
               {post.scheduled_at
                 ? `Scheduled for ${new Date(post.scheduled_at).toLocaleDateString()}`

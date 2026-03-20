@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { SortablePost } from "@/components/profiles/sortable-post";
 import { FeedView } from "@/components/profiles/feed-view";
 import { AddPostDialog } from "@/components/profiles/add-post-dialog";
+import { PostPreviewDialog } from "@/components/profiles/post-preview-dialog";
 import { PostDetailDialog } from "@/components/profiles/post-detail-dialog";
 import { EditProfileDialog } from "@/components/profiles/edit-profile-dialog";
 import { createClient } from "@/lib/supabase/client";
@@ -60,7 +61,8 @@ export function PostsGrid({
   profile: Profile;
 }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [previewPost, setPreviewPost] = useState<Post | null>(null);
+  const [editPost, setEditPost] = useState<Post | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
 
@@ -110,12 +112,17 @@ export function PostsGrid({
     setPosts((prev) =>
       prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
     );
-    setSelectedPost(null);
+    setEditPost(null);
   };
 
   const handleDeletePost = (postId: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
-    setSelectedPost(null);
+    setEditPost(null);
+  };
+
+  const handleEditFromPreview = (post: Post) => {
+    setPreviewPost(null);
+    setEditPost(post);
   };
 
   return (
@@ -159,7 +166,7 @@ export function PostsGrid({
                     <SortablePost
                       key={post.id}
                       post={post}
-                      onClick={() => setSelectedPost(post)}
+                      onClick={() => setPreviewPost(post)}
                       gridRatio={(profile.grid_ratio as "square" | "portrait") || "square"}
                     />
                   ))}
@@ -173,7 +180,7 @@ export function PostsGrid({
           {posts.length === 0 ? (
             <EmptyState onAdd={() => setShowAddDialog(true)} />
           ) : (
-            <FeedView posts={posts} profile={profile} onPostClick={setSelectedPost} />
+            <FeedView posts={posts} profile={profile} onEditClick={setEditPost} />
           )}
         </TabsContent>
       </Tabs>
@@ -186,9 +193,16 @@ export function PostsGrid({
         nextPosition={posts.length}
       />
 
+      <PostPreviewDialog
+        post={previewPost}
+        profile={profile}
+        onClose={() => setPreviewPost(null)}
+        onEditClick={handleEditFromPreview}
+      />
+
       <PostDetailDialog
-        post={selectedPost}
-        onClose={() => setSelectedPost(null)}
+        post={editPost}
+        onClose={() => setEditPost(null)}
         onUpdate={handleUpdatePost}
         onDelete={handleDeletePost}
       />
