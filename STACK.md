@@ -1,30 +1,35 @@
 ---
-description: TypeScript, React, Tailwind, and accessibility code style guidelines
+description: Tech stack, routes, page structure, and code style guidelines. No business behaviour or feature decisions — those belong in SCOPE.md.
 globs: **/*.{ts,tsx}
 alwaysApply: false
 ---
 
 # Stack
 
+> This file defines **how the product is built** — technology choices, routes, page/component structure, and code conventions. For features and product behaviour, see [SCOPE.md](/SCOPE.md).
+
 ## Tech Stack
 
-- Nextjs
-- Tailwind
-- Shadcn (with dark mode support)
-- Radix primitives if no shadcn / magic ui / aceternity / etc equivalent
-- Supabase db for databases
-- Supabase auth for auth
-- Supabase storage for media uploads
-- Supabase cron for scheduled posts
-- React/Next's useState, useOptimistic, server actions
+- Next.js (App Router)
+- Tailwind CSS
+- shadcn/ui (with dark mode support)
+- Radix UI primitives where no shadcn/ui equivalent exists
+- Supabase — database, auth, storage, cron (cron reserved for post scheduling stretch feature)
+- React state: `useState`, `useOptimistic`, Server Actions
 
 ## Routes
 
+```txt
 / - landing
-/profile - core app user's IG profiles / schedulers
+/profiles - core app — profile grid and feed planner
 /settings - user's settings
 /admin - admin/superadmin stuff
 /auth - sign-in, sign-out, sign-up, forgot-pw
+```
+
+## Page Structure
+
+All pages share a common header bar. Pages that use a sidebar share the same sidebar component. The visual style mirrors Instagram's profile layout but does not copy its theme exactly.
 
 ## TypeScript
 
@@ -49,7 +54,7 @@ type PostProps = { post: any; onEdit: Function }
 
 ## Pages
 
-- Pages combine react components usage, with content and hooks. It is main source of truth for the composition of a page.
+- Pages combine React components, content, and hooks. They are the main source of truth for the composition of a page.
 
 ## React Components
 
@@ -75,8 +80,6 @@ export function MyComponent({ title, children }: MyComponentProps) {
 
 ## Tailwind CSS
 
-- The application will have shared header bar regardless of page
-- Pages that use a sidebar should use the same component for sidebars
 - Use semantic tokens (`bg-background`, `text-foreground`, etc.)
 - Use `gap-*` for spacing; avoid arbitrary values
 

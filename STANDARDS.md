@@ -3,7 +3,9 @@ description: Git branch naming, conventional commits, and PR guidelines
 alwaysApply: true
 ---
 
-# Git Guidelines
+# Standards
+
+> This file defines **how we work** — branch naming, commit conventions, PR guidelines, and documentation ownership. For product behaviour, see [SCOPE.md](/SCOPE.md). For tech stack and code conventions, see [STACK.md](/STACK.md).
 
 ## Branch Naming
 
@@ -28,12 +30,12 @@ Examples: `feat/42-post-scheduling`, `fix/17-dialog-overflow`, `refactor/88-auth
 
 **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
-**Scopes**: `app`, `admin`, `components`, `ui`, `lib`, `styles`
+**Scopes**: `app`, `auth`, `profiles`, `settings`, `admin`, `components`, `ui`, `lib`, `styles`
 
 ```txt
 feat(app): add drag-and-drop reordering to post grid
 fix(components): resolve dialog overflow on desktop
-chore(deps): update next.js to 16.1
+chore(deps): update next.js to latest
 ```
 
 ## Pull Requests
@@ -68,3 +70,7 @@ Describe how you tested these changes.
 ```
 
 **Review comment prefixes**: `nit:`, `suggestion:`, `question:`, `issue:`
+
+## Documentation
+
+When a ticket or issue introduces new or changed behaviour, scope, stack decisions, or routing — update the relevant MD files as part of the same PR. Docs and code ship together.
