@@ -6,7 +6,7 @@
 
 All specific design decisions — typography, spacing, colour palette, iconography, motion, and component style — are defined in the Figma file. Add Figma links here when available.
 
-Global principles:
+## Global principles
 
 - Mirror Instagram's profile aesthetic in layout and feel, but do not copy its exact theme
 - Dark mode supported throughout

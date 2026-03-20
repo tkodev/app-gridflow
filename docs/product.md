@@ -4,6 +4,9 @@
 
 GridFlow is a visual Instagram content planning platform. Plan and arrange your feed in a true-to-life grid preview — so your profile always looks exactly the way you intend. In the MVP, GridFlow is a mockup and planning tool; direct Instagram connection and scheduling are stretch features.
 
+The product should feel like “Instagram with scheduling”, not a traditional social media dashboard.
+Use a clean, modern mobile-first layout inspired by Instagram, with minimal SaaS elements visible in the profiles interface.
+
 ## Pages
 
 1. **Root**
