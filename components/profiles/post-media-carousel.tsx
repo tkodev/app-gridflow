@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PostMedia } from "@/types/post";
 
-interface MediaCarouselProps {
+interface PostMediaCarouselProps {
   media: PostMedia[];
   aspectRatio?: "square" | "portrait";
   isActive?: boolean; // Controls video autoplay
@@ -14,13 +14,13 @@ interface MediaCarouselProps {
   className?: string;
 }
 
-export function MediaCarousel({
+export function PostMediaCarousel({
   media,
   aspectRatio = "portrait",
   isActive = true,
   showControls = true,
   className,
-}: MediaCarouselProps) {
+}: PostMediaCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map());
 
@@ -76,7 +76,6 @@ export function MediaCarousel({
     );
   }
 
-  const currentMedia = sortedMedia[currentIndex];
   const hasMultiple = sortedMedia.length > 1;
 
   return (

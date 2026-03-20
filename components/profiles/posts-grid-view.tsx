@@ -67,14 +67,13 @@ export function PostsGridView({
         setPosts(newPosts);
 
         const supabase = createClient();
-        const updates = newPosts.map((post, index) => ({
-          id: post.id,
-          profile_id: post.profile_id,
-          image_url: post.image_url,
-          grid_position: index,
-        }));
-
-        await supabase.from("posts").upsert(updates);
+        const results = await Promise.all(
+          newPosts.map((post, index) =>
+            supabase.from("posts").update({ grid_position: index }).eq("id", post.id)
+          )
+        );
+        const persistError = results.find((r) => r.error)?.error;
+        if (persistError) throw persistError;
       }
     },
     [posts]
@@ -136,6 +135,7 @@ export function PostsGridView({
             <EmptyState onAdd={() => setShowAddDialog(true)} />
           ) : (
             <DndContext
+              id="posts-grid-dnd"
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}

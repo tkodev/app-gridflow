@@ -35,6 +35,7 @@ export function PostPreviewDialog({
           profile={profile}
           onEditClick={onEditClick}
           onClose={onClose}
+          isActive
         />
       </DialogContent>
     </Dialog>

@@ -49,8 +49,6 @@ CREATE TABLE public.posts (
   profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   image_url TEXT NOT NULL,
   caption TEXT,
-  location TEXT,
-  music TEXT,
   grid_position INTEGER NOT NULL DEFAULT 0,
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'scheduled', 'published')),
   scheduled_at TIMESTAMPTZ,

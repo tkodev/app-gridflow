@@ -7,6 +7,7 @@ import { Copy } from "lucide-react";
 import { PostStatusPill } from "@/components/profiles/post-status-pill";
 import { cn } from "@/lib/utils";
 import type { Post } from "@/types/post";
+import { getPostCoverUrl } from "@/lib/post-cover";
 
 
 export function PostSortableItem({
@@ -32,6 +33,8 @@ export function PostSortableItem({
     transition,
   };
 
+  const coverUrl = getPostCoverUrl(post);
+
   return (
     <button
       ref={setNodeRef}
@@ -45,15 +48,19 @@ export function PostSortableItem({
       {...attributes}
       {...listeners}
     >
-      <Image
-        src={post.image_url}
-        alt={post.caption || "Post image"}
-        fill
-        className="object-cover"
-        sizes="(max-width: 768px) 33vw, 200px"
-      />
+      {coverUrl ? (
+        <Image
+          src={coverUrl}
+          alt={post.caption || "Post image"}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 33vw, 200px"
+        />
+      ) : (
+        <span className="sr-only">No media</span>
+      )}
       {/* Multi-media indicator */}
-      {post.media && post.media.length > 1 && (
+      {post.media.length > 1 && (
         <div className="absolute right-1 top-1">
           <Copy className="h-4 w-4 text-white drop-shadow-md" />
         </div>
@@ -62,7 +69,7 @@ export function PostSortableItem({
       {(post.status === "draft" || post.status === "scheduled") && (
         <div className={cn(
           "absolute top-1",
-          post.media && post.media.length > 1 ? "right-6" : "right-1"
+          post.media.length > 1 ? "right-6" : "right-1"
         )}>
           <PostStatusPill status={post.status} compact />
         </div>

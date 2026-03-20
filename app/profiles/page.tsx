@@ -4,6 +4,7 @@ import { ProfileHeader } from "@/components/profiles/profile-header";
 import { PostsGridView } from "@/components/profiles/posts-grid-view";
 import { ProfileMissingView } from "@/components/profiles/profile-missing-view";
 import type { Profile } from "@/types/profile";
+import type { Post } from "@/types/post";
 
 export default async function ProfilesPage({
   searchParams,
@@ -39,18 +40,33 @@ export default async function ProfilesPage({
   // Fetch posts for current profile with their media
   const { data: postsRaw } = await supabase
     .from("posts")
-    .select("*, post_media(*)")
+    .select(
+      `
+      id,
+      profile_id,
+      caption,
+      subtitle,
+      grid_position,
+      status,
+      scheduled_at,
+      published_at,
+      created_at,
+      updated_at,
+      post_media(*)
+    `
+    )
     .eq("profile_id", profile.id)
     .order("grid_position", { ascending: true });
 
-  // Transform to include media array sorted by position
-  const posts = (postsRaw ?? []).map((post) => ({
-    ...post,
-    media: (post.post_media ?? []).sort(
-      (a: { position: number }, b: { position: number }) => a.position - b.position
-    ),
-    post_media: undefined, // Remove the raw field
-  }));
+  const posts: Post[] = (postsRaw ?? []).map((row) => {
+    const { post_media, ...rest } = row as typeof row & {
+      post_media?: Post["media"];
+    };
+    return {
+      ...rest,
+      media: (post_media ?? []).sort((a, b) => a.position - b.position),
+    };
+  });
 
   return (
     <div className="py-6">

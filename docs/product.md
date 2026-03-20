@@ -21,8 +21,8 @@ Use a clean, modern mobile-first layout inspired by Instagram, with minimal SaaS
    - Main view:
      - Grid view — visual layout planning with drag-and-drop reordering
      - Feed view — scrollable post-by-post view
-     - Post Preview mirrors the IG post format — username, location/music (text string), image/video carousel, caption, and a three-dot edit button
-     - Each post supports multiple images/video, location and music tags (text only), people tags (text only), and a posting date
+     - Post Preview mirrors the IG post format — username, optional subtitle (e.g. song/location line), image/video carousel, caption, and a three-dot edit button
+     - Each post supports multiple images/video, an optional subtitle line, people tags (text only), and a posting date
 4. **Settings**
    - Add / remove profiles (each profile will eventually connect to an Instagram account; no social linking in MVP)
    - Account settings (email, password)

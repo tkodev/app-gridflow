@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useId } from "react";
 import {
   DndContext,
   closestCenter,
@@ -28,6 +28,10 @@ import {
   Play,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import {
+  extractPostsBucketObjectPath,
+  removePostFolderObjects,
+} from "@/lib/post-storage";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +39,34 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { Post, PostMedia, LocalMediaItem } from "@/types/post";
+
+function extensionForUpload(file: File): string {
+  const fromName = file.name.split(".").pop()?.toLowerCase();
+  if (fromName && /^[a-z0-9]+$/.test(fromName) && fromName.length <= 8) {
+    return fromName;
+  }
+  const typeMap: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "video/mp4": "mp4",
+    "video/webm": "webm",
+    "video/quicktime": "mov",
+  };
+  return typeMap[file.type] ?? "bin";
+}
+
+function formatSupabaseError(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object") {
+    const o = err as { message?: string; details?: string; hint?: string };
+    const parts = [o.message, o.details, o.hint].filter(Boolean);
+    if (parts.length) return parts.join(" — ");
+  }
+  return "An error occurred";
+}
 
 interface PostFormDialogProps {
   open: boolean;
@@ -132,6 +164,7 @@ export function PostFormDialog({
   onSave,
   onDelete,
 }: PostFormDialogProps) {
+  const formDndId = useId();
   const isEditing = !!post;
   const [mediaItems, setMediaItems] = useState<LocalMediaItem[]>([]);
   const [caption, setCaption] = useState("");
@@ -156,8 +189,7 @@ export function PostFormDialog({
       setSubtitle(post.subtitle || "");
       setStatus(post.status);
 
-      // Load existing media
-      if (post.media && post.media.length > 0) {
+      if (post.media.length > 0) {
         const existingMedia: LocalMediaItem[] = post.media.map((m) => ({
           id: m.id,
           url: m.media_url,
@@ -165,16 +197,8 @@ export function PostFormDialog({
           isNew: false,
         }));
         setMediaItems(existingMedia);
-      } else if (post.image_url) {
-        // Legacy single image support
-        setMediaItems([
-          {
-            id: "legacy-" + post.id,
-            url: post.image_url,
-            type: "image",
-            isNew: false,
-          },
-        ]);
+      } else {
+        setMediaItems([]);
       }
     } else {
       // Reset for new post
@@ -207,7 +231,7 @@ export function PostFormDialog({
           continue;
         }
 
-        const id = `new-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+        const id = crypto.randomUUID();
         validFiles.push({
           id,
           file,
@@ -277,7 +301,6 @@ export function PostFormDialog({
             caption: caption || null,
             subtitle: subtitle || null,
             status,
-            image_url: mediaItems[0]?.url || "", // Keep legacy field
             updated_at: new Date().toISOString(),
           })
           .eq("id", postId)
@@ -285,7 +308,7 @@ export function PostFormDialog({
           .single();
 
         if (updateError) throw updateError;
-        postData = data as Post;
+        postData = data as unknown as Post;
       } else {
         const { data, error: insertError } = await supabase
           .from("posts")
@@ -293,7 +316,6 @@ export function PostFormDialog({
             profile_id: profileId,
             caption: caption || null,
             subtitle: subtitle || null,
-            image_url: "", // Will be updated after media upload
             grid_position: nextPosition,
             status: "draft",
           })
@@ -302,24 +324,25 @@ export function PostFormDialog({
 
         if (insertError) throw insertError;
         postId = data.id;
-        postData = data as Post;
+        postData = data as unknown as Post;
+      }
+
+      if (!postId) {
+        throw new Error("Missing post id");
       }
 
       // Handle media items
       const uploadedMedia: PostMedia[] = [];
 
       // Delete removed media items (for editing)
-      if (isEditing && post?.media) {
+      if (isEditing && post) {
         const currentIds = new Set(mediaItems.filter((m) => !m.isNew).map((m) => m.id));
         const toDelete = post.media.filter((m) => !currentIds.has(m.id));
 
         for (const media of toDelete) {
-          // Delete from storage
-          if (media.media_url.includes("/storage/v1/object/public/posts/")) {
-            const path = media.media_url.split("/posts/")[1];
-            if (path) {
-              await supabase.storage.from("posts").remove([path]);
-            }
+          const path = extractPostsBucketObjectPath(media.media_url);
+          if (path) {
+            await supabase.storage.from("posts").remove([path]);
           }
           // Delete from database
           await supabase.from("post_media").delete().eq("id", media.id);
@@ -331,16 +354,16 @@ export function PostFormDialog({
         const item = mediaItems[i];
 
         if (item.isNew && item.file) {
-          // Upload new file
-          const fileExt = item.file.name.split(".").pop();
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-          const filePath = `${profileId}/${fileName}`;
+          // Unique path per object (avoids duplicate-key 400s when Date.now() collides)
+          const ext = extensionForUpload(item.file);
+          const filePath = `${profileId}/${postId}/${crypto.randomUUID()}.${ext}`;
 
           const { error: uploadError } = await supabase.storage
             .from("posts")
             .upload(filePath, item.file, {
               cacheControl: "3600",
               upsert: false,
+              contentType: item.file.type || undefined,
             });
 
           if (uploadError) throw uploadError;
@@ -364,7 +387,6 @@ export function PostFormDialog({
           if (mediaError) throw mediaError;
           uploadedMedia.push(mediaData as PostMedia);
         } else {
-          // Update position for existing media
           const { data: mediaData, error: updateError } = await supabase
             .from("post_media")
             .update({ position: i })
@@ -375,17 +397,6 @@ export function PostFormDialog({
           if (updateError) throw updateError;
           uploadedMedia.push(mediaData as PostMedia);
         }
-      }
-
-      // Update post's image_url with first media item
-      if (uploadedMedia.length > 0) {
-        const firstMedia = uploadedMedia.sort((a, b) => a.position - b.position)[0];
-        await supabase
-          .from("posts")
-          .update({ image_url: firstMedia.media_url })
-          .eq("id", postId);
-
-        postData.image_url = firstMedia.media_url;
       }
 
       postData.media = uploadedMedia.sort((a, b) => a.position - b.position);
@@ -400,7 +411,7 @@ export function PostFormDialog({
       onSave(postData);
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(formatSupabaseError(err));
     } finally {
       setLoading(false);
     }
@@ -413,25 +424,16 @@ export function PostFormDialog({
     const supabase = createClient();
 
     try {
-      // Delete all media files from storage
-      if (post.media) {
-        for (const media of post.media) {
-          if (media.media_url.includes("/storage/v1/object/public/posts/")) {
-            const path = media.media_url.split("/posts/")[1];
-            if (path) {
-              await supabase.storage.from("posts").remove([path]);
-            }
-          }
-        }
+      const paths = new Set<string>();
+      for (const media of post.media) {
+        const path = extractPostsBucketObjectPath(media.media_url);
+        if (path) paths.add(path);
       }
-
-      // Delete legacy image if exists
-      if (post.image_url?.includes("/storage/v1/object/public/posts/")) {
-        const path = post.image_url.split("/posts/")[1];
-        if (path) {
-          await supabase.storage.from("posts").remove([path]);
-        }
+      if (paths.size > 0) {
+        await supabase.storage.from("posts").remove([...paths]);
       }
+      // Orphans / signed URLs / stale client state: clear the post’s folder too
+      await removePostFolderObjects(supabase, profileId, post.id);
 
       // Delete post (cascades to post_media)
       await supabase.from("posts").delete().eq("id", post.id);
@@ -494,6 +496,7 @@ export function PostFormDialog({
             />
 
             <DndContext
+              id={`post-form-media-dnd-${formDndId}`}
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
