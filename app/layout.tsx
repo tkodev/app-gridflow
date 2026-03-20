@@ -3,7 +3,7 @@ import { Inter, Geist } from 'next/font/google'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
-import { cn } from "@/lib/utils";
+import { cn } from '@/utils/tailwind'
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 

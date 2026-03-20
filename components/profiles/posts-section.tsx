@@ -1,35 +1,19 @@
 'use client'
 
+import type { DragEndEvent } from '@dnd-kit/core'
 import { Grid3X3, Image as ImageIcon, List, Pencil, Plus } from 'lucide-react'
 import { useCallback, useState } from 'react'
-import {
-  closestCenter,
-  DndContext,
-  DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors
-} from '@dnd-kit/core'
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates
-} from '@dnd-kit/sortable'
+import { arrayMove } from '@dnd-kit/sortable'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
 import { PostFormDialog } from '@/components/profiles/post-form-dialog'
 import { PostPreviewDialog } from '@/components/profiles/post-preview-dialog'
-import { PostSortableItem } from '@/components/profiles/post-sortable-item'
 import { PostsFeedView } from '@/components/profiles/posts-feed-view'
+import { PostsGridView } from '@/components/profiles/posts-grid-view'
 import { ProfileEditDialog } from '@/components/profiles/profile-edit-dialog'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useReorderPostsMutation } from '@/queries/posts'
-
-export type { Post } from '@/types/post'
-export type { Profile } from '@/types/profile'
 
 export const PostsSection = ({
   initialPosts,
@@ -44,17 +28,6 @@ export const PostsSection = ({
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false)
   const reorderPosts = useReorderPostsMutation()
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8
-      }
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates
-    })
-  )
 
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
@@ -133,25 +106,12 @@ export const PostsSection = ({
           {posts.length === 0 ? (
             <EmptyState onAdd={() => setShowAddDialog(true)} />
           ) : (
-            <DndContext
-              id="posts-grid-dnd"
-              collisionDetection={closestCenter}
-              sensors={sensors}
+            <PostsGridView
+              posts={posts}
+              profile={profile}
               onDragEnd={handleDragEnd}
-            >
-              <SortableContext items={posts} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-3 gap-1">
-                  {posts.map((post) => (
-                    <PostSortableItem
-                      key={post.id}
-                      gridRatio={profile.grid_ratio}
-                      post={post}
-                      onClick={() => setPreviewPost(post)}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+              onPostClick={setPreviewPost}
+            />
           )}
         </TabsContent>
 
