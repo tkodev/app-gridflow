@@ -27,48 +27,16 @@ import {
   GripVertical,
   Play,
 } from "lucide-react";
-import { createClient } from "@/utils/supabase-browser";
-import {
-  extractPostsBucketObjectPath,
-  removePostFolderObjects,
-} from "@/utils/post-storage";
+import { formatSupabaseError } from "@/utils/supabase-errors";
+import { useSavePostMutation, useDeletePostMutation } from "@/queries/posts";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { MAX_POST_MEDIA_ITEMS } from "@/constants/posts";
 import { cn } from "@/utils/tailwind";
-import type { Post, PostMedia, LocalMediaItem } from "@/types/post";
-
-const MAX_POST_MEDIA = 20;
-
-function extensionForUpload(file: File): string {
-  const fromName = file.name.split(".").pop()?.toLowerCase();
-  if (fromName && /^[a-z0-9]+$/.test(fromName) && fromName.length <= 8) {
-    return fromName;
-  }
-  const typeMap: Record<string, string> = {
-    "image/jpeg": "jpg",
-    "image/jpg": "jpg",
-    "image/png": "png",
-    "image/gif": "gif",
-    "image/webp": "webp",
-    "video/mp4": "mp4",
-    "video/webm": "webm",
-    "video/quicktime": "mov",
-  };
-  return typeMap[file.type] ?? "bin";
-}
-
-function formatSupabaseError(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (err && typeof err === "object") {
-    const o = err as { message?: string; details?: string; hint?: string };
-    const parts = [o.message, o.details, o.hint].filter(Boolean);
-    if (parts.length) return parts.join(" — ");
-  }
-  return "An error occurred";
-}
+import type { Post, LocalMediaItem } from "@/types/post";
 
 interface PostFormDialogProps {
   open: boolean;
@@ -182,9 +150,10 @@ export function PostFormDialog({
   const [caption, setCaption] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [status, setStatus] = useState<Post["status"]>("draft");
-  const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const savePost = useSavePostMutation();
+  const deletePost = useDeletePostMutation();
+  const isBusy = savePost.isPending || deletePost.isPending;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
@@ -203,7 +172,7 @@ export function PostFormDialog({
 
       if (post.media.length > 0) {
         const existingMedia: LocalMediaItem[] = post.media
-          .slice(0, MAX_POST_MEDIA)
+          .slice(0, MAX_POST_MEDIA_ITEMS)
           .map((m) => ({
             id: m.id,
             url: m.media_url,
@@ -253,10 +222,10 @@ export function PostFormDialog({
       }
 
       setMediaItems((prev) => {
-        const remaining = MAX_POST_MEDIA - prev.length;
+        const remaining = MAX_POST_MEDIA_ITEMS - prev.length;
         if (remaining <= 0) {
           if (validMeta.length > 0) {
-            setError(`Maximum ${MAX_POST_MEDIA} media items per post`);
+            setError(`Maximum ${MAX_POST_MEDIA_ITEMS} media items per post`);
           }
           return prev;
         }
@@ -271,7 +240,7 @@ export function PostFormDialog({
         }));
 
         if (validMeta.length > toAddMeta.length) {
-          setError(`Maximum ${MAX_POST_MEDIA} media items per post`);
+          setError(`Maximum ${MAX_POST_MEDIA_ITEMS} media items per post`);
         } else if (toAdd.length > 0) {
           setError(null);
         }
@@ -298,7 +267,7 @@ export function PostFormDialog({
   }, []);
 
   const handleDragEnd = (event: DragEndEvent) => {
-    if (loading) return;
+    if (savePost.isPending) return;
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -312,136 +281,30 @@ export function PostFormDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
     if (mediaItems.length === 0) {
       setError("Please add at least one image or video");
-      setLoading(false);
       return;
     }
 
-    if (mediaItems.length > MAX_POST_MEDIA) {
-      setError(`Maximum ${MAX_POST_MEDIA} media items per post`);
-      setLoading(false);
+    if (mediaItems.length > MAX_POST_MEDIA_ITEMS) {
+      setError(`Maximum ${MAX_POST_MEDIA_ITEMS} media items per post`);
       return;
     }
-
-    const supabase = createClient();
 
     try {
-      let postId = post?.id;
-      let postData: Post;
+      const postData = await savePost.mutateAsync({
+        isEditing,
+        post: post ?? undefined,
+        profileId,
+        nextPosition,
+        caption,
+        subtitle,
+        status,
+        mediaItems,
+      });
 
-      // Create or update post
-      if (isEditing && postId) {
-        const { data, error: updateError } = await supabase
-          .from("posts")
-          .update({
-            caption: caption || null,
-            subtitle: subtitle || null,
-            status,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", postId)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-        postData = data as unknown as Post;
-      } else {
-        const { data, error: insertError } = await supabase
-          .from("posts")
-          .insert({
-            profile_id: profileId,
-            caption: caption || null,
-            subtitle: subtitle || null,
-            grid_position: nextPosition,
-            status: "draft",
-          })
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        postId = data.id;
-        postData = data as unknown as Post;
-      }
-
-      if (!postId) {
-        throw new Error("Missing post id");
-      }
-
-      // Handle media items
-      const uploadedMedia: PostMedia[] = [];
-
-      // Delete removed media items (for editing)
-      if (isEditing && post) {
-        const currentIds = new Set(mediaItems.filter((m) => !m.isNew).map((m) => m.id));
-        const toDelete = post.media.filter((m) => !currentIds.has(m.id));
-
-        for (const media of toDelete) {
-          const path = extractPostsBucketObjectPath(media.media_url);
-          if (path) {
-            await supabase.storage.from("posts").remove([path]);
-          }
-          // Delete from database
-          await supabase.from("post_media").delete().eq("id", media.id);
-        }
-      }
-
-      // Upload new media and update positions
-      for (let i = 0; i < mediaItems.length; i++) {
-        const item = mediaItems[i];
-
-        if (item.isNew && item.file) {
-          // Unique path per object (avoids duplicate-key 400s when Date.now() collides)
-          const ext = extensionForUpload(item.file);
-          const filePath = `${profileId}/${postId}/${crypto.randomUUID()}.${ext}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("posts")
-            .upload(filePath, item.file, {
-              cacheControl: "3600",
-              upsert: false,
-              contentType: item.file.type || undefined,
-            });
-
-          if (uploadError) throw uploadError;
-
-          const { data: urlData } = supabase.storage
-            .from("posts")
-            .getPublicUrl(filePath);
-
-          // Insert media record
-          const { data: mediaData, error: mediaError } = await supabase
-            .from("post_media")
-            .insert({
-              post_id: postId,
-              media_url: urlData.publicUrl,
-              media_type: item.type,
-              position: i,
-            })
-            .select()
-            .single();
-
-          if (mediaError) throw mediaError;
-          uploadedMedia.push(mediaData as PostMedia);
-        } else {
-          const { data: mediaData, error: updateError } = await supabase
-            .from("post_media")
-            .update({ position: i })
-            .eq("id", item.id)
-            .select()
-            .single();
-
-          if (updateError) throw updateError;
-          uploadedMedia.push(mediaData as PostMedia);
-        }
-      }
-
-      postData.media = uploadedMedia;
-
-      // Cleanup blob URLs
       mediaItems.forEach((item) => {
         if (item.isNew && item.url.startsWith("blob:")) {
           URL.revokeObjectURL(item.url);
@@ -452,38 +315,18 @@ export function PostFormDialog({
       onOpenChange(false);
     } catch (err) {
       setError(formatSupabaseError(err));
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDelete = async () => {
     if (!post || !onDelete) return;
-    setDeleting(true);
-
-    const supabase = createClient();
 
     try {
-      const paths = new Set<string>();
-      for (const media of post.media) {
-        const path = extractPostsBucketObjectPath(media.media_url);
-        if (path) paths.add(path);
-      }
-      if (paths.size > 0) {
-        await supabase.storage.from("posts").remove([...paths]);
-      }
-      // Orphans / signed URLs / stale client state: clear the post’s folder too
-      await removePostFolderObjects(supabase, profileId, post.id);
-
-      // Delete post (cascades to post_media)
-      await supabase.from("posts").delete().eq("id", post.id);
-
+      await deletePost.mutateAsync({ post, profileId });
       onDelete(post.id);
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete post");
-    } finally {
-      setDeleting(false);
     }
   };
 
@@ -500,7 +343,7 @@ export function PostFormDialog({
   };
 
   const handleDialogOpenChange = (isOpen: boolean) => {
-    if (!isOpen && loading) return;
+    if (!isOpen && isBusy) return;
     handleClose(isOpen);
   };
 
@@ -508,12 +351,12 @@ export function PostFormDialog({
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent
         className="sm:max-w-lg"
-        headerCloseDisabled={loading}
+        headerCloseDisabled={isBusy}
         onPointerDownOutside={(e) => {
-          if (loading) e.preventDefault();
+          if (isBusy) e.preventDefault();
         }}
         onEscapeKeyDown={(e) => {
-          if (loading) e.preventDefault();
+          if (isBusy) e.preventDefault();
         }}
         headerTitle={isEditing ? "Edit Post" : "New Post"}
         headerDescription={
@@ -545,7 +388,7 @@ export function PostFormDialog({
               onChange={handleFileChange}
               className="hidden"
               id="media-upload"
-              disabled={loading}
+              disabled={isBusy}
             />
 
             <DndContext
@@ -563,13 +406,13 @@ export function PostFormDialog({
                     <SortableMediaItem
                       key={item.id}
                       item={item}
-                      disabled={loading}
+                      disabled={isBusy}
                       onRemove={() => handleRemoveMedia(item.id)}
                     />
                   ))}
 
-                  {mediaItems.length < MAX_POST_MEDIA &&
-                    (loading ? (
+                  {mediaItems.length < MAX_POST_MEDIA_ITEMS &&
+                    (savePost.isPending ? (
                       <div
                         className="flex aspect-square cursor-not-allowed flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 opacity-50"
                         aria-hidden
@@ -591,7 +434,7 @@ export function PostFormDialog({
             </DndContext>
 
             <p className="text-xs text-muted-foreground">
-              Up to {MAX_POST_MEDIA} items. Drag to reorder. First item shows as cover.
+              Up to {MAX_POST_MEDIA_ITEMS} items. Drag to reorder. First item shows as cover.
             </p>
           </div>
 
@@ -606,7 +449,7 @@ export function PostFormDialog({
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 className="pl-9"
-                disabled={loading}
+                disabled={isBusy}
               />
             </div>
           </div>
@@ -620,7 +463,7 @@ export function PostFormDialog({
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               rows={3}
-              disabled={loading}
+              disabled={isBusy}
             />
           </div>
 
@@ -637,7 +480,7 @@ export function PostFormDialog({
                     size="sm"
                     onClick={() => setStatus(s)}
                     className="flex-1 capitalize"
-                    disabled={loading}
+                    disabled={isBusy}
                   >
                     {s}
                   </Button>
@@ -653,11 +496,11 @@ export function PostFormDialog({
               type="button"
               variant="destructive"
               onClick={handleDelete}
-              disabled={deleting || loading}
+              disabled={isBusy}
               className="w-full sm:w-auto"
             >
               <Trash2 className="mr-1.5 h-4 w-4" />
-              {deleting ? "Deleting..." : "Delete"}
+              {deletePost.isPending ? "Deleting..." : "Delete"}
             </Button>
           )}
           <div className="flex flex-1 gap-2 sm:justify-end">
@@ -665,17 +508,21 @@ export function PostFormDialog({
               type="button"
               variant="outline"
               onClick={() => handleClose(false)}
-              disabled={loading}
+              disabled={isBusy}
               className="flex-1 sm:flex-none"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={loading || mediaItems.length === 0}
+              disabled={isBusy || mediaItems.length === 0}
               className="flex-1 sm:flex-none"
             >
-              {loading ? "Saving..." : isEditing ? "Save Changes" : "Create Post"}
+              {savePost.isPending
+                ? "Saving..."
+                : isEditing
+                  ? "Save Changes"
+                  : "Create Post"}
             </Button>
           </div>
         </DialogFooter>

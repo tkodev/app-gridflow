@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, UserCircle, UserPlus, Key, AlertTriangle } from "lucide-react";
-import { createClient } from "@/utils/supabase-browser";
+import {
+  useAddProfileMutation,
+  useDeleteProfileMutation,
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
+} from "@/queries/settings-profiles";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,139 +37,76 @@ export function ProfilesManager({
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const addProfile = useAddProfileMutation();
+  const deleteProfile = useDeleteProfileMutation();
+  const changePassword = useChangePasswordMutation();
+  const deleteAccount = useDeleteAccountMutation();
 
   const handleAddProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
     if (!newUsername.trim()) {
       setError("Username is required");
-      setLoading(false);
       return;
     }
 
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      setError("You must be logged in");
-      setLoading(false);
-      return;
+    try {
+      const data = await addProfile.mutateAsync({
+        username: newUsername.trim(),
+      });
+      setProfiles((prev) => [...prev, data]);
+      setNewUsername("");
+      setShowAddDialog(false);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create profile");
     }
-
-    const { data, error: insertError } = await supabase
-      .from("profiles")
-      .insert({
-        user_id: user.id,
-        username: newUsername.toLowerCase().replace(/[^a-z0-9_]/g, ""),
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      if (insertError.message.includes("duplicate")) {
-        setError("This username is already taken");
-      } else {
-        setError(insertError.message);
-      }
-      setLoading(false);
-      return;
-    }
-
-    setProfiles((prev) => [...prev, data as Profile]);
-    setNewUsername("");
-    setShowAddDialog(false);
-    setLoading(false);
-    router.refresh();
   };
 
   const handleDeleteProfile = async () => {
     if (!profileToDelete) return;
 
-    setLoading(true);
-    const supabase = createClient();
-
-    // Delete post images from storage
-    const { data: postFiles } = await supabase.storage
-      .from("posts")
-      .list(profileToDelete.id);
-    
-    if (postFiles && postFiles.length > 0) {
-      const postFilePaths = postFiles.map(f => `${profileToDelete.id}/${f.name}`);
-      await supabase.storage.from("posts").remove(postFilePaths);
+    try {
+      await deleteProfile.mutateAsync({ profile: profileToDelete });
+      setProfiles((prev) => prev.filter((p) => p.id !== profileToDelete.id));
+      setProfileToDelete(null);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete profile");
     }
-
-    // Delete avatar from storage
-    const { data: avatarFiles } = await supabase.storage
-      .from("avatars")
-      .list(profileToDelete.id);
-    
-    if (avatarFiles && avatarFiles.length > 0) {
-      const avatarFilePaths = avatarFiles.map(f => `${profileToDelete.id}/${f.name}`);
-      await supabase.storage.from("avatars").remove(avatarFilePaths);
-    }
-
-    // Delete profile (posts will cascade delete from DB)
-    const { error: deleteError } = await supabase
-      .from("profiles")
-      .delete()
-      .eq("id", profileToDelete.id);
-
-    if (deleteError) {
-      setError(deleteError.message);
-      setLoading(false);
-      return;
-    }
-
-    setProfiles((prev) => prev.filter((p) => p.id !== profileToDelete.id));
-    setProfileToDelete(null);
-    setLoading(false);
-    router.refresh();
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    setLoading(true);
 
     if (newPassword.length < 6) {
       setError("Password must be at least 6 characters");
-      setLoading(false);
       return;
     }
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
-      setLoading(false);
       return;
     }
 
-    const supabase = createClient();
-    const { error: updateError } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
-
-    if (updateError) {
-      setError(updateError.message);
-      setLoading(false);
-      return;
+    try {
+      await changePassword.mutateAsync({ newPassword });
+      setSuccess("Password updated successfully");
+      setNewPassword("");
+      setConfirmPassword("");
+      setTimeout(() => {
+        setShowPasswordDialog(false);
+        setSuccess(null);
+      }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update password");
     }
-
-    setSuccess("Password updated successfully");
-    setNewPassword("");
-    setConfirmPassword("");
-    setLoading(false);
-    setTimeout(() => {
-      setShowPasswordDialog(false);
-      setSuccess(null);
-    }, 1500);
   };
 
   const handleDeleteAccount = async () => {
@@ -173,52 +115,15 @@ export function ProfilesManager({
       return;
     }
 
-    setLoading(true);
     setError(null);
 
-    const supabase = createClient();
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      // Get all profiles for this user
-      const { data: userProfiles } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("user_id", user.id);
-
-      if (userProfiles && userProfiles.length > 0) {
-        // Delete all storage files for each profile (posts and avatars)
-        for (const profile of userProfiles) {
-          // Delete post images from storage
-          const { data: postFiles } = await supabase.storage
-            .from("posts")
-            .list(profile.id);
-          
-          if (postFiles && postFiles.length > 0) {
-            const postFilePaths = postFiles.map(f => `${profile.id}/${f.name}`);
-            await supabase.storage.from("posts").remove(postFilePaths);
-          }
-
-          // Delete avatar from storage
-          const { data: avatarFiles } = await supabase.storage
-            .from("avatars")
-            .list(profile.id);
-          
-          if (avatarFiles && avatarFiles.length > 0) {
-            const avatarFilePaths = avatarFiles.map(f => `${profile.id}/${f.name}`);
-            await supabase.storage.from("avatars").remove(avatarFilePaths);
-          }
-        }
-      }
-
-      // Delete all profiles (posts will cascade delete)
-      await supabase.from("profiles").delete().eq("user_id", user.id);
+    try {
+      await deleteAccount.mutateAsync();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete account");
     }
-
-    // Sign out and redirect
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
   };
 
   return (
@@ -380,8 +285,8 @@ export function ProfilesManager({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create Profile"}
+              <Button type="submit" disabled={addProfile.isPending}>
+                {addProfile.isPending ? "Creating..." : "Create Profile"}
               </Button>
             </div>
           </form>
@@ -454,8 +359,8 @@ export function ProfilesManager({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Updating..." : "Update Password"}
+              <Button type="submit" disabled={changePassword.isPending}>
+                {changePassword.isPending ? "Updating..." : "Update Password"}
               </Button>
             </div>
           </form>
@@ -488,9 +393,9 @@ export function ProfilesManager({
             <Button
               variant="destructive"
               onClick={handleDeleteProfile}
-              disabled={loading}
+              disabled={deleteProfile.isPending}
             >
-              {loading ? "Deleting..." : "Delete Profile"}
+              {deleteProfile.isPending ? "Deleting..." : "Delete Profile"}
             </Button>
           </div>
         </DialogContent>
@@ -548,9 +453,11 @@ export function ProfilesManager({
               <Button
                 variant="destructive"
                 onClick={handleDeleteAccount}
-                disabled={loading || deleteConfirmation !== "DELETE"}
+                disabled={
+                  deleteAccount.isPending || deleteConfirmation !== "DELETE"
+                }
               >
-                {loading ? "Deleting..." : "Delete Account"}
+                {deleteAccount.isPending ? "Deleting..." : "Delete Account"}
               </Button>
             </div>
           </div>

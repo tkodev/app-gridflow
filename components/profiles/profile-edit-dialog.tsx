@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Upload, X, UserRound } from "lucide-react";
-import { createClient } from "@/utils/supabase-browser";
+import { useUpdateProfileMutation } from "@/queries/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,8 +29,8 @@ export function ProfileEditDialog({
   const [gridRatio, setGridRatio] = useState<Profile["grid_ratio"]>(profile.grid_ratio);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const updateProfile = useUpdateProfileMutation();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -62,67 +62,29 @@ export function ProfileEditDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-
-    const supabase = createClient();
-    let newAvatarUrl = profile.avatar_url;
 
     try {
-      if (avatarFile) {
-        const fileExt = avatarFile.name.split(".").pop();
-        const fileName = `${profile.id}/avatar-${Date.now()}.${fileExt}`;
-
-        if (profile.avatar_url) {
-          const oldPath = profile.avatar_url.split("/avatars/")[1];
-          if (oldPath) {
-            await supabase.storage.from("avatars").remove([oldPath]);
-          }
-        }
-
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(fileName, avatarFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(fileName);
-
-        newAvatarUrl = urlData.publicUrl;
-      } else if (avatarPreview === null && profile.avatar_url) {
-        const oldPath = profile.avatar_url.split("/avatars/")[1];
-        if (oldPath) {
-          await supabase.storage.from("avatars").remove([oldPath]);
-        }
-        newAvatarUrl = null;
-      }
-
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          username: username.toLowerCase().replace(/[^a-z0-9_]/g, ""),
-          display_name: displayName || null,
-          bio: bio || null,
-          avatar_url: newAvatarUrl,
-          grid_ratio: gridRatio,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", profile.id);
-
-      if (updateError) throw updateError;
+      await updateProfile.mutateAsync({
+        profileId: profile.id,
+        username,
+        displayName,
+        bio,
+        gridRatio,
+        existingAvatarUrl: profile.avatar_url,
+        newAvatarFile: avatarFile,
+        removeStoredAvatar:
+          avatarPreview === null && !!profile.avatar_url,
+      });
 
       onOpenChange(false);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update profile");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDialogOpenChange = (isOpen: boolean) => {
-    if (!isOpen && loading) return;
+    if (!isOpen && updateProfile.isPending) return;
     onOpenChange(isOpen);
   };
 
@@ -132,12 +94,12 @@ export function ProfileEditDialog({
         className="sm:max-w-md"
         headerTitle="Edit Profile"
         headerDescription="Edit your profile details and how posts appear in the grid."
-        headerCloseDisabled={loading}
+        headerCloseDisabled={updateProfile.isPending}
         onPointerDownOutside={(e) => {
-          if (loading) e.preventDefault();
+          if (updateProfile.isPending) e.preventDefault();
         }}
         onEscapeKeyDown={(e) => {
-          if (loading) e.preventDefault();
+          if (updateProfile.isPending) e.preventDefault();
         }}
         headerLeading={
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
@@ -157,7 +119,7 @@ export function ProfileEditDialog({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={loading}
+                disabled={updateProfile.isPending}
                 className="absolute bottom-0 right-0 rounded-full bg-primary p-2 text-primary-foreground shadow-lg hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
               >
                 <Camera className="h-4 w-4" />
@@ -169,7 +131,7 @@ export function ProfileEditDialog({
               accept="image/*"
               onChange={handleFileSelect}
               className="hidden"
-              disabled={loading}
+              disabled={updateProfile.isPending}
             />
             <div className="flex gap-2">
               <Button
@@ -177,7 +139,7 @@ export function ProfileEditDialog({
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={loading}
+                disabled={updateProfile.isPending}
               >
                 <Upload className="mr-1.5 h-4 w-4" />
                 Upload Photo
@@ -188,7 +150,7 @@ export function ProfileEditDialog({
                   variant="outline"
                   size="sm"
                   onClick={removeAvatar}
-                  disabled={loading}
+                  disabled={updateProfile.isPending}
                 >
                   <X className="mr-1.5 h-4 w-4" />
                   Remove
@@ -210,7 +172,7 @@ export function ProfileEditDialog({
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="username"
                 required
-                disabled={loading}
+                disabled={updateProfile.isPending}
               />
             </div>
 
@@ -221,7 +183,7 @@ export function ProfileEditDialog({
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your Name"
-                disabled={loading}
+                disabled={updateProfile.isPending}
               />
             </div>
 
@@ -233,7 +195,7 @@ export function ProfileEditDialog({
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Tell us about yourself..."
                 rows={3}
-                disabled={loading}
+                disabled={updateProfile.isPending}
               />
             </div>
 
@@ -245,7 +207,7 @@ export function ProfileEditDialog({
                   variant={gridRatio === "square" ? "default" : "outline"}
                   className="flex-1"
                   onClick={() => setGridRatio("square")}
-                  disabled={loading}
+                  disabled={updateProfile.isPending}
                 >
                   <div className="mr-2 h-4 w-4 border-2 border-current" />
                   Square (1:1)
@@ -255,7 +217,7 @@ export function ProfileEditDialog({
                   variant={gridRatio === "portrait" ? "default" : "outline"}
                   className="flex-1"
                   onClick={() => setGridRatio("portrait")}
-                  disabled={loading}
+                  disabled={updateProfile.isPending}
                 >
                   <div className="mr-2 h-5 w-4 border-2 border-current" />
                   Portrait (4:5)
@@ -273,12 +235,12 @@ export function ProfileEditDialog({
               variant="outline"
               className="flex-1"
               onClick={() => onOpenChange(false)}
-              disabled={loading}
+              disabled={updateProfile.isPending}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? "Saving..." : "Save Changes"}
+            <Button type="submit" className="flex-1" disabled={updateProfile.isPending}>
+              {updateProfile.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </form>

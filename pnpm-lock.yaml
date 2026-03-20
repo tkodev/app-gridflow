@@ -44,6 +44,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.49.1
         version: 2.99.3
+      '@tanstack/react-query':
+        specifier: ^5.91.2
+        version: 5.91.2(react@19.2.4)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -68,9 +71,6 @@ importers:
       react-dom:
         specifier: ^19
         version: 19.2.4(react@19.2.4)
-      swr:
-        specifier: ^2.2.5
-        version: 2.4.1(react@19.2.4)
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.1
@@ -848,6 +848,14 @@ packages:
   '@tailwindcss/postcss@4.2.2':
     resolution: {integrity: sha512-n4goKQbW8RVXIbNKRB/45LzyUqN451deQK0nzIeauVEqjlI49slUlgKYJM2QyUzap/PcpnS7kzSUmPb1sCRvYQ==}
 
+  '@tanstack/query-core@5.91.2':
+    resolution: {integrity: sha512-Uz2pTgPC1mhqrrSGg18RKCWT/pkduAYtxbcyIyKBhw7dTWjXZIzqmpzO2lBkyWr4hlImQgpu1m1pei3UnkFRWw==}
+
+  '@tanstack/react-query@5.91.2':
+    resolution: {integrity: sha512-GClLPzbM57iFXv+FlvOUL56XVe00PxuTaVEyj1zAObhRiKF008J5vedmaq7O6ehs+VmPHe8+PUQhMuEyv8d9wQ==}
+    peerDependencies:
+      react: ^18 || ^19
+
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
 
@@ -896,10 +904,6 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
-
-  dequal@2.0.3:
-    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
-    engines: {node: '>=6'}
 
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
@@ -1135,11 +1139,6 @@ packages:
         optional: true
       babel-plugin-macros:
         optional: true
-
-  swr@2.4.1:
-    resolution: {integrity: sha512-2CC6CiKQtEwaEeNiqWTAw9PGykW8SR5zZX8MZk6TeAvEAnVS7Visz8WzphqgtQ8v2xz/4Q5K+j+SeMaKXeeQIA==}
-    peerDependencies:
-      react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   tailwind-merge@2.6.1:
     resolution: {integrity: sha512-Oo6tHdpZsGpkKG88HJ8RR1rg/RdnEkQEfMoEk2x1XRI3F1AxeU+ijRXpiVUF4UbLfcxxRGw6TbUINKYdWVsQTQ==}
@@ -1867,6 +1866,13 @@ snapshots:
       postcss: 8.5.8
       tailwindcss: 4.2.2
 
+  '@tanstack/query-core@5.91.2': {}
+
+  '@tanstack/react-query@5.91.2(react@19.2.4)':
+    dependencies:
+      '@tanstack/query-core': 5.91.2
+      react: 19.2.4
+
   '@types/cookie@0.6.0': {}
 
   '@types/node@20.19.37':
@@ -1906,8 +1912,6 @@ snapshots:
   cookie@0.7.2: {}
 
   csstype@3.2.3: {}
-
-  dequal@2.0.3: {}
 
   detect-libc@2.1.2: {}
 
@@ -2120,12 +2124,6 @@ snapshots:
     dependencies:
       client-only: 0.0.1
       react: 19.2.4
-
-  swr@2.4.1(react@19.2.4):
-    dependencies:
-      dequal: 2.0.3
-      react: 19.2.4
-      use-sync-external-store: 1.6.0(react@19.2.4)
 
   tailwind-merge@2.6.1: {}
 

@@ -19,6 +19,7 @@
   - Playwright — end-to-end testing
   - [@tkodev's next eslint config](https://github.com/tkodev/config-eslint-next) - Additional eslint config
 - Data
+  - TanStack Query (`@tanstack/react-query`) — async state for browser Supabase calls; hooks and helpers live in [`./queries`](/queries/).
   - Supabase Database
   - Supabase Auth
   - Supabase Storage
@@ -50,7 +51,18 @@ Nextjs should use the `src` folder convention.
 - Prefer `interface` over `type` for object shapes
 - Avoid `any` — use `unknown` if type is truly unknown
 - Shared types should be defined either app wide (in `./types/<type>.ts`) or next to the object it's referring to (such as component props being in the same file as the component.). Utilize best practices for it.
+- Cross-cutting mutation/query payloads shared by hooks and callers live in [`types/mutations.ts`](/types/mutations.ts) (alongside domain types like [`types/post.ts`](/types/post.ts)).
 
+## Code layout
+
+| Folder | Purpose |
+| --- | --- |
+| [`utils/`](/utils/) | Pure helpers, formatting, small algorithms, and integration glue that does not belong elsewhere (e.g. Supabase `createClient` for browser/server, middleware helpers, Tailwind `cn`). Post **media** (ordering, upload file extensions) — [`post-media.ts`](/utils/post-media.ts); Supabase **posts bucket** (URL paths, folder cleanup) — [`post-storage.ts`](/utils/post-storage.ts) |
+| [`types/`](/types/) | Shared TypeScript shapes used in multiple places (domain models, mutation inputs, etc.) |
+| [`queries/`](/queries/) | TanStack Query only: `useMutation` / `useQuery` hooks, `mutationFn` / `queryFn` implementations, and [`keys.ts`](/queries/keys.ts). No React providers, no generic utilities |
+| [`constants/`](/constants/) | App-wide constants (Supabase table and bucket names, query defaults, routes, limits such as max post media) |
+
+React providers that wrap the tree (e.g. TanStack `QueryClientProvider`) live under [`components/providers/`](/components/providers/), not in `queries/`.
 
 ```typescript
 // ✅ Good
@@ -63,9 +75,12 @@ interface PostProps {
 type PostProps = { post: any; onEdit: Function }
 ```
 
-## Hooks
+## Hooks & Queries
 
-- Concentrate actions/logic here
+- Concentrate reusable UI logic in [`./hooks`](/hooks) when it is not data-fetching
+- **TanStack Query** — colocate `useMutation` / `useQuery` and shared `mutationFn` helpers under [`./queries`](/queries/) (see [`keys.ts`](/queries/keys.ts) for query keys). Import hooks and types from the file that defines them (`@/queries/<name>`), not from a barrel `index.ts`. Do not add SWR; it was removed in favour of TanStack Query.
+- **Barrel files** — avoid `index.ts` (or similar) that only re-export sibling modules; prefer direct imports from the source file so dependency graphs stay obvious and tree-shaking stays predictable.
+- Import from the specific module (e.g. `@/queries/auth`, `@/queries/posts`); do not add a `queries/index.ts` barrel or other re-export aggregators for `./queries`
 
 ## Pages
 
@@ -114,8 +129,9 @@ export function MyComponent({ title, children }: MyComponentProps) {
 
 ## React Hooks & State
 
-- State: `useState` for local state; Server Components + Server Actions for server state; `useOptimistic` for optimistic UI updates
-- Extract reusable logic into `/hooks` (shared types follow the [TypeScript](#typescript) conventions above)
+- State: `useState` for local UI state; Server Components for initial server data; `useOptimistic` for optimistic UI where appropriate
+- Client writes and refetches: TanStack Query mutations (and queries if you add client-side reads) under `./queries`, with `QueryProvider` from `@/components/providers/query-provider` in the root layout; consumers import hooks from `@/queries/<file>` directly
+- Extract reusable non-data logic into `/hooks` (shared types follow the [TypeScript](#typescript) conventions above)
 
 ## React Accessibility
 

@@ -1,3 +1,4 @@
+import { SUPABASE_TABLE_PROFILES } from "@/constants/supabase";
 import { createClient } from "@/utils/supabase-server";
 import { ProfilesManager } from "@/components/settings/profiles-manager";
 import type { Profile } from "@/types/profile";
@@ -10,7 +11,7 @@ export default async function SettingsPage() {
   } = await supabase.auth.getUser();
 
   const { data: profilesRaw } = await supabase
-    .from("profiles")
+    .from(SUPABASE_TABLE_PROFILES)
     .select("*")
     .eq("user_id", user!.id)
     .order("created_at", { ascending: true });

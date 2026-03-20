@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Grid3X3, Settings, LogOut, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { createClient } from "@/utils/supabase-browser";
+import { useSignOutMutation } from "@/queries/auth";
 import { Button } from "@/components/ui/button";
 import type { User } from "@supabase/supabase-js";
 
@@ -13,16 +13,19 @@ export function AppHeader({ user }: { user: User }) {
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const signOut = useSignOutMutation();
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+  const handleSignOut = () => {
+    signOut.mutate(undefined, {
+      onSuccess: () => {
+        router.push("/");
+        router.refresh();
+      },
+    });
   };
 
   return (
@@ -56,7 +59,12 @@ export function AppHeader({ user }: { user: User }) {
               <span className="sr-only">Settings</span>
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" onClick={handleSignOut}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSignOut}
+            disabled={signOut.isPending}
+          >
             <LogOut className="h-4 w-4" />
             <span className="sr-only">Sign out</span>
           </Button>

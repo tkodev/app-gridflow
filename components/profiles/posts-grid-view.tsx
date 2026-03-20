@@ -24,7 +24,7 @@ import { PostsFeedView } from "@/components/profiles/posts-feed-view";
 import { PostFormDialog } from "@/components/profiles/post-form-dialog";
 import { PostPreviewDialog } from "@/components/profiles/post-preview-dialog";
 import { ProfileEditDialog } from "@/components/profiles/profile-edit-dialog";
-import { createClient } from "@/utils/supabase-browser";
+import { useReorderPostsMutation } from "@/queries/posts";
 import type { Post } from "@/types/post";
 import type { Profile } from "@/types/profile";
 
@@ -43,6 +43,7 @@ export function PostsGridView({
   const [editPost, setEditPost] = useState<Post | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
+  const reorderPosts = useReorderPostsMutation();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -63,20 +64,18 @@ export function PostsGridView({
         const oldIndex = posts.findIndex((p) => p.id === active.id);
         const newIndex = posts.findIndex((p) => p.id === over.id);
 
+        const previous = posts;
         const newPosts = arrayMove(posts, oldIndex, newIndex);
         setPosts(newPosts);
 
-        const supabase = createClient();
-        const results = await Promise.all(
-          newPosts.map((post, index) =>
-            supabase.from("posts").update({ grid_position: index }).eq("id", post.id)
-          )
-        );
-        const persistError = results.find((r) => r.error)?.error;
-        if (persistError) throw persistError;
+        try {
+          await reorderPosts.mutateAsync({ orderedPosts: newPosts });
+        } catch {
+          setPosts(previous);
+        }
       }
     },
-    [posts]
+    [posts, reorderPosts]
   );
 
   const handleSavePost = (savedPost: Post) => {

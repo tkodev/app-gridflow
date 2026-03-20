@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase-browser";
+import { useSignUpMutation } from "@/queries/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,36 +14,23 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const signUp = useSignUpMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-          `${window.location.origin}/profiles`,
-        data: {
-          username: username.toLowerCase().replace(/[^a-z0-9_]/g, ""),
-          display_name: username,
-        },
-      },
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
+    try {
+      await signUp.mutateAsync({
+        email,
+        password,
+        username,
+      });
+      router.push("/profiles");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign up failed");
     }
-
-    router.push("/profiles");
-    router.refresh();
   };
 
   return (
@@ -105,8 +92,8 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Creating account..." : "Create Account"}
+        <Button type="submit" className="w-full" disabled={signUp.isPending}>
+          {signUp.isPending ? "Creating account..." : "Create Account"}
         </Button>
       </form>
 

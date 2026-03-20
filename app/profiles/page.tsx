@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { SUPABASE_TABLE_POSTS, SUPABASE_TABLE_PROFILES } from "@/constants/supabase";
 import { createClient } from "@/utils/supabase-server";
 import { ProfileHeader } from "@/components/profiles/profile-header";
 import { PostsGridView } from "@/components/profiles/posts-grid-view";
@@ -24,7 +25,7 @@ export default async function ProfilesPage({
   }
 
   const { data: profilesRaw } = await supabase
-    .from("profiles")
+    .from(SUPABASE_TABLE_PROFILES)
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
@@ -40,7 +41,7 @@ export default async function ProfilesPage({
 
   // Fetch posts for current profile with their media
   const { data: postsRaw } = await supabase
-    .from("posts")
+    .from(SUPABASE_TABLE_POSTS)
     .select(
       `
       id,

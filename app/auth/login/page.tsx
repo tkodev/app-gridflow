@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase-browser";
+import { useSignInMutation } from "@/queries/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,27 +13,19 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const signIn = useSignInMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
+    try {
+      await signIn.mutateAsync({ email, password });
+      router.push("/profiles");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sign in failed");
     }
-
-    router.push("/profiles");
-    router.refresh();
   };
 
   return (
@@ -78,8 +70,8 @@ export default function LoginPage() {
           />
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Signing in..." : "Sign In"}
+        <Button type="submit" className="w-full" disabled={signIn.isPending}>
+          {signIn.isPending ? "Signing in..." : "Sign In"}
         </Button>
       </form>
 
