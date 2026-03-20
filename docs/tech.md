@@ -4,6 +4,7 @@
 
 ## Technologies
 
+- PNPM package manager and runner
 - Next.js (App Router)
 - Tailwind CSS
 - shadcn/ui (with dark mode support)
@@ -14,19 +15,13 @@
 - Drizzle ORM — type-safe SQL query builder and schema management
 - Playwright — end-to-end testing
 
-## Routes
+## Next.js
 
-```txt
-/ - landing
-/profiles - core app — profile grid and feed planner
-/settings - user's settings
-/admin - admin/superadmin stuff
-/auth - sign-in, sign-out, sign-up, forgot-pw
-```
+This is NOT the Next.js you know!
 
-## Page Structure
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 
-All pages share a common header bar. Pages that use a sidebar share the same sidebar component. For visual design principles, see [design.md](/docs/design.md).
+Nextjs should use the `src` folder convention.
 
 ## TypeScript
 
@@ -52,6 +47,8 @@ type PostProps = { post: any; onEdit: Function }
 ## Pages
 
 - Pages combine React components, content, and hooks. They are the main source of truth for the composition of a page.
+
+All pages share a common header bar. Pages that use a sidebar share the same sidebar component. For visual design principles, see [design.md](/docs/design.md).
 
 ## React Components
 
@@ -101,3 +98,13 @@ export function MyComponent({ title, children }: MyComponentProps) {
 - Use semantic HTML (`main`, `header`, `nav`, `button`)
 - Include ARIA labels where needed; use `sr-only` for screen reader text
 - Ensure keyboard navigation works in modals/dialogs
+
+## Routes
+
+```txt
+/ - landing
+/profiles - core app — profile grid and feed planner
+/settings - user's settings
+/admin - admin/superadmin stuff
+/auth - sign-in, sign-out, sign-up, forgot-pw
+```
