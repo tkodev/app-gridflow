@@ -101,6 +101,28 @@ export function ProfilesManager({
 
     setLoading(true);
     const supabase = createClient();
+
+    // Delete post images from storage
+    const { data: postFiles } = await supabase.storage
+      .from("posts")
+      .list(profileToDelete.id);
+    
+    if (postFiles && postFiles.length > 0) {
+      const postFilePaths = postFiles.map(f => `${profileToDelete.id}/${f.name}`);
+      await supabase.storage.from("posts").remove(postFilePaths);
+    }
+
+    // Delete avatar from storage
+    const { data: avatarFiles } = await supabase.storage
+      .from("avatars")
+      .list(profileToDelete.id);
+    
+    if (avatarFiles && avatarFiles.length > 0) {
+      const avatarFilePaths = avatarFiles.map(f => `${profileToDelete.id}/${f.name}`);
+      await supabase.storage.from("avatars").remove(avatarFilePaths);
+    }
+
+    // Delete profile (posts will cascade delete from DB)
     const { error: deleteError } = await supabase
       .from("profiles")
       .delete()
@@ -168,9 +190,40 @@ export function ProfilesManager({
 
     const supabase = createClient();
     
-    // Delete all user data (profiles will cascade delete posts)
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
+      // Get all profiles for this user
+      const { data: userProfiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id);
+
+      if (userProfiles && userProfiles.length > 0) {
+        // Delete all storage files for each profile (posts and avatars)
+        for (const profile of userProfiles) {
+          // Delete post images from storage
+          const { data: postFiles } = await supabase.storage
+            .from("posts")
+            .list(profile.id);
+          
+          if (postFiles && postFiles.length > 0) {
+            const postFilePaths = postFiles.map(f => `${profile.id}/${f.name}`);
+            await supabase.storage.from("posts").remove(postFilePaths);
+          }
+
+          // Delete avatar from storage
+          const { data: avatarFiles } = await supabase.storage
+            .from("avatars")
+            .list(profile.id);
+          
+          if (avatarFiles && avatarFiles.length > 0) {
+            const avatarFilePaths = avatarFiles.map(f => `${profile.id}/${f.name}`);
+            await supabase.storage.from("avatars").remove(avatarFilePaths);
+          }
+        }
+      }
+
+      // Delete all profiles (posts will cascade delete)
       await supabase.from("profiles").delete().eq("user_id", user.id);
     }
 
