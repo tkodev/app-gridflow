@@ -21,9 +21,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { PostSortableItem } from "@/components/profiles/post-sortable-item";
 import { PostsFeedView } from "@/components/profiles/posts-feed-view";
-import { PostAddDialog } from "@/components/profiles/post-add-dialog";
+import { PostFormDialog } from "@/components/profiles/post-form-dialog";
 import { PostPreviewDialog } from "@/components/profiles/post-preview-dialog";
-import { PostEditDialog } from "@/components/profiles/post-edit-dialog";
 import { ProfileEditDialog } from "@/components/profiles/profile-edit-dialog";
 import { createClient } from "@/lib/supabase/client";
 import type { Post } from "@/types/post";
@@ -81,15 +80,18 @@ export function PostsGridView({
     [posts]
   );
 
-  const handleAddPost = (newPost: Post) => {
-    setPosts((prev) => [...prev, newPost]);
+  const handleSavePost = (savedPost: Post) => {
+    setPosts((prev) => {
+      const existingIndex = prev.findIndex((p) => p.id === savedPost.id);
+      if (existingIndex >= 0) {
+        // Update existing post
+        return prev.map((p) => (p.id === savedPost.id ? savedPost : p));
+      } else {
+        // Add new post
+        return [...prev, savedPost];
+      }
+    });
     setShowAddDialog(false);
-  };
-
-  const handleUpdatePost = (updatedPost: Post) => {
-    setPosts((prev) =>
-      prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
-    );
     setEditPost(null);
   };
 
@@ -163,12 +165,23 @@ export function PostsGridView({
         </TabsContent>
       </Tabs>
 
-      <PostAddDialog
+      {/* Add Post Dialog */}
+      <PostFormDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
-        onAdd={handleAddPost}
         profileId={profile.id}
         nextPosition={posts.length}
+        onSave={handleSavePost}
+      />
+
+      {/* Edit Post Dialog */}
+      <PostFormDialog
+        open={!!editPost}
+        onOpenChange={(open) => !open && setEditPost(null)}
+        post={editPost}
+        profileId={profile.id}
+        onSave={handleSavePost}
+        onDelete={handleDeletePost}
       />
 
       <PostPreviewDialog
@@ -176,13 +189,6 @@ export function PostsGridView({
         profile={profile}
         onClose={() => setPreviewPost(null)}
         onEditClick={handleEditFromPreview}
-      />
-
-      <PostEditDialog
-        post={editPost}
-        onClose={() => setEditPost(null)}
-        onUpdate={handleUpdatePost}
-        onDelete={handleDeletePost}
       />
 
       <ProfileEditDialog

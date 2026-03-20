@@ -36,12 +36,21 @@ export default async function ProfilesPage({
   const currentProfileId = params.profile || profiles[0].id;
   const profile = profiles.find((p) => p.id === currentProfileId) ?? profiles[0];
 
-  // Fetch posts for current profile
-  const { data: posts } = await supabase
+  // Fetch posts for current profile with their media
+  const { data: postsRaw } = await supabase
     .from("posts")
-    .select("*")
+    .select("*, post_media(*)")
     .eq("profile_id", profile.id)
     .order("grid_position", { ascending: true });
+
+  // Transform to include media array sorted by position
+  const posts = (postsRaw ?? []).map((post) => ({
+    ...post,
+    media: (post.post_media ?? []).sort(
+      (a: { position: number }, b: { position: number }) => a.position - b.position
+    ),
+    post_media: undefined, // Remove the raw field
+  }));
 
   return (
     <div className="py-6">

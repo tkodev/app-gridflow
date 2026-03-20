@@ -96,9 +96,9 @@ posts/
 
 ## Component Structure
 
-- `PostAddDialog` - Create new post with media upload
-- `PostEditDialog` - Edit existing post, manage media
-- `PostPreviewItem` - Display post preview with carousel
-- `PostMediaCarousel` - Carousel component with controls
-- `PostMediaItem` - Individual media item (image or video with autoplay)
-- `PostMediaSortable` - Draggable media item for reordering
+- `PostFormDialog` - Unified dialog for creating and editing posts with media upload and drag-and-drop reordering
+- `PostPreviewDialog` - Modal dialog for previewing a post from the grid
+- `PostPreviewItem` - Display post preview with carousel and profile info
+- `MediaCarousel` - Carousel component with navigation controls, dot indicators, and video autoplay
+- `PostsFeedView` - Feed view with scroll-based video autoplay using framer-motion
+- `PostSortableItem` - Grid item with drag-and-drop and multi-media indicator

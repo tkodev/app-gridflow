@@ -3,9 +3,11 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
+import { Copy } from "lucide-react";
 import { PostStatusPill } from "@/components/profiles/post-status-pill";
 import { cn } from "@/lib/utils";
 import type { Post } from "@/types/post";
+
 
 export function PostSortableItem({
   post,
@@ -50,8 +52,18 @@ export function PostSortableItem({
         className="object-cover"
         sizes="(max-width: 768px) 33vw, 200px"
       />
-      {(post.status === "draft" || post.status === "scheduled") && (
+      {/* Multi-media indicator */}
+      {post.media && post.media.length > 1 && (
         <div className="absolute right-1 top-1">
+          <Copy className="h-4 w-4 text-white drop-shadow-md" />
+        </div>
+      )}
+      {/* Status pill */}
+      {(post.status === "draft" || post.status === "scheduled") && (
+        <div className={cn(
+          "absolute top-1",
+          post.media && post.media.length > 1 ? "right-6" : "right-1"
+        )}>
           <PostStatusPill status={post.status} compact />
         </div>
       )}
