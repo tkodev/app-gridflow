@@ -10,6 +10,9 @@
 - Radix UI primitives where no shadcn/ui equivalent exists
 - Supabase — database, auth, storage, cron (cron reserved for post scheduling stretch feature)
 - React state: `useState`, `useOptimistic`, Server Actions
+- react-hook-form — form state management and validation
+- Drizzle ORM — type-safe SQL query builder and schema management
+- Playwright — end-to-end testing
 
 ## Routes
 
