@@ -16,14 +16,24 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Grid3X3, List, Plus, Image as ImageIcon } from "lucide-react";
+import { Grid3X3, List, Plus, Image as ImageIcon, Pencil } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { SortablePost } from "@/components/profiles/sortable-post";
 import { FeedView } from "@/components/profiles/feed-view";
 import { AddPostDialog } from "@/components/profiles/add-post-dialog";
 import { PostDetailDialog } from "@/components/profiles/post-detail-dialog";
+import { EditProfileDialog } from "@/components/profiles/edit-profile-dialog";
 import { createClient } from "@/lib/supabase/client";
+
+interface Profile {
+  id: string;
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+}
 
 export interface Post {
   id: string;
@@ -42,14 +52,15 @@ export interface Post {
 
 export function PostsGrid({ 
   initialPosts, 
-  profileId 
+  profile 
 }: { 
   initialPosts: Post[]; 
-  profileId: string;
+  profile: Profile;
 }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -125,10 +136,16 @@ export function PostsGrid({
               <span className="hidden sm:inline">Feed</span>
             </TabsTrigger>
           </TabsList>
-          <Button size="sm" onClick={() => setShowAddDialog(true)}>
-            <Plus className="mr-1.5 h-4 w-4" />
-            Add Post
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => setShowEditProfileDialog(true)}>
+              <Pencil className="mr-1.5 h-4 w-4" />
+              Edit Profile
+            </Button>
+            <Button size="sm" onClick={() => setShowAddDialog(true)}>
+              <Plus className="mr-1.5 h-4 w-4" />
+              Add Post
+            </Button>
+          </div>
         </div>
 
         <TabsContent value="grid" className="mt-4">
@@ -168,7 +185,7 @@ export function PostsGrid({
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onAdd={handleAddPost}
-        profileId={profileId}
+        profileId={profile.id}
         nextPosition={posts.length}
       />
 
@@ -177,6 +194,12 @@ export function PostsGrid({
         onClose={() => setSelectedPost(null)}
         onUpdate={handleUpdatePost}
         onDelete={handleDeletePost}
+      />
+
+      <EditProfileDialog
+        profile={profile}
+        open={showEditProfileDialog}
+        onOpenChange={setShowEditProfileDialog}
       />
     </>
   );

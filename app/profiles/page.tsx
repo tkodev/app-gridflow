@@ -45,8 +45,8 @@ export default async function ProfilesPage({
 
   return (
     <div className="py-6">
-      <ProfileHeader profile={profile} postsCount={posts?.length || 0} />
-      <PostsGrid initialPosts={posts || []} profileId={profile.id} />
+      <ProfileHeader profile={profile} profiles={profiles} postsCount={posts?.length || 0} />
+      <PostsGrid initialPosts={posts || []} profile={profile} />
     </div>
   );
 }

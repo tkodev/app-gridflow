@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { ChevronDown, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { EditProfileDialog } from "@/components/profiles/edit-profile-dialog";
 
 interface Profile {
@@ -17,49 +23,80 @@ interface Profile {
 
 export function ProfileHeader({
   profile,
+  profiles,
   postsCount,
 }: {
   profile: Profile;
+  profiles: Profile[];
   postsCount: number;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const displayName = profile.display_name || profile.username;
   const initials = displayName.slice(0, 2).toUpperCase();
 
+  const handleProfileSwitch = (profileId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("profile", profileId);
+    router.push(`${pathname}?${params.toString()}`);
+    router.refresh();
+  };
+
   return (
     <>
-      <div className="mb-6">
-        <div className="flex items-start gap-6">
+      <div className="mb-4">
+        {/* Profile Dropdown as Title */}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-1 text-xl font-semibold outline-none">
+            {profile.username}
+            <ChevronDown className="h-5 w-5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            {profiles.map((p) => (
+              <DropdownMenuItem
+                key={p.id}
+                onClick={() => handleProfileSwitch(p.id)}
+                className="gap-2"
+              >
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={p.avatar_url || undefined} />
+                  <AvatarFallback className="text-xs">
+                    {(p.display_name || p.username).slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="flex-1 truncate">{p.username}</span>
+                {profile.id === p.id && <Check className="h-4 w-4" />}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Avatar and Stats Row */}
+        <div className="mt-4 flex items-center gap-6">
           <Avatar className="h-20 w-20 md:h-24 md:w-24">
             <AvatarImage src={profile.avatar_url || undefined} alt={displayName} />
             <AvatarFallback className="text-xl">{initials}</AvatarFallback>
           </Avatar>
 
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-semibold">{profile.username}</h1>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowEditDialog(true)}
-              >
-                <Pencil className="mr-1.5 h-3.5 w-3.5" />
-                Edit Profile
-              </Button>
+          <div className="flex flex-1 justify-around text-center">
+            <div>
+              <span className="block text-lg font-semibold">{postsCount}</span>
+              <span className="text-sm text-muted-foreground">posts</span>
             </div>
-
-            <div className="mt-3 flex gap-6">
-              <div className="text-center">
-                <span className="font-semibold">{postsCount}</span>
-                <span className="ml-1 text-muted-foreground">posts</span>
-              </div>
-            </div>
-
-            {profile.bio && (
-              <p className="mt-3 text-sm">{profile.bio}</p>
-            )}
           </div>
+        </div>
+
+        {/* Name and Bio */}
+        <div className="mt-4">
+          {profile.display_name && (
+            <p className="font-semibold">{profile.display_name}</p>
+          )}
+          {profile.bio && (
+            <p className="mt-1 text-sm">{profile.bio}</p>
+          )}
         </div>
       </div>
 
