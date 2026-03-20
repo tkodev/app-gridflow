@@ -171,7 +171,7 @@ export function PostDetailDialog({
         {post && (
           <div className="space-y-4">
             {error && (
-              <div className="rounded-[var(--radius)] border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="rounded-(--radius) border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
@@ -186,7 +186,7 @@ export function PostDetailDialog({
                 className="hidden"
                 id="edit-image-upload"
               />
-              <div className="relative aspect-square w-full overflow-hidden rounded-[var(--radius)] bg-muted">
+              <div className="relative aspect-square w-full overflow-hidden rounded-(--radius) bg-muted">
                 {displayImage && (
                   <Image
                     src={displayImage}

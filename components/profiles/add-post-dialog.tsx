@@ -153,7 +153,7 @@ export function AddPostDialog({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded-[var(--radius)] border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
+            <div className="rounded-(--radius) border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -172,7 +172,7 @@ export function AddPostDialog({
             {!preview ? (
               <label
                 htmlFor="image-upload"
-                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--radius)] border-2 border-dashed border-muted-foreground/25 bg-muted/50 p-8 transition-colors hover:border-muted-foreground/50 hover:bg-muted"
+                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-(--radius) border-2 border-dashed border-muted-foreground/25 bg-muted/50 p-8 transition-colors hover:border-muted-foreground/50 hover:bg-muted"
               >
                 <div className="rounded-full bg-background p-3">
                   <Upload className="h-6 w-6 text-muted-foreground" />
@@ -186,7 +186,7 @@ export function AddPostDialog({
               </label>
             ) : (
               <div className="relative">
-                <div className="relative aspect-square w-full overflow-hidden rounded-[var(--radius)] bg-muted">
+                <div className="relative aspect-square w-full overflow-hidden rounded-(--radius) bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={preview}

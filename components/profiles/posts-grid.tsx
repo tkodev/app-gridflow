@@ -119,30 +119,24 @@ export function PostsGrid({
   return (
     <>
       <Tabs defaultValue="grid" className="w-full">
-        <div className="flex items-center justify-between border-t pt-3">
-          <TabsList className="h-9 bg-transparent p-0">
-            <TabsTrigger
-              value="grid"
-              className="gap-1.5 rounded-none border-t-2 border-transparent px-4 py-2 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              <Grid3X3 className="h-4 w-4" />
+        <div className="flex items-center justify-between gap-2 pt-2">
+          <TabsList>
+            <TabsTrigger value="grid" className="gap-1.5">
+              <Grid3X3 className="size-4" />
               <span className="hidden sm:inline">Grid</span>
             </TabsTrigger>
-            <TabsTrigger
-              value="feed"
-              className="gap-1.5 rounded-none border-t-2 border-transparent px-4 py-2 data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-            >
-              <List className="h-4 w-4" />
+            <TabsTrigger value="feed" className="gap-1.5">
+              <List className="size-4" />
               <span className="hidden sm:inline">Feed</span>
             </TabsTrigger>
           </TabsList>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => setShowEditProfileDialog(true)}>
-              <Pencil className="mr-1.5 h-4 w-4" />
+              <Pencil className="mr-1.5 size-4" />
               Edit Profile
             </Button>
             <Button size="sm" onClick={() => setShowAddDialog(true)}>
-              <Plus className="mr-1.5 h-4 w-4" />
+              <Plus className="mr-1.5 size-4" />
               Add Post
             </Button>
           </div>

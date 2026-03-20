@@ -57,7 +57,7 @@ export default function SignUpPage() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         {error && (
-          <div className="rounded-[var(--radius)] border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
+          <div className="rounded-(--radius) border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
             {error}
           </div>
         )}
