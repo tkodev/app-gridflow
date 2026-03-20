@@ -8,8 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const isSignUpDisabled = process.env.NEXT_PUBLIC_DISABLE_SIGN_UP === "true";
-
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -85,17 +83,15 @@ export default function LoginPage() {
         </Button>
       </form>
 
-      {!isSignUpDisabled && (
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          {"Don't have an account? "}
-          <Link
-            href="/auth/sign-up"
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-      )}
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        {"Don't have an account? "}
+        <Link
+          href="/auth/sign-up"
+          className="font-medium text-foreground underline-offset-4 hover:underline"
+        >
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 }
