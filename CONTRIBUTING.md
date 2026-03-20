@@ -4,7 +4,7 @@ Everything a developer needs to understand and work on GridFlow.
 
 ## Docs
 
-Please read all files before contributing.
+Please read the following files before contributing.
 
 | File | Owns | Ask when… |
 | --- | --- | --- |
