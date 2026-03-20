@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { LandingHeader } from "@/components/landing/header";
 import { GridPreview } from "@/components/landing/grid-preview";
 
+const isSignUpDisabled = process.env.NEXT_PUBLIC_DISABLE_SIGN_UP === "true";
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
@@ -23,15 +25,17 @@ export default function LandingPage() {
               Drag and drop to see exactly how your profile will look.
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Button asChild size="lg" className="h-12 px-8 text-base">
-                <Link href="/auth/sign-up">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              {!isSignUpDisabled && (
+                <Button asChild size="lg" className="h-12 px-8 text-base">
+                  <Link href="/auth/sign-up">
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
               <Button
                 asChild
-                variant="outline"
+                variant={isSignUpDisabled ? "default" : "outline"}
                 size="lg"
                 className="h-12 px-8 text-base"
               >
@@ -74,22 +78,24 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Ready to perfect your grid?
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Join thousands of creators who plan their Instagram content with GridFlow.
-          </p>
-          <Button asChild size="lg" className="mt-8 h-12 px-8 text-base">
-            <Link href="/auth/sign-up">
-              Start Planning Free
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
+      {!isSignUpDisabled && (
+        <section className="px-4 py-16 md:py-24">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+              Ready to perfect your grid?
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Join thousands of creators who plan their Instagram content with GridFlow.
+            </p>
+            <Button asChild size="lg" className="mt-8 h-12 px-8 text-base">
+              <Link href="/auth/sign-up">
+                Start Planning Free
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t px-4 py-8">

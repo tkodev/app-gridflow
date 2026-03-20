@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const isSignUpDisabled = process.env.NEXT_PUBLIC_DISABLE_SIGN_UP === "true";
+const isEmailVerificationDisabled = process.env.NEXT_PUBLIC_DISABLE_EMAIL_VERIFICATION === "true";
+
 export default function SignUpPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -16,24 +19,44 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  if (isSignUpDisabled) {
+    return (
+      <div className="w-full max-w-sm text-center">
+        <h1 className="text-2xl font-bold">Sign Up Disabled</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          New account registration is currently disabled.
+        </p>
+        <Link href="/auth/login">
+          <Button className="mt-6">Go to Login</Button>
+        </Link>
+      </div>
+    );
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     const supabase = createClient();
+    const signUpOptions: { emailRedirectTo?: string; data: Record<string, string> } = {
+      data: {
+        username: username.toLowerCase().replace(/[^a-z0-9_]/g, ""),
+        display_name: username,
+      },
+    };
+
+    // Only set emailRedirectTo if email verification is enabled
+    if (!isEmailVerificationDisabled) {
+      signUpOptions.emailRedirectTo =
+        process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
+        `${window.location.origin}/profiles`;
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-          `${window.location.origin}/profiles`,
-        data: {
-          username: username.toLowerCase().replace(/[^a-z0-9_]/g, ""),
-          display_name: username,
-        },
-      },
+      options: signUpOptions,
     });
 
     if (error) {
@@ -42,7 +65,13 @@ export default function SignUpPage() {
       return;
     }
 
-    router.push("/auth/sign-up-success");
+    // If email verification is disabled, go directly to profiles
+    if (isEmailVerificationDisabled) {
+      router.push("/profiles");
+      router.refresh();
+    } else {
+      router.push("/auth/sign-up-success");
+    }
   };
 
   return (

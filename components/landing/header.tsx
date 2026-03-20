@@ -5,6 +5,8 @@ import { Grid3X3, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
+const isSignUpDisabled = process.env.NEXT_PUBLIC_DISABLE_SIGN_UP === "true";
+
 export function LandingHeader() {
   const { theme, setTheme } = useTheme();
 
@@ -29,9 +31,11 @@ export function LandingHeader() {
           <Button variant="ghost" asChild>
             <Link href="/auth/login">Sign In</Link>
           </Button>
-          <Button asChild>
-            <Link href="/auth/sign-up">Get Started</Link>
-          </Button>
+          {!isSignUpDisabled && (
+            <Button asChild>
+              <Link href="/auth/sign-up">Get Started</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
