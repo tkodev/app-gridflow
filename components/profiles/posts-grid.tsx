@@ -27,9 +27,11 @@ import { createClient } from "@/lib/supabase/client";
 
 export interface Post {
   id: string;
-  user_id: string;
+  profile_id: string;
   image_url: string;
   caption: string | null;
+  location: string | null;
+  music: string | null;
   grid_position: number;
   status: "draft" | "scheduled" | "published";
   scheduled_at: string | null;
@@ -38,7 +40,13 @@ export interface Post {
   updated_at: string;
 }
 
-export function PostsGrid({ initialPosts }: { initialPosts: Post[] }) {
+export function PostsGrid({ 
+  initialPosts, 
+  profileId 
+}: { 
+  initialPosts: Post[]; 
+  profileId: string;
+}) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -69,7 +77,7 @@ export function PostsGrid({ initialPosts }: { initialPosts: Post[] }) {
         const supabase = createClient();
         const updates = newPosts.map((post, index) => ({
           id: post.id,
-          user_id: post.user_id,
+          profile_id: post.profile_id,
           image_url: post.image_url,
           grid_position: index,
         }));
@@ -160,6 +168,7 @@ export function PostsGrid({ initialPosts }: { initialPosts: Post[] }) {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onAdd={handleAddPost}
+        profileId={profileId}
         nextPosition={posts.length}
       />
 

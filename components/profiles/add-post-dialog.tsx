@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Dialog,
@@ -19,11 +18,13 @@ export function AddPostDialog({
   open,
   onOpenChange,
   onAdd,
+  profileId,
   nextPosition,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (post: Post) => void;
+  profileId: string;
   nextPosition: number;
 }) {
   const [imageUrl, setImageUrl] = useState("");
@@ -43,20 +44,11 @@ export function AddPostDialog({
     }
 
     const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      setError("You must be logged in");
-      setLoading(false);
-      return;
-    }
 
     const { data, error: insertError } = await supabase
       .from("posts")
       .insert({
-        user_id: user.id,
+        profile_id: profileId,
         image_url: imageUrl,
         caption: caption || null,
         grid_position: nextPosition,
