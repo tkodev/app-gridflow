@@ -4,16 +4,32 @@
 
 ## Technologies
 
-- PNPM package manager and runner
-- Next.js (App Router)
-- Tailwind CSS
-- shadcn/ui (with dark mode support)
-- Radix UI primitives where no shadcn/ui equivalent exists
-- Supabase — database, auth, storage, cron (cron reserved for post scheduling stretch feature)
-- React state: `useState`, `useOptimistic`, Server Actions
-- react-hook-form — form state management and validation
-- Drizzle ORM — type-safe SQL query builder and schema management
-- Playwright — end-to-end testing
+- PNPM - Package manager and runner
+- Application
+  - Next.js - App Router
+  - Tailwind CSS - Theme / Styling
+  - Shadcn UI - Components (with dark mode support)
+  - Radix UI - Primitives where no shadcn/ui equivalent exists
+  - React state: `useState`, `useOptimistic`, Server Actions
+  - React Hook Form — form state management and validation
+  - Playwright — end-to-end testing
+- Data
+  - Supabase Database
+  - Supabase Auth
+  - Supabase Storage
+  - Supabase Cron (cron reserved for post scheduling stretch feature)
+  - Drizzle ORM — type-safe SQL query builder and schema management
+
+## PNPM Only
+
+- Use `pnpm` for all package management commands.
+- Do not use `npm` or `yarn`.
+- Prefer:
+  - `pnpm add` for dependencies
+  - `pnpm add -D` for dev dependencies
+  - `pnpm remove` for removal
+  - `pnpm install` for install
+  - `pnpm run <script>` for scripts
 
 ## Next.js
 
