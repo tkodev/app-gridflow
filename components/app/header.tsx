@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Grid3X3, Settings, LogOut, Moon, Sun } from "lucide-react";
@@ -10,7 +11,12 @@ import type { User } from "@supabase/supabase-js";
 
 export function AppHeader({ user }: { user: User }) {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -31,11 +37,18 @@ export function AppHeader({ user }: { user: User }) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
           >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            {mounted ? (
+              resolvedTheme === "dark" ? (
+                <Moon className="h-4 w-4" />
+              ) : (
+                <Sun className="h-4 w-4" />
+              )
+            ) : (
+              <Sun className="h-4 w-4" />
+            )}
           </Button>
           <Button variant="ghost" size="icon" asChild>
             <Link href="/settings">
