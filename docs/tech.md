@@ -13,6 +13,7 @@
   - React state: `useState`, `useOptimistic`, Server Actions
   - React Hook Form — form state management and validation
   - Playwright — end-to-end testing
+  - [@tkodev's next eslint config](https://github.com/tkodev/config-eslint-next) - Additional eslint config
 - Data
   - Supabase Database
   - Supabase Auth
