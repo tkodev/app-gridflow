@@ -31,7 +31,7 @@ import { useReorderPostsMutation } from '@/queries/posts'
 export type { Post } from '@/types/post'
 export type { Profile } from '@/types/profile'
 
-export const PostsGridView = ({
+export const PostsSection = ({
   initialPosts,
   profile
 }: {

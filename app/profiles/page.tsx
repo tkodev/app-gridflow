@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
-import { PostsGridView } from '@/components/profiles/posts-grid-view'
-import { ProfileHeader } from '@/components/profiles/profile-header'
+import { PostsSection } from '@/components/profiles/posts-section'
 import { ProfileMissingView } from '@/components/profiles/profile-missing-view'
+import { ProfileSection } from '@/components/profiles/profile-section'
 import { SUPABASE_TABLE_POSTS, SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { sortPostMediaByPosition } from '@/utils/post-media'
 import { createClient } from '@/utils/supabase-server'
@@ -68,8 +68,8 @@ const ProfilesPage = async ({ searchParams }: { searchParams: Promise<{ profile?
 
   return (
     <div className="py-6">
-      <ProfileHeader postsCount={posts?.length || 0} profile={profile} profiles={profiles} />
-      <PostsGridView initialPosts={posts || []} profile={profile} />
+      <ProfileSection postsCount={posts?.length || 0} profile={profile} profiles={profiles} />
+      <PostsSection initialPosts={posts || []} profile={profile} />
     </div>
   )
 }

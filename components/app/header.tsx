@@ -4,7 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Grid3X3, LogOut, Moon, Settings, Sun } from 'lucide-react'
+import { Grid3X3, LogOut, Moon, Settings, Sun, Users } from 'lucide-react'
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { useSignOutMutation } from '@/queries/auth'
@@ -52,6 +52,12 @@ export const AppHeader = ({ user: _user }: { user: User }) => {
             ) : (
               <Sun className="h-4 w-4" />
             )}
+          </Button>
+          <Button size="icon" variant="ghost" asChild>
+            <Link href="/profiles">
+              <Users className="h-4 w-4" />
+              <span className="sr-only">Profiles</span>
+            </Link>
           </Button>
           <Button size="icon" variant="ghost" asChild>
             <Link href="/settings">

@@ -3,6 +3,7 @@
 import { useMutation } from '@tanstack/react-query'
 import type {
   AddProfileMutationInput,
+  ChangeEmailMutationInput,
   ChangePasswordMutationInput,
   DeleteProfileMutationInput
 } from '@/types/mutations'
@@ -86,8 +87,67 @@ export function useChangePasswordMutation() {
   return useMutation({
     mutationFn: async (vars: ChangePasswordMutationInput) => {
       const supabase = createClient()
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+
+      if (!user?.email) {
+        throw new Error('Your account does not have an email address for password verification')
+      }
+
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: vars.currentPassword
+      })
+
+      if (verifyError) {
+        const msg = verifyError.message.toLowerCase()
+        if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
+          throw new Error('Current password is incorrect')
+        }
+        throw verifyError
+      }
+
       const { error: updateError } = await supabase.auth.updateUser({
         password: vars.newPassword
+      })
+      if (updateError) throw updateError
+    }
+  })
+}
+
+export function useChangeEmailMutation() {
+  return useMutation({
+    mutationFn: async (vars: ChangeEmailMutationInput) => {
+      const supabase = createClient()
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+
+      if (!user?.email) {
+        throw new Error('Your account does not have an email address to update')
+      }
+
+      const newEmail = vars.newEmail.trim().toLowerCase()
+      if (newEmail === user.email.toLowerCase()) {
+        throw new Error('Enter a different email address')
+      }
+
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: vars.currentPassword
+      })
+
+      if (verifyError) {
+        const msg = verifyError.message.toLowerCase()
+        if (msg.includes('invalid login') || msg.includes('invalid credentials')) {
+          throw new Error('Current password is incorrect')
+        }
+        throw verifyError
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        email: newEmail
       })
       if (updateError) throw updateError
     }

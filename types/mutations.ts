@@ -10,7 +10,13 @@ export type DeleteProfileMutationInput = {
 }
 
 export type ChangePasswordMutationInput = {
+  currentPassword: string
   newPassword: string
+}
+
+export type ChangeEmailMutationInput = {
+  currentPassword: string
+  newEmail: string
 }
 
 export type SignInMutationInput = {

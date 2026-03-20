@@ -1,5 +1,5 @@
 import type { Profile } from '@/types/profile'
-import { ProfilesManager } from '@/components/settings/profiles-manager'
+import { SettingsSection } from '@/components/settings/settings-section'
 import { SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { createClient } from '@/utils/supabase-server'
 
@@ -24,7 +24,7 @@ const SettingsPage = async () => {
       <p className="text-muted-foreground mt-1">Manage your profiles and account</p>
 
       <div className="mt-8">
-        <ProfilesManager profiles={profiles} userEmail={user!.email || ''} />
+        <SettingsSection profiles={profiles} userEmail={user!.email || ''} />
       </div>
     </div>
   )

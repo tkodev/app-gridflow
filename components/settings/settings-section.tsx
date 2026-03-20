@@ -1,8 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, ArrowLeft, Key, Plus, Trash2, UserCircle, UserPlus } from 'lucide-react'
+import { AlertTriangle, Key, Mail, Plus, Trash2, UserCircle, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import type { Profile } from '@/types/profile'
@@ -11,27 +10,36 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import {
   useAddProfileMutation,
+  useChangeEmailMutation,
   useChangePasswordMutation,
   useDeleteAccountMutation,
   useDeleteProfileMutation
-} from '@/queries/settings-profiles'
+} from '@/queries/settings'
 
 type AddProfileFormValues = {
   username: string
 }
 
 type PasswordFormValues = {
+  currentPassword: string
   newPassword: string
   confirmPassword: string
+}
+
+type EmailFormValues = {
+  currentPassword: string
+  newEmail: string
+  confirmEmail: string
 }
 
 type DeleteAccountFormValues = {
   confirmation: string
 }
 
-export const ProfilesManager = ({
+export const SettingsSection = ({
   profiles: initialProfiles,
   userEmail
 }: {
@@ -42,14 +50,17 @@ export const ProfilesManager = ({
   const [profiles, setProfiles] = useState<Profile[]>(initialProfiles)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [showEmailDialog, setShowEmailDialog] = useState(false)
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
   const [profileToDelete, setProfileToDelete] = useState<Profile | null>(null)
   const [deleteProfileError, setDeleteProfileError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null)
+  const [emailSuccess, setEmailSuccess] = useState<string | null>(null)
 
   const addProfile = useAddProfileMutation()
   const deleteProfile = useDeleteProfileMutation()
   const changePassword = useChangePasswordMutation()
+  const changeEmail = useChangeEmailMutation()
   const deleteAccount = useDeleteAccountMutation()
 
   const addForm = useForm<AddProfileFormValues>({
@@ -57,7 +68,11 @@ export const ProfilesManager = ({
   })
 
   const passwordForm = useForm<PasswordFormValues>({
-    defaultValues: { newPassword: '', confirmPassword: '' }
+    defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' }
+  })
+
+  const emailForm = useForm<EmailFormValues>({
+    defaultValues: { currentPassword: '', newEmail: '', confirmEmail: '' }
   })
 
   const deleteAccountForm = useForm<DeleteAccountFormValues>({
@@ -101,18 +116,46 @@ export const ProfilesManager = ({
 
   const onPasswordSubmit = passwordForm.handleSubmit(async (data) => {
     passwordForm.clearErrors('root')
-    setSuccess(null)
+    setPasswordSuccess(null)
     try {
-      await changePassword.mutateAsync({ newPassword: data.newPassword })
-      setSuccess('Password updated successfully')
+      await changePassword.mutateAsync({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword
+      })
+      setPasswordSuccess('Password updated successfully')
       passwordForm.reset()
       setTimeout(() => {
         setShowPasswordDialog(false)
-        setSuccess(null)
+        setPasswordSuccess(null)
       }, 1500)
     } catch (err) {
       passwordForm.setError('root', {
         message: err instanceof Error ? err.message : 'Failed to update password'
+      })
+    }
+  })
+
+  const onEmailSubmit = emailForm.handleSubmit(async (data) => {
+    emailForm.clearErrors('root')
+    setEmailSuccess(null)
+    try {
+      const trimmed = data.newEmail.trim().toLowerCase()
+      await changeEmail.mutateAsync({
+        currentPassword: data.currentPassword,
+        newEmail: trimmed
+      })
+      setEmailSuccess(
+        'Email update submitted. Check your inbox to confirm the new address if required.'
+      )
+      emailForm.reset()
+      router.refresh()
+      setTimeout(() => {
+        setShowEmailDialog(false)
+        setEmailSuccess(null)
+      }, 2500)
+    } catch (err) {
+      emailForm.setError('root', {
+        message: err instanceof Error ? err.message : 'Failed to update email'
       })
     }
   })
@@ -132,16 +175,6 @@ export const ProfilesManager = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button size="icon" variant="ghost" asChild>
-          <Link href="/profiles">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="sr-only">Back to profiles</span>
-          </Link>
-        </Button>
-        <span className="text-muted-foreground text-sm">Back to profiles</span>
-      </div>
-
       {/* Profiles List */}
       <div className="space-y-4 rounded-lg border p-4">
         <div className="flex items-center justify-between">
@@ -201,12 +234,30 @@ export const ProfilesManager = ({
       {/* Account Info */}
       <div className="space-y-4 rounded-lg border p-4">
         <h2 className="font-semibold">Account</h2>
-        <div className="space-y-2">
-          <Label>Email</Label>
-          <Input type="email" className="bg-muted" value={userEmail} disabled />
-          <p className="text-muted-foreground text-xs">Email cannot be changed</p>
+        <div className="rounded-md border">
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableHead scope="row">Email</TableHead>
+                <TableCell className="text-right">
+                  {userEmail || (
+                    <span className="text-muted-foreground">No email on this account</span>
+                  )}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
-        <div className="flex gap-2">
+        <div className="flex justify-end gap-3">
+          <Button
+            disabled={!userEmail}
+            size="sm"
+            variant="outline"
+            onClick={() => setShowEmailDialog(true)}
+          >
+            <Mail className="mr-1.5 h-4 w-4" />
+            Change email
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setShowPasswordDialog(true)}>
             <Key className="mr-1.5 h-4 w-4" />
             Change Password
@@ -223,9 +274,11 @@ export const ProfilesManager = ({
         <p className="text-muted-foreground text-sm">
           Permanently delete your account and all associated data. This action cannot be undone.
         </p>
-        <Button size="sm" variant="destructive" onClick={() => setShowDeleteAccountDialog(true)}>
-          Delete Account
-        </Button>
+        <div className="flex justify-end">
+          <Button size="sm" variant="destructive" onClick={() => setShowDeleteAccountDialog(true)}>
+            Delete Account
+          </Button>
+        </div>
       </div>
 
       {/* Add Profile Dialog */}
@@ -298,13 +351,13 @@ export const ProfilesManager = ({
           if (!open) {
             passwordForm.reset()
             passwordForm.clearErrors()
-            setSuccess(null)
+            setPasswordSuccess(null)
           }
         }}
       >
         <DialogContent
           className="sm:max-w-md"
-          headerDescription="Enter your new password below."
+          headerDescription="Enter your current password, then choose a new one."
           headerTitle="Change Password"
           headerLeading={
             <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
@@ -318,11 +371,30 @@ export const ProfilesManager = ({
                 {passwordForm.formState.errors.root.message}
               </div>
             )}
-            {success && (
+            {passwordSuccess && (
               <div className="rounded-lg border border-green-500 bg-green-500/10 p-3 text-sm text-green-600 dark:text-green-400">
-                {success}
+                {passwordSuccess}
               </div>
             )}
+
+            <div className="space-y-2">
+              <Label htmlFor="pwd-currentPassword">Current Password</Label>
+              <Input
+                id="pwd-currentPassword"
+                type="password"
+                aria-invalid={!!passwordForm.formState.errors.currentPassword}
+                autoComplete="current-password"
+                placeholder="Enter your current password"
+                {...passwordForm.register('currentPassword', {
+                  required: 'Current password is required'
+                })}
+              />
+              {passwordForm.formState.errors.currentPassword && (
+                <p className="text-destructive text-sm">
+                  {passwordForm.formState.errors.currentPassword.message}
+                </p>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="newPassword">New Password</Label>
@@ -330,13 +402,17 @@ export const ProfilesManager = ({
                 id="newPassword"
                 type="password"
                 aria-invalid={!!passwordForm.formState.errors.newPassword}
+                autoComplete="new-password"
                 placeholder="Enter new password"
                 {...passwordForm.register('newPassword', {
                   required: 'Password is required',
                   minLength: {
                     value: 6,
                     message: 'Password must be at least 6 characters'
-                  }
+                  },
+                  validate: (v) =>
+                    v !== passwordForm.getValues('currentPassword') ||
+                    'New password must be different from your current password'
                 })}
               />
               {passwordForm.formState.errors.newPassword && (
@@ -352,6 +428,7 @@ export const ProfilesManager = ({
                 id="confirmPassword"
                 type="password"
                 aria-invalid={!!passwordForm.formState.errors.confirmPassword}
+                autoComplete="new-password"
                 placeholder="Confirm new password"
                 {...passwordForm.register('confirmPassword', {
                   required: 'Please confirm your password',
@@ -372,6 +449,123 @@ export const ProfilesManager = ({
               </Button>
               <Button type="submit" disabled={changePassword.isPending}>
                 {changePassword.isPending ? 'Updating...' : 'Update Password'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Email Dialog */}
+      <Dialog
+        open={showEmailDialog}
+        onOpenChange={(open) => {
+          setShowEmailDialog(open)
+          if (!open) {
+            emailForm.reset()
+            emailForm.clearErrors()
+            setEmailSuccess(null)
+          }
+        }}
+      >
+        <DialogContent
+          className="sm:max-w-md"
+          headerDescription="Enter your password, then the new email address."
+          headerTitle="Change email"
+          headerLeading={
+            <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+              <Mail className="text-muted-foreground h-4 w-4" />
+            </div>
+          }
+        >
+          <form className="space-y-4" onSubmit={onEmailSubmit} noValidate>
+            {emailForm.formState.errors.root && (
+              <div className="border-destructive bg-destructive/10 text-destructive rounded-lg border p-3 text-sm">
+                {emailForm.formState.errors.root.message}
+              </div>
+            )}
+            {emailSuccess && (
+              <div className="rounded-lg border border-green-500 bg-green-500/10 p-3 text-sm text-green-600 dark:text-green-400">
+                {emailSuccess}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email-currentPassword">Current password</Label>
+              <Input
+                id="email-currentPassword"
+                type="password"
+                aria-invalid={!!emailForm.formState.errors.currentPassword}
+                autoComplete="current-password"
+                placeholder="Enter your current password"
+                {...emailForm.register('currentPassword', {
+                  required: 'Current password is required'
+                })}
+              />
+              {emailForm.formState.errors.currentPassword && (
+                <p className="text-destructive text-sm">
+                  {emailForm.formState.errors.currentPassword.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newEmail">New email</Label>
+              <Input
+                id="newEmail"
+                type="email"
+                aria-invalid={!!emailForm.formState.errors.newEmail}
+                autoComplete="email"
+                placeholder="you@example.com"
+                {...emailForm.register('newEmail', {
+                  required: 'Email is required',
+                  validate: (v) => {
+                    const t = v.trim().toLowerCase()
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) {
+                      return 'Enter a valid email address'
+                    }
+                    if (t === userEmail.toLowerCase()) {
+                      return 'Enter a different email address'
+                    }
+                    return true
+                  }
+                })}
+              />
+              {emailForm.formState.errors.newEmail && (
+                <p className="text-destructive text-sm">
+                  {emailForm.formState.errors.newEmail.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmEmail">Confirm new email</Label>
+              <Input
+                id="confirmEmail"
+                type="email"
+                aria-invalid={!!emailForm.formState.errors.confirmEmail}
+                autoComplete="email"
+                placeholder="Confirm new email"
+                {...emailForm.register('confirmEmail', {
+                  required: 'Please confirm your email',
+                  validate: (v) =>
+                    v.trim().toLowerCase() ===
+                      emailForm.getValues('newEmail').trim().toLowerCase() ||
+                    'Email addresses do not match'
+                })}
+              />
+              {emailForm.formState.errors.confirmEmail && (
+                <p className="text-destructive text-sm">
+                  {emailForm.formState.errors.confirmEmail.message}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setShowEmailDialog(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={changeEmail.isPending}>
+                {changeEmail.isPending ? 'Updating...' : 'Update email'}
               </Button>
             </div>
           </form>

@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
-export const ProfileHeader = ({
+export const ProfileSection = ({
   profile,
   profiles,
   postsCount
