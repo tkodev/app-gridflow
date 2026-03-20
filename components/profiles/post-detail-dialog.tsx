@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Trash2 } from "lucide-react";
+import { Trash2, Upload, ImageIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Dialog,
@@ -29,23 +29,94 @@ export function PostDetailDialog({
 }) {
   const [caption, setCaption] = useState(post?.caption || "");
   const [status, setStatus] = useState(post?.status || "draft");
+  const [newFile, setNewFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Reset state when post changes
-  if (post && caption !== post.caption) {
-    setCaption(post.caption || "");
-    setStatus(post.status);
-  }
+  useEffect(() => {
+    if (post) {
+      setCaption(post.caption || "");
+      setStatus(post.status);
+      setNewFile(null);
+      setPreview(null);
+      setError(null);
+    }
+  }, [post]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (!selectedFile.type.startsWith("image/")) {
+      setError("Please select an image file");
+      return;
+    }
+
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setError("Image must be less than 5MB");
+      return;
+    }
+
+    setError(null);
+    setNewFile(selectedFile);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setPreview(event.target?.result as string);
+    };
+    reader.readAsDataURL(selectedFile);
+  };
 
   const handleSave = async () => {
     if (!post) return;
     setLoading(true);
+    setError(null);
 
     const supabase = createClient();
-    const { data, error } = await supabase
+    let newImageUrl = post.image_url;
+
+    // If there's a new file, upload it
+    if (newFile) {
+      const fileExt = newFile.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${post.profile_id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("posts")
+        .upload(filePath, newFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        setError(uploadError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("posts")
+        .getPublicUrl(filePath);
+
+      newImageUrl = urlData.publicUrl;
+
+      // Delete old image if it's from our storage
+      if (post.image_url.includes("/storage/v1/object/public/posts/")) {
+        const oldPath = post.image_url.split("/posts/")[1];
+        if (oldPath) {
+          await supabase.storage.from("posts").remove([oldPath]);
+        }
+      }
+    }
+
+    const { data, error: updateError } = await supabase
       .from("posts")
       .update({
+        image_url: newImageUrl,
         caption: caption || null,
         status,
         updated_at: new Date().toISOString(),
@@ -54,7 +125,13 @@ export function PostDetailDialog({
       .select()
       .single();
 
-    if (!error && data) {
+    if (updateError) {
+      setError(updateError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data) {
       onUpdate(data as Post);
     }
     setLoading(false);
@@ -65,6 +142,15 @@ export function PostDetailDialog({
     setDeleting(true);
 
     const supabase = createClient();
+
+    // Delete the image from storage if it's from our bucket
+    if (post.image_url.includes("/storage/v1/object/public/posts/")) {
+      const path = post.image_url.split("/posts/")[1];
+      if (path) {
+        await supabase.storage.from("posts").remove([path]);
+      }
+    }
+
     const { error } = await supabase.from("posts").delete().eq("id", post.id);
 
     if (!error) {
@@ -72,6 +158,8 @@ export function PostDetailDialog({
     }
     setDeleting(false);
   };
+
+  const displayImage = preview || post?.image_url;
 
   return (
     <Dialog open={!!post} onOpenChange={() => onClose()}>
@@ -82,13 +170,46 @@ export function PostDetailDialog({
 
         {post && (
           <div className="space-y-4">
-            <div className="relative aspect-square w-full overflow-hidden rounded-[var(--radius)] bg-muted">
-              <Image
-                src={post.image_url}
-                alt={post.caption || "Post image"}
-                fill
-                className="object-cover"
+            {error && (
+              <div className="rounded-[var(--radius)] border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label>Image</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                id="edit-image-upload"
               />
+              <div className="relative aspect-square w-full overflow-hidden rounded-[var(--radius)] bg-muted">
+                {displayImage && (
+                  <Image
+                    src={displayImage}
+                    alt={post.caption || "Post image"}
+                    fill
+                    className="object-cover"
+                  />
+                )}
+                <label
+                  htmlFor="edit-image-upload"
+                  className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100"
+                >
+                  <div className="flex flex-col items-center gap-2 text-white">
+                    <Upload className="h-8 w-8" />
+                    <span className="text-sm font-medium">Change Image</span>
+                  </div>
+                </label>
+              </div>
+              {newFile && (
+                <p className="text-xs text-muted-foreground">
+                  New image selected: {newFile.name}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
