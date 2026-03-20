@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Trash2, Upload, ImageIcon } from "lucide-react";
+import { Trash2, Upload, ImageIcon, Music } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Dialog,
@@ -12,6 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import type { Post } from "./posts-grid";
@@ -28,6 +29,7 @@ export function PostDetailDialog({
   onDelete: (postId: string) => void;
 }) {
   const [caption, setCaption] = useState(post?.caption || "");
+  const [subtitle, setSubtitle] = useState(post?.subtitle || "");
   const [status, setStatus] = useState(post?.status || "draft");
   const [newFile, setNewFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -40,6 +42,7 @@ export function PostDetailDialog({
   useEffect(() => {
     if (post) {
       setCaption(post.caption || "");
+      setSubtitle(post.subtitle || "");
       setStatus(post.status);
       setNewFile(null);
       setPreview(null);
@@ -118,6 +121,7 @@ export function PostDetailDialog({
       .update({
         image_url: newImageUrl,
         caption: caption || null,
+        subtitle: subtitle || null,
         status,
         updated_at: new Date().toISOString(),
       })
@@ -210,6 +214,20 @@ export function PostDetailDialog({
                   New image selected: {newFile.name}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editSubtitle">Subtitle</Label>
+              <div className="relative">
+                <Music className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="editSubtitle"
+                  placeholder="Song name, location, or note..."
+                  value={subtitle}
+                  onChange={(e) => setSubtitle(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

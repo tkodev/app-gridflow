@@ -33,6 +33,7 @@ interface Profile {
   display_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  grid_ratio?: string;
 }
 
 export interface Post {
@@ -40,6 +41,7 @@ export interface Post {
   profile_id: string;
   image_url: string;
   caption: string | null;
+  subtitle: string | null;
   location: string | null;
   music: string | null;
   grid_position: number;
@@ -158,6 +160,7 @@ export function PostsGrid({
                       key={post.id}
                       post={post}
                       onClick={() => setSelectedPost(post)}
+                      gridRatio={(profile.grid_ratio as "square" | "portrait") || "square"}
                     />
                   ))}
                 </div>
@@ -170,7 +173,7 @@ export function PostsGrid({
           {posts.length === 0 ? (
             <EmptyState onAdd={() => setShowAddDialog(true)} />
           ) : (
-            <FeedView posts={posts} onPostClick={setSelectedPost} />
+            <FeedView posts={posts} profile={profile} onPostClick={setSelectedPost} />
           )}
         </TabsContent>
       </Tabs>

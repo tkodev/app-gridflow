@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Music } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Post } from "./posts-grid";
@@ -30,6 +31,7 @@ export function AddPostDialog({
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
+  const [subtitle, setSubtitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,6 +117,7 @@ export function AddPostDialog({
         profile_id: profileId,
         image_url: imageUrl,
         caption: caption || null,
+        subtitle: subtitle || null,
         grid_position: nextPosition,
         status: "draft",
       })
@@ -132,6 +135,7 @@ export function AddPostDialog({
     onAdd(data as Post);
     clearFile();
     setCaption("");
+    setSubtitle("");
     setLoading(false);
   };
 
@@ -139,6 +143,7 @@ export function AddPostDialog({
     if (!isOpen) {
       clearFile();
       setCaption("");
+      setSubtitle("");
       setError(null);
     }
     onOpenChange(isOpen);
@@ -219,6 +224,23 @@ export function AddPostDialog({
                 </label>
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="subtitle">Subtitle (optional)</Label>
+            <div className="relative">
+              <Music className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="subtitle"
+                placeholder="Song name, location, or note..."
+                value={subtitle}
+                onChange={(e) => setSubtitle(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Appears below your username in the feed
+            </p>
           </div>
 
           <div className="space-y-2">

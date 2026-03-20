@@ -9,9 +9,11 @@ import type { Post } from "./posts-grid";
 export function SortablePost({
   post,
   onClick,
+  gridRatio = "square",
 }: {
   post: Post;
   onClick: () => void;
+  gridRatio?: "square" | "portrait";
 }) {
   const {
     attributes,
@@ -32,7 +34,8 @@ export function SortablePost({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "relative aspect-square cursor-grab overflow-hidden bg-muted active:cursor-grabbing",
+        "relative cursor-grab overflow-hidden bg-muted active:cursor-grabbing",
+        gridRatio === "portrait" ? "aspect-[4/5]" : "aspect-square",
         isDragging && "z-10 opacity-80 shadow-lg"
       )}
       onClick={onClick}
