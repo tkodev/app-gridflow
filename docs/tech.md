@@ -4,7 +4,10 @@
 
 ## Technologies
 
-- PNPM - Package manager and runner
+- Environment
+  - PNPM - Package manager and runner
+  - Node 24
+  - Ready for Vercel Serverless
 - Application
   - Next.js - App Router
   - Tailwind CSS - Theme / Styling
