@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PostStatusPill } from "@/components/profiles/post-status-pill";
 import { PostMediaCarousel } from "@/components/profiles/post-media-carousel";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 import type { Post, PostMedia } from "@/types/post";
 import type { Profile } from "@/types/profile";
 
@@ -66,7 +66,7 @@ export const PostPreviewItem = forwardRef<HTMLElement, PostPreviewItemProps>(
         ref={setRef as React.Ref<HTMLDivElement> & React.Ref<HTMLElement>}
         className={cn(className)}
       >
-        <div className="flex items-center gap-3 px-3 py-2.5">
+        <div className="flex items-center gap-3 p-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src={profile.avatar_url || undefined} />
             <AvatarFallback className="text-xs">
@@ -113,20 +113,21 @@ export const PostPreviewItem = forwardRef<HTMLElement, PostPreviewItemProps>(
           showControls={true}
         />
 
-        {post.caption && (
-          <div className="px-3 pt-2">
-            <p className="text-sm">
-              <span className="font-semibold mr-1.5">{profile.username}</span>
-              <span className="text-foreground/90">{post.caption}</span>
-            </p>
+        <div className="flex flex-col gap-3 p-3">
+          {post.caption && (
+            <div>
+              <p className="text-sm">
+                <span className="font-semibold mr-1.5">{profile.username}</span>
+                <span className="text-foreground/90">{post.caption}</span>
+              </p>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {dateLabel}
+            </span>
+            <PostStatusPill status={post.status} />
           </div>
-        )}
-
-        <div className="px-3 pb-3 pt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-            {dateLabel}
-          </span>
-          <PostStatusPill status={post.status} />
         </div>
       </Root>
     );

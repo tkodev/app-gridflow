@@ -5,10 +5,8 @@ import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
 import { Copy } from "lucide-react";
 import { PostStatusPill } from "@/components/profiles/post-status-pill";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 import type { Post } from "@/types/post";
-import { getPostCoverUrl } from "@/lib/post-cover";
-
 
 export function PostSortableItem({
   post,
@@ -33,7 +31,8 @@ export function PostSortableItem({
     transition,
   };
 
-  const coverUrl = getPostCoverUrl(post);
+  const firstMedia = post.media[0];
+  const coverUrl = firstMedia?.media_url ?? "";
 
   return (
     <button
@@ -48,7 +47,24 @@ export function PostSortableItem({
       {...attributes}
       {...listeners}
     >
-      {coverUrl ? (
+      {firstMedia?.media_type === "video" ? (
+        <video
+          src={coverUrl}
+          muted
+          playsInline
+          preload="metadata"
+          tabIndex={-1}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          aria-hidden
+          onLoadedMetadata={(e) => {
+            try {
+              e.currentTarget.currentTime = 0.001;
+            } catch {
+              /* ignore */
+            }
+          }}
+        />
+      ) : coverUrl ? (
         <Image
           src={coverUrl}
           alt={post.caption || "Post image"}
@@ -61,16 +77,13 @@ export function PostSortableItem({
       )}
       {/* Multi-media indicator */}
       {post.media.length > 1 && (
-        <div className="absolute right-1 top-1">
-          <Copy className="h-4 w-4 text-white drop-shadow-md" />
+        <div className="absolute right-2 top-2">
+          <Copy className="size-4 text-white drop-shadow-md" />
         </div>
       )}
       {/* Status pill */}
       {(post.status === "draft" || post.status === "scheduled") && (
-        <div className={cn(
-          "absolute top-1",
-          post.media.length > 1 ? "right-6" : "right-1"
-        )}>
+        <div className="absolute bottom-1 left-1">
           <PostStatusPill status={post.status} compact />
         </div>
       )}

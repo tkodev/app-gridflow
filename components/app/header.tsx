@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Grid3X3, Settings, LogOut, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase-browser";
 import { Button } from "@/components/ui/button";
 import type { User } from "@supabase/supabase-js";
 

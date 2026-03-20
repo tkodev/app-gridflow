@@ -3,10 +3,11 @@
 import * as React from "react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 import type { PostMedia } from "@/types/post";
 
 interface PostMediaCarouselProps {
+  /** Ordered by `position` ascending (same contract as `Post.media`). */
   media: PostMedia[];
   aspectRatio?: "square" | "portrait";
   isActive?: boolean; // Controls video autoplay
@@ -24,16 +25,21 @@ export function PostMediaCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map());
 
-  // Sort media by position
-  const sortedMedia = [...media].sort((a, b) => a.position - b.position);
-
   const goToPrevious = useCallback(() => {
-    setCurrentIndex((prev) => (prev === 0 ? sortedMedia.length - 1 : prev - 1));
-  }, [sortedMedia.length]);
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
+  }, []);
 
   const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev === sortedMedia.length - 1 ? 0 : prev + 1));
-  }, [sortedMedia.length]);
+    setCurrentIndex((prev) =>
+      Math.min(media.length - 1, prev + 1)
+    );
+  }, [media.length]);
+
+  useEffect(() => {
+    setCurrentIndex((i) =>
+      Math.min(i, Math.max(0, media.length - 1))
+    );
+  }, [media.length]);
 
   // Handle video autoplay based on active state and current index
   useEffect(() => {
@@ -62,7 +68,7 @@ export function PostMediaCarousel({
     };
   }, []);
 
-  if (sortedMedia.length === 0) {
+  if (media.length === 0) {
     return (
       <div
         className={cn(
@@ -76,7 +82,9 @@ export function PostMediaCarousel({
     );
   }
 
-  const hasMultiple = sortedMedia.length > 1;
+  const hasMultiple = media.length > 1;
+  const atStart = currentIndex <= 0;
+  const atEnd = currentIndex >= media.length - 1;
 
   return (
     <div
@@ -91,7 +99,7 @@ export function PostMediaCarousel({
         className="flex h-full transition-transform duration-300 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
-        {sortedMedia.map((item, index) => (
+        {media.map((item, index) => (
           <div key={item.id} className="h-full w-full flex-shrink-0">
             {item.media_type === "video" ? (
               <video
@@ -118,33 +126,37 @@ export function PostMediaCarousel({
       {/* Navigation arrows */}
       {showControls && hasMultiple && (
         <>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              goToPrevious();
-            }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-opacity hover:bg-black/70"
-            aria-label="Previous"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              goToNext();
-            }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-opacity hover:bg-black/70"
-            aria-label="Next"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
+          {!atStart && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPrevious();
+              }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-opacity hover:bg-black/70"
+              aria-label="Previous"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+          {!atEnd && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNext();
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-opacity hover:bg-black/70"
+              aria-label="Next"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          )}
         </>
       )}
 
       {/* Dots indicator */}
       {showControls && hasMultiple && (
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-          {sortedMedia.map((_, index) => (
+          {media.map((_, index) => (
             <button
               key={index}
               onClick={(e) => {
@@ -166,7 +178,7 @@ export function PostMediaCarousel({
       {/* Multiple media indicator (top right) */}
       {hasMultiple && (
         <div className="absolute right-3 top-3 rounded-full bg-black/50 px-2 py-0.5 text-xs text-white backdrop-blur-sm">
-          {currentIndex + 1}/{sortedMedia.length}
+          {currentIndex + 1}/{media.length}
         </div>
       )}
     </div>

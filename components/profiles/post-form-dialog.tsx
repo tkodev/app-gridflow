@@ -27,18 +27,20 @@ import {
   GripVertical,
   Play,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase-browser";
 import {
   extractPostsBucketObjectPath,
   removePostFolderObjects,
-} from "@/lib/post-storage";
+} from "@/utils/post-storage";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 import type { Post, PostMedia, LocalMediaItem } from "@/types/post";
+
+const MAX_POST_MEDIA = 20;
 
 function extensionForUpload(file: File): string {
   const fromName = file.name.split(".").pop()?.toLowerCase();
@@ -81,9 +83,11 @@ interface PostFormDialogProps {
 function SortableMediaItem({
   item,
   onRemove,
+  disabled,
 }: {
   item: LocalMediaItem;
   onRemove: () => void;
+  disabled?: boolean;
 }) {
   const {
     attributes,
@@ -92,7 +96,7 @@ function SortableMediaItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ id: item.id, disabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -129,9 +133,16 @@ function SortableMediaItem({
 
       {/* Drag handle */}
       <button
+        type="button"
         {...attributes}
-        {...listeners}
-        className="absolute left-1 top-1 cursor-grab rounded bg-black/50 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+        {...(disabled ? {} : listeners)}
+        disabled={disabled}
+        className={cn(
+          "absolute left-1 top-1 rounded bg-black/50 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100",
+          disabled
+            ? "cursor-not-allowed opacity-40"
+            : "cursor-grab active:cursor-grabbing"
+        )}
       >
         <GripVertical className="h-4 w-4" />
       </button>
@@ -140,7 +151,8 @@ function SortableMediaItem({
       <button
         type="button"
         onClick={onRemove}
-        className="absolute right-1 top-1 rounded bg-black/50 p-1 text-white opacity-0 transition-opacity hover:bg-destructive group-hover:opacity-100"
+        disabled={disabled}
+        className="absolute right-1 top-1 rounded bg-black/50 p-1 text-white opacity-0 transition-opacity hover:bg-destructive group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <X className="h-4 w-4" />
       </button>
@@ -190,12 +202,14 @@ export function PostFormDialog({
       setStatus(post.status);
 
       if (post.media.length > 0) {
-        const existingMedia: LocalMediaItem[] = post.media.map((m) => ({
-          id: m.id,
-          url: m.media_url,
-          type: m.media_type,
-          isNew: false,
-        }));
+        const existingMedia: LocalMediaItem[] = post.media
+          .slice(0, MAX_POST_MEDIA)
+          .map((m) => ({
+            id: m.id,
+            url: m.media_url,
+            type: m.media_type,
+            isNew: false,
+          }));
         setMediaItems(existingMedia);
       } else {
         setMediaItems([]);
@@ -215,7 +229,8 @@ export function PostFormDialog({
       const files = Array.from(e.target.files || []);
       if (files.length === 0) return;
 
-      const validFiles: LocalMediaItem[] = [];
+      type ValidMeta = { file: File; type: "image" | "video" };
+      const validMeta: ValidMeta[] = [];
 
       for (const file of files) {
         const isImage = file.type.startsWith("image/");
@@ -231,20 +246,38 @@ export function PostFormDialog({
           continue;
         }
 
-        const id = crypto.randomUUID();
-        validFiles.push({
-          id,
+        validMeta.push({
           file,
-          url: URL.createObjectURL(file),
           type: isVideo ? "video" : "image",
-          isNew: true,
         });
       }
 
-      if (validFiles.length > 0) {
-        setMediaItems((prev) => [...prev, ...validFiles]);
-        setError(null);
-      }
+      setMediaItems((prev) => {
+        const remaining = MAX_POST_MEDIA - prev.length;
+        if (remaining <= 0) {
+          if (validMeta.length > 0) {
+            setError(`Maximum ${MAX_POST_MEDIA} media items per post`);
+          }
+          return prev;
+        }
+
+        const toAddMeta = validMeta.slice(0, remaining);
+        const toAdd: LocalMediaItem[] = toAddMeta.map(({ file, type }) => ({
+          id: crypto.randomUUID(),
+          file,
+          url: URL.createObjectURL(file),
+          type,
+          isNew: true,
+        }));
+
+        if (validMeta.length > toAddMeta.length) {
+          setError(`Maximum ${MAX_POST_MEDIA} media items per post`);
+        } else if (toAdd.length > 0) {
+          setError(null);
+        }
+
+        return toAdd.length > 0 ? [...prev, ...toAdd] : prev;
+      });
 
       // Reset input
       if (fileInputRef.current) {
@@ -265,6 +298,7 @@ export function PostFormDialog({
   }, []);
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (loading) return;
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -283,6 +317,12 @@ export function PostFormDialog({
 
     if (mediaItems.length === 0) {
       setError("Please add at least one image or video");
+      setLoading(false);
+      return;
+    }
+
+    if (mediaItems.length > MAX_POST_MEDIA) {
+      setError(`Maximum ${MAX_POST_MEDIA} media items per post`);
       setLoading(false);
       return;
     }
@@ -399,7 +439,7 @@ export function PostFormDialog({
         }
       }
 
-      postData.media = uploadedMedia.sort((a, b) => a.position - b.position);
+      postData.media = uploadedMedia;
 
       // Cleanup blob URLs
       mediaItems.forEach((item) => {
@@ -459,10 +499,22 @@ export function PostFormDialog({
     onOpenChange(isOpen);
   };
 
+  const handleDialogOpenChange = (isOpen: boolean) => {
+    if (!isOpen && loading) return;
+    handleClose(isOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent
         className="sm:max-w-lg"
+        headerCloseDisabled={loading}
+        onPointerDownOutside={(e) => {
+          if (loading) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (loading) e.preventDefault();
+        }}
         headerTitle={isEditing ? "Edit Post" : "New Post"}
         headerDescription={
           isEditing
@@ -493,6 +545,7 @@ export function PostFormDialog({
               onChange={handleFileChange}
               className="hidden"
               id="media-upload"
+              disabled={loading}
             />
 
             <DndContext
@@ -510,24 +563,35 @@ export function PostFormDialog({
                     <SortableMediaItem
                       key={item.id}
                       item={item}
+                      disabled={loading}
                       onRemove={() => handleRemoveMedia(item.id)}
                     />
                   ))}
 
-                  {/* Add more button */}
-                  <label
-                    htmlFor="media-upload"
-                    className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 transition-colors hover:border-muted-foreground/50 hover:bg-muted"
-                  >
-                    <Upload className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Add</span>
-                  </label>
+                  {mediaItems.length < MAX_POST_MEDIA &&
+                    (loading ? (
+                      <div
+                        className="flex aspect-square cursor-not-allowed flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 opacity-50"
+                        aria-hidden
+                      >
+                        <Upload className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Add</span>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor="media-upload"
+                        className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 transition-colors hover:border-muted-foreground/50 hover:bg-muted"
+                      >
+                        <Upload className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">Add</span>
+                      </label>
+                    ))}
                 </div>
               </SortableContext>
             </DndContext>
 
             <p className="text-xs text-muted-foreground">
-              Drag to reorder. First item shows as cover.
+              Up to {MAX_POST_MEDIA} items. Drag to reorder. First item shows as cover.
             </p>
           </div>
 
@@ -542,6 +606,7 @@ export function PostFormDialog({
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 className="pl-9"
+                disabled={loading}
               />
             </div>
           </div>
@@ -555,6 +620,7 @@ export function PostFormDialog({
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               rows={3}
+              disabled={loading}
             />
           </div>
 
@@ -571,6 +637,7 @@ export function PostFormDialog({
                     size="sm"
                     onClick={() => setStatus(s)}
                     className="flex-1 capitalize"
+                    disabled={loading}
                   >
                     {s}
                   </Button>
@@ -586,7 +653,7 @@ export function PostFormDialog({
               type="button"
               variant="destructive"
               onClick={handleDelete}
-              disabled={deleting}
+              disabled={deleting || loading}
               className="w-full sm:w-auto"
             >
               <Trash2 className="mr-1.5 h-4 w-4" />
@@ -598,6 +665,7 @@ export function PostFormDialog({
               type="button"
               variant="outline"
               onClick={() => handleClose(false)}
+              disabled={loading}
               className="flex-1 sm:flex-none"
             >
               Cancel

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/utils/supabase-server";
 import { ProfilesManager } from "@/components/settings/profiles-manager";
 import type { Profile } from "@/types/profile";
 

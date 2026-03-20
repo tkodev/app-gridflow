@@ -18,6 +18,7 @@ export interface Post {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  /** Ordered by `position` ascending (normalized when loading from the server and when saving). */
   media: PostMedia[];
 }
 

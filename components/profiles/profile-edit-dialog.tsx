@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Upload, X, UserRound } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase-browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,12 +121,24 @@ export function ProfileEditDialog({
     }
   };
 
+  const handleDialogOpenChange = (isOpen: boolean) => {
+    if (!isOpen && loading) return;
+    onOpenChange(isOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent
         className="sm:max-w-md"
         headerTitle="Edit Profile"
         headerDescription="Edit your profile details and how posts appear in the grid."
+        headerCloseDisabled={loading}
+        onPointerDownOutside={(e) => {
+          if (loading) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (loading) e.preventDefault();
+        }}
         headerLeading={
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
             <UserRound className="h-4 w-4 text-muted-foreground" />
@@ -145,7 +157,8 @@ export function ProfileEditDialog({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 rounded-full bg-primary p-2 text-primary-foreground shadow-lg hover:bg-primary/90"
+                disabled={loading}
+                className="absolute bottom-0 right-0 rounded-full bg-primary p-2 text-primary-foreground shadow-lg hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
               >
                 <Camera className="h-4 w-4" />
               </button>
@@ -156,6 +169,7 @@ export function ProfileEditDialog({
               accept="image/*"
               onChange={handleFileSelect}
               className="hidden"
+              disabled={loading}
             />
             <div className="flex gap-2">
               <Button
@@ -163,6 +177,7 @@ export function ProfileEditDialog({
                 variant="outline"
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
+                disabled={loading}
               >
                 <Upload className="mr-1.5 h-4 w-4" />
                 Upload Photo
@@ -173,6 +188,7 @@ export function ProfileEditDialog({
                   variant="outline"
                   size="sm"
                   onClick={removeAvatar}
+                  disabled={loading}
                 >
                   <X className="mr-1.5 h-4 w-4" />
                   Remove
@@ -194,6 +210,7 @@ export function ProfileEditDialog({
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="username"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -204,6 +221,7 @@ export function ProfileEditDialog({
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Your Name"
+                disabled={loading}
               />
             </div>
 
@@ -215,6 +233,7 @@ export function ProfileEditDialog({
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Tell us about yourself..."
                 rows={3}
+                disabled={loading}
               />
             </div>
 
@@ -226,6 +245,7 @@ export function ProfileEditDialog({
                   variant={gridRatio === "square" ? "default" : "outline"}
                   className="flex-1"
                   onClick={() => setGridRatio("square")}
+                  disabled={loading}
                 >
                   <div className="mr-2 h-4 w-4 border-2 border-current" />
                   Square (1:1)
@@ -235,6 +255,7 @@ export function ProfileEditDialog({
                   variant={gridRatio === "portrait" ? "default" : "outline"}
                   className="flex-1"
                   onClick={() => setGridRatio("portrait")}
+                  disabled={loading}
                 >
                   <div className="mr-2 h-5 w-4 border-2 border-current" />
                   Portrait (4:5)
@@ -252,6 +273,7 @@ export function ProfileEditDialog({
               variant="outline"
               className="flex-1"
               onClick={() => onOpenChange(false)}
+              disabled={loading}
             >
               Cancel
             </Button>

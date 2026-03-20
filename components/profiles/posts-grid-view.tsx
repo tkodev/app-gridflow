@@ -24,7 +24,7 @@ import { PostsFeedView } from "@/components/profiles/posts-feed-view";
 import { PostFormDialog } from "@/components/profiles/post-form-dialog";
 import { PostPreviewDialog } from "@/components/profiles/post-preview-dialog";
 import { ProfileEditDialog } from "@/components/profiles/profile-edit-dialog";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/utils/supabase-browser";
 import type { Post } from "@/types/post";
 import type { Profile } from "@/types/profile";
 

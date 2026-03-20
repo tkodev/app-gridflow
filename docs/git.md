@@ -25,7 +25,7 @@ Examples: `feat/42-post-scheduling`, `fix/17-dialog-overflow`, `refactor/88-auth
 
 **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
-**Scopes**: `app`, `auth`, `profiles`, `settings`, `admin`, `components`, `ui`, `lib`, `styles`
+**Scopes**: `app`, `auth`, `profiles`, `settings`, `admin`, `components`, `ui`, `utils`, `styles`
 
 ```txt
 feat(app): add drag-and-drop reordering to post grid

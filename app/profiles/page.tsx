@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/utils/supabase-server";
 import { ProfileHeader } from "@/components/profiles/profile-header";
 import { PostsGridView } from "@/components/profiles/posts-grid-view";
 import { ProfileMissingView } from "@/components/profiles/profile-missing-view";
+import { sortPostMediaByPosition } from "@/utils/post-media";
 import type { Profile } from "@/types/profile";
 import type { Post } from "@/types/post";
 
@@ -64,7 +65,7 @@ export default async function ProfilesPage({
     };
     return {
       ...rest,
-      media: (post_media ?? []).sort((a, b) => a.position - b.position),
+      media: sortPostMediaByPosition(post_media ?? []),
     };
   });
 

@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 import { Button } from "@/components/ui/button";
 
 const Dialog = DialogPrimitive.Root;
@@ -64,6 +64,10 @@ const DialogContent = React.forwardRef<
     headerTitleClassName?: string;
     headerClassName?: string;
     headerShowCloseButton?: boolean;
+    /** Disables the header close control (still rendered). */
+    headerCloseDisabled?: boolean;
+    /** Classes for the scrollable body (default includes padding). Use e.g. `p-0` for full-bleed content. */
+    bodyClassName?: string;
   }
 >(
   (
@@ -77,6 +81,8 @@ const DialogContent = React.forwardRef<
       headerTitleClassName,
       headerClassName,
       headerShowCloseButton = true,
+      headerCloseDisabled = false,
+      bodyClassName,
       ...props
     },
     ref
@@ -89,7 +95,8 @@ const DialogContent = React.forwardRef<
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
-            "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+            "fixed left-[50%] top-[50%] z-50 flex w-full max-w-lg translate-x-[-50%] translate-y-[-50%] flex-col overflow-hidden border bg-background p-0 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+            "max-h-[min(90vh,720px)]",
             className
           )}
           {...props}
@@ -97,7 +104,7 @@ const DialogContent = React.forwardRef<
           {hasHeader ? (
             <div
               className={cn(
-                "-mx-6 -mt-6 mb-4 flex items-center gap-3 border-b border-border px-3 py-2.5",
+                "flex shrink-0 items-center gap-3 border-b border-border p-3",
                 headerClassName
               )}
             >
@@ -128,6 +135,7 @@ const DialogContent = React.forwardRef<
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 shrink-0"
+                      disabled={headerCloseDisabled}
                     >
                       <X className="h-4 w-4" />
                       <span className="sr-only">Close</span>
@@ -137,7 +145,14 @@ const DialogContent = React.forwardRef<
               </div>
             </div>
           ) : null}
-          {children}
+          <div
+            className={cn(
+              "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-6",
+              bodyClassName
+            )}
+          >
+            {children}
+          </div>
         </DialogPrimitive.Content>
       </DialogPortal>
     );

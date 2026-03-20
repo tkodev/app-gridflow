@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 import type { Post } from "@/types/post";
 
 const statusClassName: Record<Post["status"], string> = {

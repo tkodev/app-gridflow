@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/utils/supabase-server";
 import { AppHeader } from "@/components/app/header";
 
 export default async function ProfilesLayout({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 
 const PREVIEW_IMAGES = [
   { id: 1, color: "bg-rose-400" },

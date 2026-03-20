@@ -25,7 +25,10 @@ export function PostPreviewDialog({
 
   return (
     <Dialog open={!!post} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-md p-0 overflow-hidden">
+      <DialogContent
+        className="max-w-md overflow-hidden p-0"
+        bodyClassName="p-0"
+      >
         <DialogTitle className="sr-only">Post preview</DialogTitle>
         <DialogDescription className="sr-only">
           Preview of your post. Close this dialog or use the menu to edit.
