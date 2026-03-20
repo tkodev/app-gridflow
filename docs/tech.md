@@ -1,12 +1,12 @@
 ---
-description: Tech stack, routes, page structure, and code style guidelines. No business behaviour or feature decisions — those belong in SCOPE.md.
+description: Tech stack, routes, page structure, and code style guidelines. No business behaviour or feature decisions — those belong in product.md.
 globs: **/*.{ts,tsx}
 alwaysApply: false
 ---
 
 # Stack
 
-> This file defines **how the product is built** — technology choices, routes, page/component structure, and code conventions. For features and product behaviour, see [SCOPE.md](/SCOPE.md).
+> This file defines **how the product is built** — technology choices, routes, page/component structure, and code conventions. For features and product behaviour, see [product.md](/docs/product.md).
 
 ## Tech Stack
 
@@ -29,7 +29,7 @@ alwaysApply: false
 
 ## Page Structure
 
-All pages share a common header bar. Pages that use a sidebar share the same sidebar component. The visual style mirrors Instagram's profile layout but does not copy its theme exactly.
+All pages share a common header bar. Pages that use a sidebar share the same sidebar component. For visual design principles, see [design.md](/docs/design.md).
 
 ## TypeScript
 

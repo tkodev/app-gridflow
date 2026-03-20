@@ -1,11 +1,11 @@
 ---
-description: Git branch naming, conventional commits, and PR guidelines
+description: Git branch naming, conventional commits, and PR guidelines.
 alwaysApply: true
 ---
 
-# Standards
+# Git
 
-> This file defines **how we work** — branch naming, commit conventions, PR guidelines, and documentation ownership. For product behaviour, see [SCOPE.md](/SCOPE.md). For tech stack and code conventions, see [STACK.md](/STACK.md).
+> This file defines **how we use git** — branch naming, commit conventions, and PR guidelines. For a full overview of the project, see [CONTRIBUTING.md](/CONTRIBUTING.md).
 
 ## Branch Naming
 
@@ -73,4 +73,4 @@ Describe how you tested these changes.
 
 ## Documentation
 
-When a ticket or issue introduces new or changed behaviour, scope, stack decisions, or routing — update the relevant MD files as part of the same PR. Docs and code ship together.
+When a ticket or issue introduces new or changed behaviour, scope, stack decisions, visual design, or routing — update the relevant MD files as part of the same PR. Docs and code ship together.
