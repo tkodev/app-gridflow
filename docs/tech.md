@@ -15,6 +15,7 @@
   - Radix UI - Primitives where no shadcn/ui equivalent exists
   - React state: `useState`, `useOptimistic`, Server Actions
   - React Hook Form — form state management and validation
+  - Framer Motion — scroll detection, animations, gesture handling
   - Playwright — end-to-end testing
   - [@tkodev's next eslint config](https://github.com/tkodev/config-eslint-next) - Additional eslint config
 - Data
