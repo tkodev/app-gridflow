@@ -1,50 +1,50 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Grid3X3, Settings, LogOut, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useSignOutMutation } from "@/queries/auth";
-import { Button } from "@/components/ui/button";
-import type { User } from "@supabase/supabase-js";
+import type { User } from '@supabase/supabase-js'
+import { useTheme } from 'next-themes'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { Grid3X3, LogOut, Moon, Settings, Sun } from 'lucide-react'
+import * as React from 'react'
+import { Button } from '@/components/ui/button'
+import { useSignOutMutation } from '@/queries/auth'
 
-export function AppHeader({ user }: { user: User }) {
-  const router = useRouter();
-  const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-  const signOut = useSignOutMutation();
+export const AppHeader = ({ user: _user }: { user: User }) => {
+  const router = useRouter()
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+  const signOut = useSignOutMutation()
 
   React.useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   const handleSignOut = () => {
     signOut.mutate(undefined, {
       onSuccess: () => {
-        router.push("/");
-        router.refresh();
-      },
-    });
-  };
+        router.push('/')
+        router.refresh()
+      }
+    })
+  }
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
+    <header className="bg-background/80 sticky top-0 z-50 border-b backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
-        <Link href="/profiles" className="flex items-center gap-2">
+        <Link className="flex items-center gap-2" href="/profiles">
           <Grid3X3 className="h-5 w-5" />
           <span className="font-bold">GridFlow</span>
         </Link>
 
         <div className="flex items-center gap-1">
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
+            size="icon"
+            variant="ghost"
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
           >
             {mounted ? (
-              resolvedTheme === "dark" ? (
+              resolvedTheme === 'dark' ? (
                 <Moon className="h-4 w-4" />
               ) : (
                 <Sun className="h-4 w-4" />
@@ -53,23 +53,18 @@ export function AppHeader({ user }: { user: User }) {
               <Sun className="h-4 w-4" />
             )}
           </Button>
-          <Button variant="ghost" size="icon" asChild>
+          <Button size="icon" variant="ghost" asChild>
             <Link href="/settings">
               <Settings className="h-4 w-4" />
               <span className="sr-only">Settings</span>
             </Link>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            disabled={signOut.isPending}
-          >
+          <Button disabled={signOut.isPending} size="icon" variant="ghost" onClick={handleSignOut}>
             <LogOut className="h-4 w-4" />
             <span className="sr-only">Sign out</span>
           </Button>
         </div>
       </div>
     </header>
-  );
+  )
 }

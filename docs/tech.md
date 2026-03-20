@@ -1,118 +1,136 @@
-# Tech Stack
+# Tech stack & conventions
 
-> This file defines **how the product is built** — technology choices, routes, page/component structure, and code conventions. For features and product behaviour, see [product.md](/docs/product.md).
+> This file defines **how the product is built** — technology choices, routes, page/component structure, and code conventions. For features and product behaviour, see [product.md](/docs/product.md). For visuals, see [design.md](/docs/design.md).
 
-## Technologies
+---
 
-- Environment
-  - PNPM - Package manager and runner
-  - Node 24
-  - Ready for Vercel Serverless
-- Application
-  - Next.js - App Router
-  - Tailwind CSS - Theme / Styling
-  - Shadcn UI - Components (with dark mode support)
-  - Radix UI - Primitives where no shadcn/ui equivalent exists
-  - React state: `useState`, `useOptimistic`, Server Actions
-  - React Hook Form — form state management and validation
-  - Framer Motion — scroll detection, animations, gesture handling
-  - Playwright — end-to-end testing
-  - [@tkodev's next eslint config](https://github.com/tkodev/config-eslint-next) - Additional eslint config
-- Data
-  - TanStack Query (`@tanstack/react-query`) — async state for browser Supabase calls; hooks and helpers live in [`./queries`](/queries/).
-  - Supabase Database
-  - Supabase Auth
-  - Supabase Storage
-  - Supabase Cron (cron reserved for post scheduling stretch feature)
-  - Drizzle ORM — type-safe SQL query builder and schema management
+## Environment & package management
 
-## PNPM Only
+| Item | Notes |
+| --- | --- |
+| Package manager | PNPM only — use `pnpm` for all package commands. Do not use `npm` or `yarn`. |
+| Node | 24 |
+| Deployment | Ready for Vercel Serverless |
 
-- Use `pnpm` for all package management commands.
-- Do not use `npm` or `yarn`.
-- Prefer:
-  - `pnpm add` for dependencies
-  - `pnpm add -D` for dev dependencies
-  - `pnpm remove` for removal
-  - `pnpm install` for install
-  - `pnpm run <script>` for scripts
+Common PNPM commands: `pnpm add` (deps), `pnpm add -D` (dev deps), `pnpm remove`, `pnpm install`, `pnpm run <script>`.
+
+---
+
+## Stack overview
+
+### Application
+
+- Next.js — App Router
+- Tailwind CSS — theme and styling
+- Shadcn UI — components (includes dark mode)
+- Radix UI — primitives when there is no shadcn/ui equivalent
+- React — local state with `useState` and `useOptimistic`; Server Actions for mutations where used
+- React Hook Form — form state and validation
+- Framer Motion — scroll detection, animations, gestures
+- Playwright — end-to-end tests
+- ESLint — [`@tkodev/config-eslint-next`](https://github.com/tkodev/config-eslint-next) (Git dependency in `package.json`). Root [`eslint.config.mjs`](/eslint.config.mjs) uses `withTkodevConfig([...])` so the shared flat config is extended with app-specific entries, not replaced.
+
+### Data & backend
+
+- TanStack Query (`@tanstack/react-query`) — async state for browser Supabase calls; hooks and helpers live in [`queries/`](/queries/).
+- Supabase — Database, Auth, Storage; Cron is reserved for a post-scheduling stretch feature
+
+---
 
 ## Next.js
 
-This is NOT the Next.js you know!
+This is not the Next.js version most training data describes: APIs, conventions, and file layout can differ. Before writing Next-specific code, read the relevant guide under `node_modules/next/dist/docs/` and heed deprecation notices.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+Use the `src` folder convention for the app.
 
-Nextjs should use the `src` folder convention.
+---
 
 ## TypeScript
 
-- Use explicit types for function parameters and return values
-- Prefer `interface` over `type` for object shapes
-- Avoid `any` — use `unknown` if type is truly unknown
-- Shared types should be defined either app wide (in `./types/<type>.ts`) or next to the object it's referring to (such as component props being in the same file as the component.). Utilize best practices for it.
-- Cross-cutting mutation/query payloads shared by hooks and callers live in [`types/mutations.ts`](/types/mutations.ts) (alongside domain types like [`types/post.ts`](/types/post.ts)).
-
-## Code layout
-
-| Folder | Purpose |
-| --- | --- |
-| [`utils/`](/utils/) | Pure helpers, formatting, small algorithms, and integration glue that does not belong elsewhere (e.g. Supabase `createClient` for browser/server, middleware helpers, Tailwind `cn`). Post **media** (ordering, upload file extensions) — [`post-media.ts`](/utils/post-media.ts); Supabase **posts bucket** (URL paths, folder cleanup) — [`post-storage.ts`](/utils/post-storage.ts) |
-| [`types/`](/types/) | Shared TypeScript shapes used in multiple places (domain models, mutation inputs, etc.) |
-| [`queries/`](/queries/) | TanStack Query only: `useMutation` / `useQuery` hooks, `mutationFn` / `queryFn` implementations, and [`keys.ts`](/queries/keys.ts). No React providers, no generic utilities |
-| [`constants/`](/constants/) | App-wide constants (Supabase table and bucket names, query defaults, routes, limits such as max post media) |
-
-React providers that wrap the tree (e.g. TanStack `QueryClientProvider`) live under [`components/providers/`](/components/providers/), not in `queries/`.
+- Use explicit types for function parameters and return values.
+- Prefer `type` for object shapes (matches `@tkodev/config-eslint-next` / `@typescript-eslint/consistent-type-definitions`).
+- Avoid `any` — use `unknown` when the type is truly unknown.
+- Shared types: either app-wide in [`types/<name>.ts`](/types/) or next to what they describe (e.g. component props in the same file as the component), following usual TS practices.
+- Cross-cutting mutation/query payloads shared by hooks and callers live in [`types/mutations.ts`](/types/mutations.ts), alongside domain types such as [`types/post.ts`](/types/post.ts).
 
 ```typescript
 // ✅ Good
-interface PostProps {
+type PostProps = {
   post: Post
   onEdit: (post: Post) => void
 }
 
 // ❌ Avoid
-type PostProps = { post: any; onEdit: Function }
+interface PostProps {
+  post: any
+  onEdit: Function
+}
 ```
 
-## Hooks & Queries
+---
 
-- Concentrate reusable UI logic in [`./hooks`](/hooks) when it is not data-fetching
-- **TanStack Query** — colocate `useMutation` / `useQuery` and shared `mutationFn` helpers under [`./queries`](/queries/) (see [`keys.ts`](/queries/keys.ts) for query keys). Import hooks and types from the file that defines them (`@/queries/<name>`), not from a barrel `index.ts`. Do not add SWR; it was removed in favour of TanStack Query.
-- **Barrel files** — avoid `index.ts` (or similar) that only re-export sibling modules; prefer direct imports from the source file so dependency graphs stay obvious and tree-shaking stays predictable.
-- Import from the specific module (e.g. `@/queries/auth`, `@/queries/posts`); do not add a `queries/index.ts` barrel or other re-export aggregators for `./queries`
+## Repository layout
+
+| Folder | Purpose |
+| --- | --- |
+| [`utils/`](/utils/) | Pure helpers, formatting, small algorithms, and integration glue that does not belong elsewhere (e.g. Supabase `createClient` for browser/server, middleware helpers, Tailwind `cn`). Post media (ordering, upload file extensions) — [`post-media.ts`](/utils/post-media.ts); Supabase posts bucket (URL paths, folder cleanup) — [`post-storage.ts`](/utils/post-storage.ts). |
+| [`types/`](/types/) | Shared TypeScript shapes used in multiple places (domain models, mutation inputs, etc.). |
+| [`queries/`](/queries/) | TanStack Query only: `useMutation` / `useQuery`, `mutationFn` / `queryFn`, and [`keys.ts`](/queries/keys.ts). No React providers and no generic utilities here. |
+| [`constants/`](/constants/) | App-wide constants (Supabase table and bucket names, query defaults, routes, limits such as max post media). |
+
+React providers that wrap the tree (e.g. TanStack `QueryClientProvider`) belong in [`components/providers/`](/components/providers/), not in `queries/`.
+
+---
+
+## Data fetching, mutations & state
+
+### TanStack Query
+
+- Colocate `useMutation` / `useQuery` and shared `mutationFn` helpers under [`queries/`](/queries/). Query keys: [`queries/keys.ts`](/queries/keys.ts).
+- Import hooks and types from the file that defines them (`@/queries/<name>`), not from a barrel `index.ts` — e.g. `@/queries/auth`, `@/queries/posts`. Do not add a `queries/index.ts` barrel or other re-export aggregators for `./queries`.
+- Do not add SWR; it was removed in favour of TanStack Query.
+
+### Barrel files
+
+- Avoid `index.ts` (or similar) that only re-exports sibling modules. Prefer direct imports from the source file so dependency graphs stay clear and tree-shaking stays predictable.
+
+### Client writes and reads
+
+- Use TanStack Query mutations (and queries if you add client-side reads) under `queries/`, with `QueryProvider` from `@/components/providers/query-provider` in the root layout.
+
+### React state (non-fetching)
+
+- `useState` — local UI state.
+- Server Components — initial server data where appropriate.
+- `useOptimistic` — optimistic UI where it fits.
+
+### Forms
+
+- Use [React Hook Form](https://react-hook-form.com/) (`useForm`, `register`, `handleSubmit`) for field state and validation on auth pages, settings dialogs, profile edit, and post caption/subtitle/status.
+- Keep `useState` for data that is not plain inputs (e.g. post media grid + drag-and-drop, avatar file preview).
+
+### Reusable logic
+
+- Reusable UI logic that is not data-fetching → [`hooks/`](/hooks).
+- Shared types for that logic follow the [TypeScript](#typescript) rules above.
+
+---
 
 ## Pages
 
-- Pages combine React components, content, and hooks. They are the main source of truth for the composition of a page.
+- Pages assemble React components, content, and hooks; they are the main place that defines how a screen is composed.
+- All pages share a common header bar. Pages that use a sidebar share the same sidebar component. Visual principles: [design.md](/docs/design.md).
 
-All pages share a common header bar. Pages that use a sidebar share the same sidebar component. For visual design principles, see [design.md](/docs/design.md).
+---
 
-## Tailwind CSS
+## React components
 
-- Use semantic tokens (`bg-background`, `text-foreground`, etc.)
-- Use `gap-*` for spacing; avoid arbitrary values
-- Use `size-*` wherever `h-*` and `w-*` are the same value.
-
-```tsx
-// ✅ Good
-<div className="flex items-center gap-4 p-4 bg-card rounded-lg border">
-
-// ❌ Avoid
-<div className="flex items-center p-[17px] bg-white dark:bg-gray-800 rounded-[10px]">
-```
-
-Post status classes: `bg-scheduled`, `bg-draft`, `bg-published` (and `text-*` variants)
-
-## React Components
-
-- Responsive (Desktop, tablet, mobile support)
-- Components should not contain content or business logic, this should be supplied via props or children
-- Reuse components where possible
-- Use functional components with TypeScript interfaces
-- Prefer named exports; colocate component types in the same file
-- Use `"use client"` only when necessary
-- Dialogs: always include `<DialogTitle>` and `<DialogDescription>`
+- Support responsive layouts (desktop, tablet, mobile).
+- Keep components presentational: supply content and business logic via props or children, not inside the component.
+- Reuse components where it makes sense.
+- Use functional components with TypeScript interfaces; prefer named exports and colocate component-related types in the same file.
+- Add `"use client"` only when required.
+- Dialogs: always include `<DialogTitle>` and `<DialogDescription>`.
 
 ```tsx
 "use client"
@@ -127,17 +145,35 @@ export function MyComponent({ title, children }: MyComponentProps) {
 }
 ```
 
-## React Hooks & State
+---
 
-- State: `useState` for local UI state; Server Components for initial server data; `useOptimistic` for optimistic UI where appropriate
-- Client writes and refetches: TanStack Query mutations (and queries if you add client-side reads) under `./queries`, with `QueryProvider` from `@/components/providers/query-provider` in the root layout; consumers import hooks from `@/queries/<file>` directly
-- Extract reusable non-data logic into `/hooks` (shared types follow the [TypeScript](#typescript) conventions above)
+## Styling (Tailwind)
 
-## React Accessibility
+- Prefer semantic tokens (`bg-background`, `text-foreground`, etc.).
+- Use `gap-*` for spacing; avoid arbitrary pixel values unless necessary.
+- Use `size-*` when height and width are the same.
 
-- Use semantic HTML (`main`, `header`, `nav`, `button`)
-- Include ARIA labels where needed; use `sr-only` for screen reader text
-- Ensure keyboard navigation works in modals/dialogs
+```tsx
+// ✅ Good
+<div className="flex items-center gap-4 p-4 bg-card rounded-lg border">
+
+// ❌ Avoid
+<div className="flex items-center p-[17px] bg-white dark:bg-gray-800 rounded-[10px]">
+```
+
+### Post status utility classes
+
+- `bg-scheduled`, `bg-draft`, `bg-published` (and matching `text-*` variants).
+
+---
+
+## Accessibility
+
+- Prefer semantic HTML (`main`, `header`, `nav`, `button`).
+- Add ARIA labels where needed; use `sr-only` for text meant only for screen readers.
+- Ensure keyboard navigation works inside modals and dialogs.
+
+---
 
 ## Routes
 

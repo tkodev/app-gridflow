@@ -1,51 +1,60 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useSignUpMutation } from "@/queries/auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useSignUpMutation } from '@/queries/auth'
 
-export default function SignUpPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const signUp = useSignUpMutation();
+type SignUpFormValues = {
+  username: string
+  email: string
+  password: string
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+const SignUpPage = () => {
+  const router = useRouter()
+  const signUp = useSignUpMutation()
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors }
+  } = useForm<SignUpFormValues>({
+    defaultValues: { username: '', email: '', password: '' }
+  })
 
+  const onSubmit = handleSubmit(async (data) => {
     try {
       await signUp.mutateAsync({
-        email,
-        password,
-        username,
-      });
-      router.push("/profiles");
-      router.refresh();
+        email: data.email,
+        password: data.password,
+        username: data.username
+      })
+      router.push('/profiles')
+      router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
+      setError('root', {
+        message: err instanceof Error ? err.message : 'Sign up failed'
+      })
     }
-  };
+  })
 
   return (
     <div className="w-full max-w-sm">
       <div className="text-center">
         <h1 className="text-2xl font-bold">Create your account</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-2 text-sm">
           Start planning your perfect Instagram grid
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-        {error && (
-          <div className="rounded-(--radius) border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
+      <form className="mt-8 space-y-4" onSubmit={onSubmit} noValidate>
+        {errors.root && (
+          <div className="border-destructive bg-destructive/10 text-destructive rounded-(--radius) border p-3 text-sm">
+            {errors.root.message}
           </div>
         )}
 
@@ -54,12 +63,12 @@ export default function SignUpPage() {
           <Input
             id="username"
             type="text"
-            placeholder="your_username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
+            aria-invalid={!!errors.username}
             autoComplete="username"
+            placeholder="your_username"
+            {...register('username', { required: 'Username is required' })}
           />
+          {errors.username && <p className="text-destructive text-sm">{errors.username.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -67,12 +76,12 @@ export default function SignUpPage() {
           <Input
             id="email"
             type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            aria-invalid={!!errors.email}
             autoComplete="email"
+            placeholder="you@example.com"
+            {...register('email', { required: 'Email is required' })}
           />
+          {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -80,32 +89,37 @@ export default function SignUpPage() {
           <Input
             id="password"
             type="password"
-            placeholder="Create a password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
+            aria-invalid={!!errors.password}
             autoComplete="new-password"
+            placeholder="Create a password"
+            {...register('password', {
+              required: 'Password is required',
+              minLength: {
+                value: 6,
+                message: 'Password must be at least 6 characters'
+              }
+            })}
           />
-          <p className="text-xs text-muted-foreground">
-            Must be at least 6 characters
-          </p>
+          <p className="text-muted-foreground text-xs">Must be at least 6 characters</p>
+          {errors.password && <p className="text-destructive text-sm">{errors.password.message}</p>}
         </div>
 
         <Button type="submit" className="w-full" disabled={signUp.isPending}>
-          {signUp.isPending ? "Creating account..." : "Create Account"}
+          {signUp.isPending ? 'Creating account...' : 'Create Account'}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+      <p className="text-muted-foreground mt-6 text-center text-sm">
+        Already have an account?{' '}
         <Link
+          className="text-foreground font-medium underline-offset-4 hover:underline"
           href="/auth/login"
-          className="font-medium text-foreground underline-offset-4 hover:underline"
         >
           Sign in
         </Link>
       </p>
     </div>
-  );
+  )
 }
+
+export default SignUpPage

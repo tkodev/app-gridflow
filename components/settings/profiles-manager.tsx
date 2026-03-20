@@ -1,141 +1,145 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, UserCircle, UserPlus, Key, AlertTriangle } from "lucide-react";
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { AlertTriangle, ArrowLeft, Key, Plus, Trash2, UserCircle, UserPlus } from 'lucide-react'
+import { useState } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import type { Profile } from '@/types/profile'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   useAddProfileMutation,
-  useDeleteProfileMutation,
   useChangePasswordMutation,
   useDeleteAccountMutation,
-} from "@/queries/settings-profiles";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
-import type { Profile } from "@/types/profile";
+  useDeleteProfileMutation
+} from '@/queries/settings-profiles'
 
-export function ProfilesManager({
+type AddProfileFormValues = {
+  username: string
+}
+
+type PasswordFormValues = {
+  newPassword: string
+  confirmPassword: string
+}
+
+type DeleteAccountFormValues = {
+  confirmation: string
+}
+
+export const ProfilesManager = ({
   profiles: initialProfiles,
-  userEmail,
+  userEmail
 }: {
-  profiles: Profile[];
-  userEmail: string;
-}) {
-  const router = useRouter();
-  const [profiles, setProfiles] = useState<Profile[]>(initialProfiles);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
-  const [profileToDelete, setProfileToDelete] = useState<Profile | null>(null);
-  const [newUsername, setNewUsername] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  profiles: Profile[]
+  userEmail: string
+}) => {
+  const router = useRouter()
+  const [profiles, setProfiles] = useState<Profile[]>(initialProfiles)
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
+  const [profileToDelete, setProfileToDelete] = useState<Profile | null>(null)
+  const [deleteProfileError, setDeleteProfileError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
-  const addProfile = useAddProfileMutation();
-  const deleteProfile = useDeleteProfileMutation();
-  const changePassword = useChangePasswordMutation();
-  const deleteAccount = useDeleteAccountMutation();
+  const addProfile = useAddProfileMutation()
+  const deleteProfile = useDeleteProfileMutation()
+  const changePassword = useChangePasswordMutation()
+  const deleteAccount = useDeleteAccountMutation()
 
-  const handleAddProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const addForm = useForm<AddProfileFormValues>({
+    defaultValues: { username: '' }
+  })
 
-    if (!newUsername.trim()) {
-      setError("Username is required");
-      return;
-    }
+  const passwordForm = useForm<PasswordFormValues>({
+    defaultValues: { newPassword: '', confirmPassword: '' }
+  })
 
+  const deleteAccountForm = useForm<DeleteAccountFormValues>({
+    defaultValues: { confirmation: '' }
+  })
+
+  const deleteConfirmationWatch = useWatch({
+    control: deleteAccountForm.control,
+    name: 'confirmation'
+  })
+
+  const onAddSubmit = addForm.handleSubmit(async (data) => {
+    addForm.clearErrors('root')
     try {
-      const data = await addProfile.mutateAsync({
-        username: newUsername.trim(),
-      });
-      setProfiles((prev) => [...prev, data]);
-      setNewUsername("");
-      setShowAddDialog(false);
-      router.refresh();
+      const created = await addProfile.mutateAsync({
+        username: data.username.trim()
+      })
+      setProfiles((prev) => [...prev, created])
+      addForm.reset()
+      setShowAddDialog(false)
+      router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create profile");
+      addForm.setError('root', {
+        message: err instanceof Error ? err.message : 'Failed to create profile'
+      })
     }
-  };
+  })
 
   const handleDeleteProfile = async () => {
-    if (!profileToDelete) return;
-
+    if (!profileToDelete) return
+    setDeleteProfileError(null)
     try {
-      await deleteProfile.mutateAsync({ profile: profileToDelete });
-      setProfiles((prev) => prev.filter((p) => p.id !== profileToDelete.id));
-      setProfileToDelete(null);
-      router.refresh();
+      await deleteProfile.mutateAsync({ profile: profileToDelete })
+      setProfiles((prev) => prev.filter((p) => p.id !== profileToDelete.id))
+      setProfileToDelete(null)
+      router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete profile");
+      setDeleteProfileError(err instanceof Error ? err.message : 'Failed to delete profile')
     }
-  };
+  }
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
+  const onPasswordSubmit = passwordForm.handleSubmit(async (data) => {
+    passwordForm.clearErrors('root')
+    setSuccess(null)
     try {
-      await changePassword.mutateAsync({ newPassword });
-      setSuccess("Password updated successfully");
-      setNewPassword("");
-      setConfirmPassword("");
+      await changePassword.mutateAsync({ newPassword: data.newPassword })
+      setSuccess('Password updated successfully')
+      passwordForm.reset()
       setTimeout(() => {
-        setShowPasswordDialog(false);
-        setSuccess(null);
-      }, 1500);
+        setShowPasswordDialog(false)
+        setSuccess(null)
+      }, 1500)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update password");
+      passwordForm.setError('root', {
+        message: err instanceof Error ? err.message : 'Failed to update password'
+      })
     }
-  };
+  })
 
-  const handleDeleteAccount = async () => {
-    if (deleteConfirmation !== "DELETE") {
-      setError("Please type DELETE to confirm");
-      return;
-    }
-
-    setError(null);
-
+  const onDeleteAccountSubmit = deleteAccountForm.handleSubmit(async () => {
+    deleteAccountForm.clearErrors('root')
     try {
-      await deleteAccount.mutateAsync();
-      router.push("/");
-      router.refresh();
+      await deleteAccount.mutateAsync()
+      router.push('/')
+      router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete account");
+      deleteAccountForm.setError('root', {
+        message: err instanceof Error ? err.message : 'Failed to delete account'
+      })
     }
-  };
+  })
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" asChild>
+        <Button size="icon" variant="ghost" asChild>
           <Link href="/profiles">
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Back to profiles</span>
           </Link>
         </Button>
-        <span className="text-sm text-muted-foreground">Back to profiles</span>
+        <span className="text-muted-foreground text-sm">Back to profiles</span>
       </div>
 
       {/* Profiles List */}
@@ -150,8 +154,8 @@ export function ProfilesManager({
 
         {profiles.length === 0 ? (
           <div className="flex flex-col items-center py-8 text-center">
-            <UserCircle className="h-12 w-12 text-muted-foreground" />
-            <p className="mt-2 text-sm text-muted-foreground">
+            <UserCircle className="text-muted-foreground h-12 w-12" />
+            <p className="text-muted-foreground mt-2 text-sm">
               No profiles yet. Add your first profile to get started.
             </p>
           </div>
@@ -166,25 +170,24 @@ export function ProfilesManager({
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={profile.avatar_url || undefined} />
                     <AvatarFallback>
-                      {(profile.display_name || profile.username)
-                        .slice(0, 2)
-                        .toUpperCase()}
+                      {(profile.display_name || profile.username).slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-medium">{profile.username}</p>
                     {profile.display_name && (
-                      <p className="text-sm text-muted-foreground">
-                        {profile.display_name}
-                      </p>
+                      <p className="text-muted-foreground text-sm">{profile.display_name}</p>
                     )}
                   </div>
                 </div>
                 <Button
-                  variant="ghost"
-                  size="icon"
                   className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  onClick={() => setProfileToDelete(profile)}
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setDeleteProfileError(null)
+                    setProfileToDelete(profile)
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                   <span className="sr-only">Delete profile</span>
@@ -200,22 +203,11 @@ export function ProfilesManager({
         <h2 className="font-semibold">Account</h2>
         <div className="space-y-2">
           <Label>Email</Label>
-          <Input
-            type="email"
-            value={userEmail}
-            disabled
-            className="bg-muted"
-          />
-          <p className="text-xs text-muted-foreground">
-            Email cannot be changed
-          </p>
+          <Input type="email" className="bg-muted" value={userEmail} disabled />
+          <p className="text-muted-foreground text-xs">Email cannot be changed</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPasswordDialog(true)}
-          >
+          <Button size="sm" variant="outline" onClick={() => setShowPasswordDialog(true)}>
             <Key className="mr-1.5 h-4 w-4" />
             Change Password
           </Button>
@@ -223,39 +215,44 @@ export function ProfilesManager({
       </div>
 
       {/* Danger Zone */}
-      <div className="space-y-4 rounded-lg border border-destructive/50 p-4">
+      <div className="border-destructive/50 space-y-4 rounded-lg border p-4">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-destructive" />
-          <h2 className="font-semibold text-destructive">Danger Zone</h2>
+          <AlertTriangle className="text-destructive h-5 w-5" />
+          <h2 className="text-destructive font-semibold">Danger Zone</h2>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Permanently delete your account and all associated data. This action cannot be undone.
         </p>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => setShowDeleteAccountDialog(true)}
-        >
+        <Button size="sm" variant="destructive" onClick={() => setShowDeleteAccountDialog(true)}>
           Delete Account
         </Button>
       </div>
 
       {/* Add Profile Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog
+        open={showAddDialog}
+        onOpenChange={(open) => {
+          setShowAddDialog(open)
+          if (!open) {
+            addForm.reset()
+            addForm.clearErrors()
+          }
+        }}
+      >
         <DialogContent
           className="sm:max-w-md"
-          headerTitle="Add New Profile"
           headerDescription="Create a new profile to manage a separate Instagram account."
+          headerTitle="Add New Profile"
           headerLeading={
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-              <UserPlus className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+              <UserPlus className="text-muted-foreground h-4 w-4" />
             </div>
           }
         >
-          <form onSubmit={handleAddProfile} className="space-y-4">
-            {error && (
-              <div className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
+          <form className="space-y-4" onSubmit={onAddSubmit} noValidate>
+            {addForm.formState.errors.root && (
+              <div className="border-destructive bg-destructive/10 text-destructive rounded-lg border p-3 text-sm">
+                {addForm.formState.errors.root.message}
               </div>
             )}
 
@@ -264,29 +261,29 @@ export function ProfilesManager({
               <Input
                 id="newUsername"
                 type="text"
+                aria-invalid={!!addForm.formState.errors.username}
                 placeholder="your_username"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                required
+                {...addForm.register('username', {
+                  required: 'Username is required',
+                  validate: (v) => v.trim().length > 0 || 'Username is required'
+                })}
               />
-              <p className="text-xs text-muted-foreground">
+              {addForm.formState.errors.username && (
+                <p className="text-destructive text-sm">
+                  {addForm.formState.errors.username.message}
+                </p>
+              )}
+              <p className="text-muted-foreground text-xs">
                 Lowercase letters, numbers, and underscores only
               </p>
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setShowAddDialog(false);
-                  setError(null);
-                }}
-              >
+              <Button type="button" variant="outline" onClick={() => setShowAddDialog(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={addProfile.isPending}>
-                {addProfile.isPending ? "Creating..." : "Create Profile"}
+                {addProfile.isPending ? 'Creating...' : 'Create Profile'}
               </Button>
             </div>
           </form>
@@ -294,29 +291,31 @@ export function ProfilesManager({
       </Dialog>
 
       {/* Change Password Dialog */}
-      <Dialog open={showPasswordDialog} onOpenChange={(open) => {
-        setShowPasswordDialog(open);
-        if (!open) {
-          setError(null);
-          setSuccess(null);
-          setNewPassword("");
-          setConfirmPassword("");
-        }
-      }}>
+      <Dialog
+        open={showPasswordDialog}
+        onOpenChange={(open) => {
+          setShowPasswordDialog(open)
+          if (!open) {
+            passwordForm.reset()
+            passwordForm.clearErrors()
+            setSuccess(null)
+          }
+        }}
+      >
         <DialogContent
           className="sm:max-w-md"
-          headerTitle="Change Password"
           headerDescription="Enter your new password below."
+          headerTitle="Change Password"
           headerLeading={
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-              <Key className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+              <Key className="text-muted-foreground h-4 w-4" />
             </div>
           }
         >
-          <form onSubmit={handleChangePassword} className="space-y-4">
-            {error && (
-              <div className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
+          <form className="space-y-4" onSubmit={onPasswordSubmit} noValidate>
+            {passwordForm.formState.errors.root && (
+              <div className="border-destructive bg-destructive/10 text-destructive rounded-lg border p-3 text-sm">
+                {passwordForm.formState.errors.root.message}
               </div>
             )}
             {success && (
@@ -330,12 +329,21 @@ export function ProfilesManager({
               <Input
                 id="newPassword"
                 type="password"
+                aria-invalid={!!passwordForm.formState.errors.newPassword}
                 placeholder="Enter new password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={6}
+                {...passwordForm.register('newPassword', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters'
+                  }
+                })}
               />
+              {passwordForm.formState.errors.newPassword && (
+                <p className="text-destructive text-sm">
+                  {passwordForm.formState.errors.newPassword.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -343,24 +351,27 @@ export function ProfilesManager({
               <Input
                 id="confirmPassword"
                 type="password"
+                aria-invalid={!!passwordForm.formState.errors.confirmPassword}
                 placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                minLength={6}
+                {...passwordForm.register('confirmPassword', {
+                  required: 'Please confirm your password',
+                  validate: (v) =>
+                    v === passwordForm.getValues('newPassword') || 'Passwords do not match'
+                })}
               />
+              {passwordForm.formState.errors.confirmPassword && (
+                <p className="text-destructive text-sm">
+                  {passwordForm.formState.errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowPasswordDialog(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => setShowPasswordDialog(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={changePassword.isPending}>
-                {changePassword.isPending ? "Updating..." : "Update Password"}
+                {changePassword.isPending ? 'Updating...' : 'Update Password'}
               </Button>
             </div>
           </form>
@@ -370,32 +381,39 @@ export function ProfilesManager({
       {/* Delete Profile Dialog */}
       <Dialog
         open={!!profileToDelete}
-        onOpenChange={(open) => !open && setProfileToDelete(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setProfileToDelete(null)
+            setDeleteProfileError(null)
+          }
+        }}
       >
         <DialogContent
           className="sm:max-w-md"
           headerTitle="Delete Profile"
           headerDescription={
             <>
-              Are you sure you want to delete{" "}
-              <span className="font-semibold">{profileToDelete?.username}</span>?
-              This will permanently delete all posts associated with this profile.
+              Are you sure you want to delete{' '}
+              <span className="font-semibold">{profileToDelete?.username}</span>? This will
+              permanently delete all posts associated with this profile.
             </>
           }
         >
+          {deleteProfileError && (
+            <div className="border-destructive bg-destructive/10 text-destructive rounded-lg border p-3 text-sm">
+              {deleteProfileError}
+            </div>
+          )}
           <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setProfileToDelete(null)}
-            >
+            <Button variant="outline" onClick={() => setProfileToDelete(null)}>
               Cancel
             </Button>
             <Button
+              disabled={deleteProfile.isPending}
               variant="destructive"
               onClick={handleDeleteProfile}
-              disabled={deleteProfile.isPending}
             >
-              {deleteProfile.isPending ? "Deleting..." : "Delete Profile"}
+              {deleteProfile.isPending ? 'Deleting...' : 'Delete Profile'}
             </Button>
           </div>
         </DialogContent>
@@ -405,28 +423,28 @@ export function ProfilesManager({
       <Dialog
         open={showDeleteAccountDialog}
         onOpenChange={(open) => {
-          setShowDeleteAccountDialog(open);
+          setShowDeleteAccountDialog(open)
           if (!open) {
-            setDeleteConfirmation("");
-            setError(null);
+            deleteAccountForm.reset()
+            deleteAccountForm.clearErrors()
           }
         }}
       >
         <DialogContent
           className="sm:max-w-md"
+          headerDescription="This action cannot be undone. This will permanently delete your account, all your profiles, and all posts associated with them."
           headerTitle="Delete Account"
           headerTitleClassName="text-destructive"
-          headerDescription="This action cannot be undone. This will permanently delete your account, all your profiles, and all posts associated with them."
           headerLeading={
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/10">
-              <AlertTriangle className="h-4 w-4 text-destructive" />
+            <div className="bg-destructive/10 flex h-8 w-8 items-center justify-center rounded-full">
+              <AlertTriangle className="text-destructive h-4 w-4" />
             </div>
           }
         >
-          <div className="space-y-4">
-            {error && (
-              <div className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
+          <form className="space-y-4" onSubmit={onDeleteAccountSubmit} noValidate>
+            {deleteAccountForm.formState.errors.root && (
+              <div className="border-destructive bg-destructive/10 text-destructive rounded-lg border p-3 text-sm">
+                {deleteAccountForm.formState.errors.root.message}
               </div>
             )}
 
@@ -437,32 +455,39 @@ export function ProfilesManager({
               <Input
                 id="deleteConfirmation"
                 type="text"
+                aria-invalid={!!deleteAccountForm.formState.errors.confirmation}
                 placeholder="DELETE"
-                value={deleteConfirmation}
-                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                {...deleteAccountForm.register('confirmation', {
+                  required: 'Please type DELETE to confirm',
+                  validate: (v) => v === 'DELETE' || 'Please type DELETE to confirm'
+                })}
               />
+              {deleteAccountForm.formState.errors.confirmation && (
+                <p className="text-destructive text-sm">
+                  {deleteAccountForm.formState.errors.confirmation.message}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end gap-2">
               <Button
+                type="button"
                 variant="outline"
                 onClick={() => setShowDeleteAccountDialog(false)}
               >
                 Cancel
               </Button>
               <Button
+                type="submit"
+                disabled={deleteAccount.isPending || deleteConfirmationWatch !== 'DELETE'}
                 variant="destructive"
-                onClick={handleDeleteAccount}
-                disabled={
-                  deleteAccount.isPending || deleteConfirmation !== "DELETE"
-                }
               >
-                {deleteAccount.isPending ? "Deleting..." : "Delete Account"}
+                {deleteAccount.isPending ? 'Deleting...' : 'Delete Account'}
               </Button>
             </div>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

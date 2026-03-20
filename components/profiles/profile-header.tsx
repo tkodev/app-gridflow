@@ -1,68 +1,67 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ChevronDown, Check, Settings } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { Check, ChevronDown, Settings } from 'lucide-react'
+import type { Profile } from '@/types/profile'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import type { Profile } from "@/types/profile";
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
-export function ProfileHeader({
+export const ProfileHeader = ({
   profile,
   profiles,
-  postsCount,
+  postsCount
 }: {
-  profile: Profile;
-  profiles: Profile[];
-  postsCount: number;
-}) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  profile: Profile
+  profiles: Profile[]
+  postsCount: number
+}) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  const displayName = profile.display_name || profile.username;
-  const initials = displayName.slice(0, 2).toUpperCase();
-  const showDisplayLine =
-    Boolean(profile.display_name) && profile.display_name !== profile.username;
+  const displayName = profile.display_name || profile.username
+  const initials = displayName.slice(0, 2).toUpperCase()
+  const showDisplayLine = Boolean(profile.display_name) && profile.display_name !== profile.username
 
   const handleProfileSwitch = (profileId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("profile", profileId);
-    router.push(`${pathname}?${params.toString()}`);
-    router.refresh();
-  };
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('profile', profileId)
+    router.push(`${pathname}?${params.toString()}`)
+    router.refresh()
+  }
 
   return (
-    <div className="space-y-4 border-b border-border pb-4">
+    <div className="border-border space-y-4 border-b pb-4">
       <div className="flex items-start gap-6">
         <Avatar className="size-34">
-          <AvatarImage src={profile.avatar_url || undefined} alt={displayName} />
+          <AvatarImage alt={displayName} src={profile.avatar_url || undefined} />
           <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 space-y-2 text-left">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
+                className="h-auto min-h-0 w-fit justify-start gap-1.5 px-0 py-0 text-xl leading-none font-bold hover:bg-transparent data-[state=open]:bg-transparent"
                 variant="ghost"
-                className="h-auto min-h-0 w-fit justify-start gap-1.5 px-0 py-0 text-xl font-bold leading-none hover:bg-transparent data-[state=open]:bg-transparent"
               >
                 {profile.username}
                 <ChevronDown className="size-5 shrink-0 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuContent className="w-56" align="start">
               {profiles.map((p) => (
                 <DropdownMenuItem
                   key={p.id}
-                  onClick={() => handleProfileSwitch(p.id)}
                   className="gap-2"
+                  onClick={() => handleProfileSwitch(p.id)}
                 >
                   <Avatar className="size-6">
                     <AvatarImage src={p.avatar_url || undefined} />
@@ -85,31 +84,31 @@ export function ProfileHeader({
           </DropdownMenu>
 
           {showDisplayLine ? (
-            <p className="text-base font-sm leading-snug">{profile.display_name}</p>
+            <p className="font-sm text-base leading-snug">{profile.display_name}</p>
           ) : null}
 
           <div className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
             <span>
-              <span className="font-bold">{postsCount.toLocaleString()}</span>{" "}
-              <span className="font-normal text-muted-foreground">posts</span>
+              <span className="font-bold">{postsCount.toLocaleString()}</span>{' '}
+              <span className="text-muted-foreground font-normal">posts</span>
             </span>
             <span>
-              <span className="font-bold">{Number(0).toLocaleString()}</span>{" "}
-              <span className="font-normal text-muted-foreground">followers</span>
+              <span className="font-bold">{Number(0).toLocaleString()}</span>{' '}
+              <span className="text-muted-foreground font-normal">followers</span>
             </span>
             <span>
-              <span className="font-bold">{Number(0).toLocaleString()}</span>{" "}
-              <span className="font-normal text-muted-foreground">following</span>
+              <span className="font-bold">{Number(0).toLocaleString()}</span>{' '}
+              <span className="text-muted-foreground font-normal">following</span>
             </span>
           </div>
 
           {profile.bio ? (
-            <p className="whitespace-pre-wrap text-sm font-normal leading-snug text-muted-foreground">
+            <p className="text-muted-foreground text-sm leading-snug font-normal whitespace-pre-wrap">
               {profile.bio}
             </p>
           ) : null}
         </div>
       </div>
     </div>
-  );
+  )
 }

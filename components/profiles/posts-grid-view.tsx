@@ -1,118 +1,118 @@
-"use client";
+'use client'
 
-import { useState, useCallback } from "react";
+import { Grid3X3, Image as ImageIcon, List, Pencil, Plus } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
+  useSensors
+} from '@dnd-kit/core'
 import {
   arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
   rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { Grid3X3, List, Plus, Image as ImageIcon, Pencil } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { PostSortableItem } from "@/components/profiles/post-sortable-item";
-import { PostsFeedView } from "@/components/profiles/posts-feed-view";
-import { PostFormDialog } from "@/components/profiles/post-form-dialog";
-import { PostPreviewDialog } from "@/components/profiles/post-preview-dialog";
-import { ProfileEditDialog } from "@/components/profiles/profile-edit-dialog";
-import { useReorderPostsMutation } from "@/queries/posts";
-import type { Post } from "@/types/post";
-import type { Profile } from "@/types/profile";
+  SortableContext,
+  sortableKeyboardCoordinates
+} from '@dnd-kit/sortable'
+import type { Post } from '@/types/post'
+import type { Profile } from '@/types/profile'
+import { PostFormDialog } from '@/components/profiles/post-form-dialog'
+import { PostPreviewDialog } from '@/components/profiles/post-preview-dialog'
+import { PostSortableItem } from '@/components/profiles/post-sortable-item'
+import { PostsFeedView } from '@/components/profiles/posts-feed-view'
+import { ProfileEditDialog } from '@/components/profiles/profile-edit-dialog'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useReorderPostsMutation } from '@/queries/posts'
 
-export type { Post } from "@/types/post";
-export type { Profile } from "@/types/profile";
+export type { Post } from '@/types/post'
+export type { Profile } from '@/types/profile'
 
-export function PostsGridView({
+export const PostsGridView = ({
   initialPosts,
-  profile,
+  profile
 }: {
-  initialPosts: Post[];
-  profile: Profile;
-}) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [previewPost, setPreviewPost] = useState<Post | null>(null);
-  const [editPost, setEditPost] = useState<Post | null>(null);
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
-  const reorderPosts = useReorderPostsMutation();
+  initialPosts: Post[]
+  profile: Profile
+}) => {
+  const [posts, setPosts] = useState<Post[]>(initialPosts)
+  const [previewPost, setPreviewPost] = useState<Post | null>(null)
+  const [editPost, setEditPost] = useState<Post | null>(null)
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false)
+  const reorderPosts = useReorderPostsMutation()
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
-      },
+        distance: 8
+      }
     }),
     useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
+      coordinateGetter: sortableKeyboardCoordinates
     })
-  );
+  )
 
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
-      const { active, over } = event;
+      const { active, over } = event
 
       if (over && active.id !== over.id) {
-        const oldIndex = posts.findIndex((p) => p.id === active.id);
-        const newIndex = posts.findIndex((p) => p.id === over.id);
+        const oldIndex = posts.findIndex((p) => p.id === active.id)
+        const newIndex = posts.findIndex((p) => p.id === over.id)
 
-        const previous = posts;
-        const newPosts = arrayMove(posts, oldIndex, newIndex);
-        setPosts(newPosts);
+        const previous = posts
+        const newPosts = arrayMove(posts, oldIndex, newIndex)
+        setPosts(newPosts)
 
         try {
-          await reorderPosts.mutateAsync({ orderedPosts: newPosts });
+          await reorderPosts.mutateAsync({ orderedPosts: newPosts })
         } catch {
-          setPosts(previous);
+          setPosts(previous)
         }
       }
     },
     [posts, reorderPosts]
-  );
+  )
 
   const handleSavePost = (savedPost: Post) => {
     setPosts((prev) => {
-      const existingIndex = prev.findIndex((p) => p.id === savedPost.id);
+      const existingIndex = prev.findIndex((p) => p.id === savedPost.id)
       if (existingIndex >= 0) {
         // Update existing post
-        return prev.map((p) => (p.id === savedPost.id ? savedPost : p));
+        return prev.map((p) => (p.id === savedPost.id ? savedPost : p))
       } else {
         // Add new post
-        return [...prev, savedPost];
+        return [...prev, savedPost]
       }
-    });
-    setShowAddDialog(false);
-    setEditPost(null);
-  };
+    })
+    setShowAddDialog(false)
+    setEditPost(null)
+  }
 
   const handleDeletePost = (postId: string) => {
-    setPosts((prev) => prev.filter((p) => p.id !== postId));
-    setEditPost(null);
-  };
+    setPosts((prev) => prev.filter((p) => p.id !== postId))
+    setEditPost(null)
+  }
 
   const handleEditFromPreview = (post: Post) => {
-    setPreviewPost(null);
-    setEditPost(post);
-  };
+    setPreviewPost(null)
+    setEditPost(post)
+  }
 
   return (
     <>
-      <Tabs defaultValue="grid" className="w-full">
+      <Tabs className="w-full" defaultValue="grid">
         <div className="flex items-center justify-between gap-2 pt-2">
           <TabsList>
-            <TabsTrigger value="grid" className="gap-1.5">
+            <TabsTrigger className="gap-1.5" value="grid">
               <Grid3X3 className="size-4" />
               <span className="hidden sm:inline">Grid</span>
             </TabsTrigger>
-            <TabsTrigger value="feed" className="gap-1.5">
+            <TabsTrigger className="gap-1.5" value="feed">
               <List className="size-4" />
               <span className="hidden sm:inline">Feed</span>
             </TabsTrigger>
@@ -129,14 +129,14 @@ export function PostsGridView({
           </div>
         </div>
 
-        <TabsContent value="grid" className="mt-4">
+        <TabsContent className="mt-4" value="grid">
           {posts.length === 0 ? (
             <EmptyState onAdd={() => setShowAddDialog(true)} />
           ) : (
             <DndContext
               id="posts-grid-dnd"
-              sensors={sensors}
               collisionDetection={closestCenter}
+              sensors={sensors}
               onDragEnd={handleDragEnd}
             >
               <SortableContext items={posts} strategy={rectSortingStrategy}>
@@ -144,9 +144,9 @@ export function PostsGridView({
                   {posts.map((post) => (
                     <PostSortableItem
                       key={post.id}
+                      gridRatio={profile.grid_ratio}
                       post={post}
                       onClick={() => setPreviewPost(post)}
-                      gridRatio={profile.grid_ratio}
                     />
                   ))}
                 </div>
@@ -155,7 +155,7 @@ export function PostsGridView({
           )}
         </TabsContent>
 
-        <TabsContent value="feed" className="mt-4">
+        <TabsContent className="mt-4" value="feed">
           {posts.length === 0 ? (
             <EmptyState onAdd={() => setShowAddDialog(true)} />
           ) : (
@@ -166,21 +166,21 @@ export function PostsGridView({
 
       {/* Add Post Dialog */}
       <PostFormDialog
-        open={showAddDialog}
-        onOpenChange={setShowAddDialog}
-        profileId={profile.id}
         nextPosition={posts.length}
+        open={showAddDialog}
+        profileId={profile.id}
+        onOpenChange={setShowAddDialog}
         onSave={handleSavePost}
       />
 
       {/* Edit Post Dialog */}
       <PostFormDialog
         open={!!editPost}
-        onOpenChange={(open) => !open && setEditPost(null)}
         post={editPost}
         profileId={profile.id}
-        onSave={handleSavePost}
         onDelete={handleDeletePost}
+        onOpenChange={(open) => !open && setEditPost(null)}
+        onSave={handleSavePost}
       />
 
       <PostPreviewDialog
@@ -191,22 +191,22 @@ export function PostsGridView({
       />
 
       <ProfileEditDialog
-        profile={profile}
         open={showEditProfileDialog}
+        profile={profile}
         onOpenChange={setShowEditProfileDialog}
       />
     </>
-  );
+  )
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+const EmptyState = ({ onAdd }: { onAdd: () => void }) => {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed">
-        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+        <ImageIcon className="text-muted-foreground h-8 w-8" />
       </div>
       <h3 className="mt-4 font-semibold">No posts yet</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-1 text-sm">
         Start building your grid by adding your first post
       </p>
       <Button className="mt-4" onClick={onAdd}>
@@ -214,5 +214,5 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
         Add Your First Post
       </Button>
     </div>
-  );
+  )
 }
