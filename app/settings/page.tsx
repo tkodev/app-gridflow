@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProfilesManager } from "@/components/settings/profiles-manager";
+import type { Profile } from "@/types/profile";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -8,11 +9,13 @@ export default async function SettingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: profiles } = await supabase
+  const { data: profilesRaw } = await supabase
     .from("profiles")
     .select("*")
     .eq("user_id", user!.id)
     .order("created_at", { ascending: true });
+
+  const profiles = (profilesRaw ?? []) as Profile[];
 
   return (
     <div className="py-6">
@@ -22,7 +25,7 @@ export default async function SettingsPage() {
       </p>
 
       <div className="mt-8">
-        <ProfilesManager profiles={profiles || []} userEmail={user!.email || ""} />
+        <ProfilesManager profiles={profiles} userEmail={user!.email || ""} />
       </div>
     </div>
   );

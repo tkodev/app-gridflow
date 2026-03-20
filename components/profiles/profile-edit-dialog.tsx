@@ -2,31 +2,17 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, Upload, X } from "lucide-react";
+import { Camera, Upload, X, UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import type { Profile } from "@/types/profile";
 
-interface Profile {
-  id: string;
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  grid_ratio?: string;
-}
-
-export function EditProfileDialog({
+export function ProfileEditDialog({
   profile,
   open,
   onOpenChange,
@@ -40,7 +26,7 @@ export function EditProfileDialog({
   const [username, setUsername] = useState(profile.username);
   const [displayName, setDisplayName] = useState(profile.display_name || "");
   const [bio, setBio] = useState(profile.bio || "");
-  const [gridRatio, setGridRatio] = useState(profile.grid_ratio || "square");
+  const [gridRatio, setGridRatio] = useState<Profile["grid_ratio"]>(profile.grid_ratio);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
   const [loading, setLoading] = useState(false);
@@ -82,12 +68,10 @@ export function EditProfileDialog({
     let newAvatarUrl = profile.avatar_url;
 
     try {
-      // Upload new avatar if selected
       if (avatarFile) {
         const fileExt = avatarFile.name.split(".").pop();
         const fileName = `${profile.id}/avatar-${Date.now()}.${fileExt}`;
 
-        // Delete old avatar if exists
         if (profile.avatar_url) {
           const oldPath = profile.avatar_url.split("/avatars/")[1];
           if (oldPath) {
@@ -107,7 +91,6 @@ export function EditProfileDialog({
 
         newAvatarUrl = urlData.publicUrl;
       } else if (avatarPreview === null && profile.avatar_url) {
-        // User removed avatar
         const oldPath = profile.avatar_url.split("/avatars/")[1];
         if (oldPath) {
           await supabase.storage.from("avatars").remove([oldPath]);
@@ -140,13 +123,17 @@ export function EditProfileDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
-        </DialogHeader>
-
+      <DialogContent
+        className="sm:max-w-md"
+        headerTitle="Edit Profile"
+        headerDescription="Edit your profile details and how posts appear in the grid."
+        headerLeading={
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+            <UserRound className="h-4 w-4 text-muted-foreground" />
+          </div>
+        }
+      >
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Avatar Upload */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <Avatar className="h-24 w-24">

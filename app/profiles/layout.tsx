@@ -2,17 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppHeader } from "@/components/app/header";
 
-export interface Profile {
-  id: string;
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export default async function ProfilesLayout({
   children,
 }: {

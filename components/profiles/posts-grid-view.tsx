@@ -19,45 +19,24 @@ import {
 import { Grid3X3, List, Plus, Image as ImageIcon, Pencil } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { SortablePost } from "@/components/profiles/sortable-post";
-import { FeedView } from "@/components/profiles/feed-view";
-import { AddPostDialog } from "@/components/profiles/add-post-dialog";
+import { PostSortableItem } from "@/components/profiles/post-sortable-item";
+import { PostsFeedView } from "@/components/profiles/posts-feed-view";
+import { PostAddDialog } from "@/components/profiles/post-add-dialog";
 import { PostPreviewDialog } from "@/components/profiles/post-preview-dialog";
-import { PostDetailDialog } from "@/components/profiles/post-detail-dialog";
-import { EditProfileDialog } from "@/components/profiles/edit-profile-dialog";
+import { PostEditDialog } from "@/components/profiles/post-edit-dialog";
+import { ProfileEditDialog } from "@/components/profiles/profile-edit-dialog";
 import { createClient } from "@/lib/supabase/client";
+import type { Post } from "@/types/post";
+import type { Profile } from "@/types/profile";
 
-interface Profile {
-  id: string;
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  grid_ratio?: string;
-}
+export type { Post } from "@/types/post";
+export type { Profile } from "@/types/profile";
 
-export interface Post {
-  id: string;
-  profile_id: string;
-  image_url: string;
-  caption: string | null;
-  subtitle: string | null;
-  location: string | null;
-  music: string | null;
-  grid_position: number;
-  status: "draft" | "scheduled" | "published";
-  scheduled_at: string | null;
-  published_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export function PostsGrid({ 
-  initialPosts, 
-  profile 
-}: { 
-  initialPosts: Post[]; 
+export function PostsGridView({
+  initialPosts,
+  profile,
+}: {
+  initialPosts: Post[];
   profile: Profile;
 }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
@@ -88,7 +67,6 @@ export function PostsGrid({
         const newPosts = arrayMove(posts, oldIndex, newIndex);
         setPosts(newPosts);
 
-        // Update grid positions in database
         const supabase = createClient();
         const updates = newPosts.map((post, index) => ({
           id: post.id,
@@ -163,11 +141,11 @@ export function PostsGrid({
               <SortableContext items={posts} strategy={rectSortingStrategy}>
                 <div className="grid grid-cols-3 gap-1">
                   {posts.map((post) => (
-                    <SortablePost
+                    <PostSortableItem
                       key={post.id}
                       post={post}
                       onClick={() => setPreviewPost(post)}
-                      gridRatio={(profile.grid_ratio as "square" | "portrait") || "square"}
+                      gridRatio={profile.grid_ratio}
                     />
                   ))}
                 </div>
@@ -180,12 +158,12 @@ export function PostsGrid({
           {posts.length === 0 ? (
             <EmptyState onAdd={() => setShowAddDialog(true)} />
           ) : (
-            <FeedView posts={posts} profile={profile} onEditClick={setEditPost} />
+            <PostsFeedView posts={posts} profile={profile} onEditClick={setEditPost} />
           )}
         </TabsContent>
       </Tabs>
 
-      <AddPostDialog
+      <PostAddDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onAdd={handleAddPost}
@@ -200,14 +178,14 @@ export function PostsGrid({
         onEditClick={handleEditFromPreview}
       />
 
-      <PostDetailDialog
+      <PostEditDialog
         post={editPost}
         onClose={() => setEditPost(null)}
         onUpdate={handleUpdatePost}
         onDelete={handleDeletePost}
       />
 
-      <EditProfileDialog
+      <ProfileEditDialog
         profile={profile}
         open={showEditProfileDialog}
         onOpenChange={setShowEditProfileDialog}

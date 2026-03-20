@@ -3,10 +3,11 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Image from "next/image";
+import { PostStatusPill } from "@/components/profiles/post-status-pill";
 import { cn } from "@/lib/utils";
-import type { Post } from "./posts-grid";
+import type { Post } from "@/types/post";
 
-export function SortablePost({
+export function PostSortableItem({
   post,
   onClick,
   gridRatio = "square",
@@ -49,14 +50,9 @@ export function SortablePost({
         className="object-cover"
         sizes="(max-width: 768px) 33vw, 200px"
       />
-      {post.status === "draft" && (
-        <div className="absolute right-1 top-1 rounded-sm bg-background/80 px-1.5 py-0.5 text-[10px] font-medium">
-          Draft
-        </div>
-      )}
-      {post.status === "scheduled" && (
-        <div className="absolute right-1 top-1 rounded-sm bg-amber-500/90 px-1.5 py-0.5 text-[10px] font-medium text-white">
-          Scheduled
+      {(post.status === "draft" || post.status === "scheduled") && (
+        <div className="absolute right-1 top-1">
+          <PostStatusPill status={post.status} compact />
         </div>
       )}
     </button>

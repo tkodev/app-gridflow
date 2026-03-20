@@ -48,6 +48,8 @@ Nextjs should use the `src` folder convention.
 - Use explicit types for function parameters and return values
 - Prefer `interface` over `type` for object shapes
 - Avoid `any` — use `unknown` if type is truly unknown
+- Shared types should be defined either app wide (in `./types/<type>.ts`) or next to the object it's referring to (such as component props being in the same file as the component.). Utilize best practices for it.
+
 
 ```typescript
 // ✅ Good
@@ -70,6 +72,22 @@ type PostProps = { post: any; onEdit: Function }
 
 All pages share a common header bar. Pages that use a sidebar share the same sidebar component. For visual design principles, see [design.md](/docs/design.md).
 
+## Tailwind CSS
+
+- Use semantic tokens (`bg-background`, `text-foreground`, etc.)
+- Use `gap-*` for spacing; avoid arbitrary values
+- Use `size-*` wherever `h-*` and `w-*` are the same value.
+
+```tsx
+// ✅ Good
+<div className="flex items-center gap-4 p-4 bg-card rounded-lg border">
+
+// ❌ Avoid
+<div className="flex items-center p-[17px] bg-white dark:bg-gray-800 rounded-[10px]">
+```
+
+Post status classes: `bg-scheduled`, `bg-draft`, `bg-published` (and `text-*` variants)
+
 ## React Components
 
 - Responsive (Desktop, tablet, mobile support)
@@ -78,6 +96,7 @@ All pages share a common header bar. Pages that use a sidebar share the same sid
 - Use functional components with TypeScript interfaces
 - Prefer named exports; colocate component types in the same file
 - Use `"use client"` only when necessary
+- Dialogs: always include `<DialogTitle>` and `<DialogDescription>`
 
 ```tsx
 "use client"
@@ -92,28 +111,12 @@ export function MyComponent({ title, children }: MyComponentProps) {
 }
 ```
 
-## Tailwind CSS
-
-- Use semantic tokens (`bg-background`, `text-foreground`, etc.)
-- Use `gap-*` for spacing; avoid arbitrary values
-
-```tsx
-// ✅ Good
-<div className="flex items-center gap-4 p-4 bg-card rounded-lg border">
-
-// ❌ Avoid
-<div className="flex items-center p-[17px] bg-white dark:bg-gray-800 rounded-[10px]">
-```
-
-**Post status classes**: `bg-scheduled`, `bg-draft`, `bg-published` (and `text-*` variants)
-
-## Patterns
+## React Hooks & State
 
 - State: `useState` for local state; Server Components + Server Actions for server state; `useOptimistic` for optimistic UI updates
-- Dialogs: always include `<DialogTitle>` and `<DialogDescription>`
-- Place shared types in `/lib/types.ts`; extract reusable logic into `/hooks`
+- Extract reusable logic into `/hooks` (shared types follow the [TypeScript](#typescript) conventions above)
 
-## Accessibility
+## React Accessibility
 
 - Use semantic HTML (`main`, `header`, `nav`, `button`)
 - Include ARIA labels where needed; use `sr-only` for screen reader text

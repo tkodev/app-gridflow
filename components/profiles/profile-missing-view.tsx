@@ -2,7 +2,7 @@ import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function NoProfileState() {
+export function ProfileMissingView() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed">

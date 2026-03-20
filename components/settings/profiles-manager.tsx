@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, UserCircle, Key, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, UserCircle, UserPlus, Key, AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,20 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
-
-interface Profile {
-  id: string;
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  created_at: string;
-}
+import type { Profile } from "@/types/profile";
 
 export function ProfilesManager({
   profiles: initialProfiles,
@@ -245,33 +233,6 @@ export function ProfilesManager({
         <span className="text-sm text-muted-foreground">Back to profiles</span>
       </div>
 
-      {/* Account Info */}
-      <div className="space-y-4 rounded-lg border p-4">
-        <h2 className="font-semibold">Account</h2>
-        <div className="space-y-2">
-          <Label>Email</Label>
-          <Input
-            type="email"
-            value={userEmail}
-            disabled
-            className="bg-muted"
-          />
-          <p className="text-xs text-muted-foreground">
-            Email cannot be changed
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPasswordDialog(true)}
-          >
-            <Key className="mr-1.5 h-4 w-4" />
-            Change Password
-          </Button>
-        </div>
-      </div>
-
       {/* Profiles List */}
       <div className="space-y-4 rounded-lg border p-4">
         <div className="flex items-center justify-between">
@@ -329,6 +290,33 @@ export function ProfilesManager({
         )}
       </div>
 
+      {/* Account Info */}
+      <div className="space-y-4 rounded-lg border p-4">
+        <h2 className="font-semibold">Account</h2>
+        <div className="space-y-2">
+          <Label>Email</Label>
+          <Input
+            type="email"
+            value={userEmail}
+            disabled
+            className="bg-muted"
+          />
+          <p className="text-xs text-muted-foreground">
+            Email cannot be changed
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPasswordDialog(true)}
+          >
+            <Key className="mr-1.5 h-4 w-4" />
+            Change Password
+          </Button>
+        </div>
+      </div>
+
       {/* Danger Zone */}
       <div className="space-y-4 rounded-lg border border-destructive/50 p-4">
         <div className="flex items-center gap-2">
@@ -349,14 +337,16 @@ export function ProfilesManager({
 
       {/* Add Profile Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add New Profile</DialogTitle>
-            <DialogDescription>
-              Create a new profile to manage a separate Instagram account.
-            </DialogDescription>
-          </DialogHeader>
-
+        <DialogContent
+          className="sm:max-w-md"
+          headerTitle="Add New Profile"
+          headerDescription="Create a new profile to manage a separate Instagram account."
+          headerLeading={
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+              <UserPlus className="h-4 w-4 text-muted-foreground" />
+            </div>
+          }
+        >
           <form onSubmit={handleAddProfile} className="space-y-4">
             {error && (
               <div className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
@@ -408,14 +398,16 @@ export function ProfilesManager({
           setConfirmPassword("");
         }
       }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>
-              Enter your new password below.
-            </DialogDescription>
-          </DialogHeader>
-
+        <DialogContent
+          className="sm:max-w-md"
+          headerTitle="Change Password"
+          headerDescription="Enter your new password below."
+          headerLeading={
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+              <Key className="h-4 w-4 text-muted-foreground" />
+            </div>
+          }
+        >
           <form onSubmit={handleChangePassword} className="space-y-4">
             {error && (
               <div className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm text-destructive">
@@ -475,16 +467,17 @@ export function ProfilesManager({
         open={!!profileToDelete}
         onOpenChange={(open) => !open && setProfileToDelete(null)}
       >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete Profile</DialogTitle>
-            <DialogDescription>
+        <DialogContent
+          className="sm:max-w-md"
+          headerTitle="Delete Profile"
+          headerDescription={
+            <>
               Are you sure you want to delete{" "}
               <span className="font-semibold">{profileToDelete?.username}</span>?
               This will permanently delete all posts associated with this profile.
-            </DialogDescription>
-          </DialogHeader>
-
+            </>
+          }
+        >
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
@@ -514,15 +507,17 @@ export function ProfilesManager({
           }
         }}
       >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-destructive">Delete Account</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your account,
-              all your profiles, and all posts associated with them.
-            </DialogDescription>
-          </DialogHeader>
-
+        <DialogContent
+          className="sm:max-w-md"
+          headerTitle="Delete Account"
+          headerTitleClassName="text-destructive"
+          headerDescription="This action cannot be undone. This will permanently delete your account, all your profiles, and all posts associated with them."
+          headerLeading={
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/10">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+            </div>
+          }
+        >
           <div className="space-y-4">
             {error && (
               <div className="rounded-lg border border-destructive bg-destructive/10 p-3 text-sm text-destructive">

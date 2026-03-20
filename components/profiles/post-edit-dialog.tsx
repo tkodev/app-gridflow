@@ -2,22 +2,16 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { Trash2, Upload, ImageIcon, Music } from "lucide-react";
+import { Trash2, Upload, Music, FileImage } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import type { Post } from "./posts-grid";
+import type { Post } from "@/types/post";
 
-export function PostDetailDialog({
+export function PostEditDialog({
   post,
   onClose,
   onUpdate,
@@ -38,7 +32,6 @@ export function PostDetailDialog({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset state when post changes
   useEffect(() => {
     if (post) {
       setCaption(post.caption || "");
@@ -82,7 +75,6 @@ export function PostDetailDialog({
     const supabase = createClient();
     let newImageUrl = post.image_url;
 
-    // If there's a new file, upload it
     if (newFile) {
       const fileExt = newFile.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
@@ -107,7 +99,6 @@ export function PostDetailDialog({
 
       newImageUrl = urlData.publicUrl;
 
-      // Delete old image if it's from our storage
       if (post.image_url.includes("/storage/v1/object/public/posts/")) {
         const oldPath = post.image_url.split("/posts/")[1];
         if (oldPath) {
@@ -147,7 +138,6 @@ export function PostDetailDialog({
 
     const supabase = createClient();
 
-    // Delete the image from storage if it's from our bucket
     if (post.image_url.includes("/storage/v1/object/public/posts/")) {
       const path = post.image_url.split("/posts/")[1];
       if (path) {
@@ -167,11 +157,16 @@ export function PostDetailDialog({
 
   return (
     <Dialog open={!!post} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Edit Post</DialogTitle>
-        </DialogHeader>
-
+      <DialogContent
+        className="sm:max-w-lg"
+        headerTitle="Edit Post"
+        headerDescription="Change the image, caption, subtitle, or status for this post."
+        headerLeading={
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+            <FileImage className="h-4 w-4 text-muted-foreground" />
+          </div>
+        }
+      >
         {post && (
           <div className="space-y-4">
             {error && (

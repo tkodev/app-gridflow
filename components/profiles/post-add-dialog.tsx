@@ -2,20 +2,15 @@
 
 import { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Upload, X, Image as ImageIcon, Music } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Upload, X, Image as ImageIcon, Music, ImagePlus } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { Post } from "./posts-grid";
+import type { Post } from "@/types/post";
 
-export function AddPostDialog({
+export function PostAddDialog({
   open,
   onOpenChange,
   onAdd,
@@ -40,13 +35,11 @@ export function AddPostDialog({
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Validate file type
     if (!selectedFile.type.startsWith("image/")) {
       setError("Please select an image file");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (selectedFile.size > 5 * 1024 * 1024) {
       setError("Image must be less than 5MB");
       return;
@@ -55,7 +48,6 @@ export function AddPostDialog({
     setError(null);
     setFile(selectedFile);
 
-    // Create preview URL
     const reader = new FileReader();
     reader.onload = (event) => {
       setPreview(event.target?.result as string);
@@ -84,12 +76,10 @@ export function AddPostDialog({
 
     const supabase = createClient();
 
-    // Generate unique filename
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
     const filePath = `${profileId}/${fileName}`;
 
-    // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from("posts")
       .upload(filePath, file, {
@@ -103,14 +93,12 @@ export function AddPostDialog({
       return;
     }
 
-    // Get public URL
     const { data: urlData } = supabase.storage
       .from("posts")
       .getPublicUrl(filePath);
 
     const imageUrl = urlData.publicUrl;
 
-    // Create post record
     const { data, error: insertError } = await supabase
       .from("posts")
       .insert({
@@ -125,7 +113,6 @@ export function AddPostDialog({
       .single();
 
     if (insertError) {
-      // Clean up uploaded file if post creation fails
       await supabase.storage.from("posts").remove([filePath]);
       setError(insertError.message);
       setLoading(false);
@@ -151,11 +138,16 @@ export function AddPostDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add New Post</DialogTitle>
-        </DialogHeader>
-
+      <DialogContent
+        className="sm:max-w-md"
+        headerTitle="Add New Post"
+        headerDescription="Upload an image and optional subtitle or caption for your grid."
+        headerLeading={
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+            <ImagePlus className="h-4 w-4 text-muted-foreground" />
+          </div>
+        }
+      >
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="rounded-(--radius) border border-destructive bg-destructive/10 p-3 text-sm text-destructive">

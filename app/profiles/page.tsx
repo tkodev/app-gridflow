@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileHeader } from "@/components/profiles/profile-header";
-import { PostsGrid } from "@/components/profiles/posts-grid";
-import { NoProfileState } from "@/components/profiles/no-profile-state";
+import { PostsGridView } from "@/components/profiles/posts-grid-view";
+import { ProfileMissingView } from "@/components/profiles/profile-missing-view";
+import type { Profile } from "@/types/profile";
 
 export default async function ProfilesPage({
   searchParams,
@@ -20,21 +21,20 @@ export default async function ProfilesPage({
     redirect("/auth/login");
   }
 
-  // Fetch all profiles for this user
-  const { data: profiles } = await supabase
+  const { data: profilesRaw } = await supabase
     .from("profiles")
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
-  // If no profiles exist, show empty state
-  if (!profiles || profiles.length === 0) {
-    return <NoProfileState />;
+  const profiles = (profilesRaw ?? []) as Profile[];
+
+  if (profiles.length === 0) {
+    return <ProfileMissingView />;
   }
 
-  // Get current profile from URL or default to first profile
   const currentProfileId = params.profile || profiles[0].id;
-  const profile = profiles.find((p) => p.id === currentProfileId) || profiles[0];
+  const profile = profiles.find((p) => p.id === currentProfileId) ?? profiles[0];
 
   // Fetch posts for current profile
   const { data: posts } = await supabase
@@ -46,7 +46,7 @@ export default async function ProfilesPage({
   return (
     <div className="py-6">
       <ProfileHeader profile={profile} profiles={profiles} postsCount={posts?.length || 0} />
-      <PostsGrid initialPosts={posts || []} profile={profile} />
+      <PostsGridView initialPosts={posts || []} profile={profile} />
     </div>
   );
 }

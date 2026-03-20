@@ -1,24 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-
-interface Profile {
-  id: string;
-  user_id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-}
+import type { Profile } from "@/types/profile";
 
 export function ProfileHeader({
   profile,
@@ -80,6 +74,13 @@ export function ProfileHeader({
                   {profile.id === p.id && <Check className="h-4 w-4" />}
                 </DropdownMenuItem>
               ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Manage profiles
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
