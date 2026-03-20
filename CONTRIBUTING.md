@@ -5,11 +5,13 @@ Everything a developer needs to understand and work on GridFlow.
 ## Docs
 
 | File | Owns |
-|---|---|
+| --- | --- |
 | [product.md](/docs/product.md) | Business behaviour, features, and MVP/stretch boundaries |
 | [tech.md](/docs/tech.md) | Tech stack, routes, page structure, and code conventions |
 | [design.md](/docs/design.md) | Visual design principles and Figma references |
 | [git.md](/docs/git.md) | Branch naming, commit conventions, and PR guidelines |
+
+Please read all files in here before contributing
 
 ## Quick Reference
 

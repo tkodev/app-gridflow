@@ -1,14 +1,8 @@
----
-description: Tech stack, routes, page structure, and code style guidelines. No business behaviour or feature decisions — those belong in product.md.
-globs: **/*.{ts,tsx}
-alwaysApply: false
----
-
-# Stack
+# Tech Stack
 
 > This file defines **how the product is built** — technology choices, routes, page/component structure, and code conventions. For features and product behaviour, see [product.md](/docs/product.md).
 
-## Tech Stack
+## Technologies
 
 - Next.js (App Router)
 - Tailwind CSS

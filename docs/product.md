@@ -1,9 +1,4 @@
----
-description: Business behaviour, product feature scope, and per-page design intent. No structural or technical implementation details — those belong in tech.md.
-alwaysApply: true
----
-
-# Project Scope
+# Product Scope
 
 > This file defines **what the product does and how it should feel** — features, user flows, MVP boundaries, and per-page design intent. For page structure, routes, and technical implementation, see [tech.md](/docs/tech.md). For app-wide visual principles, see [design.md](/docs/design.md).
 

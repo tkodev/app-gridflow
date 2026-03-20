@@ -1,9 +1,4 @@
----
-description: App-wide visual design principles and Figma references. No implementation details — those belong in tech.md. Per-page design intent belongs in product.md.
-alwaysApply: true
----
-
-# Style
+# Design Scope
 
 > This file defines **app-wide visual principles** — design references and global style rules. For per-page design intent and behaviour, see [product.md](/docs/product.md). For Tailwind conventions and code patterns, see [tech.md](/docs/tech.md).
 

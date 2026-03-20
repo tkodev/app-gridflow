@@ -1,9 +1,4 @@
----
-description: Git branch naming, conventional commits, and PR guidelines.
-alwaysApply: true
----
-
-# Git
+# Git Standards
 
 > This file defines **how we use git** — branch naming, commit conventions, and PR guidelines. For a full overview of the project, see [CONTRIBUTING.md](/CONTRIBUTING.md).
 
