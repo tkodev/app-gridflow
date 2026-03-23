@@ -29,6 +29,8 @@ type UsePostFormMediaResult = {
   mediaItems: LocalMediaItem[]
   fileInputRef: RefObject<HTMLInputElement | null>
   handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void
+  /** Add image/video files (e.g. from drag-and-drop). Same validation as the file input. */
+  addMediaFiles: (files: File[]) => void
   handleRemoveMedia: (id: string) => void
   handleDragEnd: (event: DragEndEvent, options: { disabled: boolean }) => void
   /** Call when closing the dialog to release blob URLs for unsaved uploads. */
@@ -61,9 +63,8 @@ export function usePostFormMedia({
     }
   }, [post, open, setError])
 
-  const handleFileChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || [])
+  const addMediaFiles = useCallback(
+    (files: File[]) => {
       if (files.length === 0) return
 
       type ValidMeta = { file: File; type: 'image' | 'video' }
@@ -115,12 +116,19 @@ export function usePostFormMedia({
 
         return toAdd.length > 0 ? [...prev, ...toAdd] : prev
       })
+    },
+    [setError]
+  )
 
+  const handleFileChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || [])
+      addMediaFiles(files)
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
     },
-    [setError]
+    [addMediaFiles]
   )
 
   const handleRemoveMedia = useCallback((id: string) => {
@@ -149,6 +157,7 @@ export function usePostFormMedia({
     mediaItems,
     fileInputRef,
     handleFileChange,
+    addMediaFiles,
     handleRemoveMedia,
     handleDragEnd,
     revokePendingBlobUrls

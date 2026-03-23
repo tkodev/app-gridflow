@@ -45,6 +45,10 @@ const styles = {
   ),
   fieldGroup: cva('space-y-2'),
   hiddenFileInput: cva('hidden'),
+  mediaDropZone: cva('relative rounded-lg transition-colors'),
+  mediaDropOverlay: cva(
+    'bg-background/85 border-primary/50 text-foreground pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-sm font-medium backdrop-blur-sm'
+  ),
   mediaGrid: cva('grid grid-cols-12 gap-2'),
   addSlotDisabled: cva(
     'border-muted-foreground/25 bg-muted/50 col-span-4 flex aspect-square cursor-not-allowed flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed opacity-50'
@@ -103,6 +107,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
     mediaItems,
     fileInputRef,
     handleFileChange,
+    addMediaFiles,
     handleRemoveMedia,
     handleDragEnd: handleDragEndBase,
     revokePendingBlobUrls
@@ -127,6 +132,43 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
   const savePost = useSavePostMutation()
   const deletePost = useDeletePostMutation()
   const isBusy = savePost.isPending || deletePost.isPending
+
+  const [isFileDragOver, setIsFileDragOver] = useState(false)
+
+  const hasDraggedFiles = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes('Files')
+
+  const handleMediaDragEnter = (e: React.DragEvent) => {
+    if (!hasDraggedFiles(e) || isBusy) return
+    e.preventDefault()
+    e.stopPropagation()
+    setIsFileDragOver(true)
+  }
+
+  const handleMediaDragOver = (e: React.DragEvent) => {
+    if (!hasDraggedFiles(e)) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = isBusy ? 'none' : 'copy'
+  }
+
+  const handleMediaDragOverCapture = (e: React.DragEvent) => {
+    if (!hasDraggedFiles(e)) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = isBusy ? 'none' : 'copy'
+  }
+
+  const handleMediaDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(e)) return
+    const related = e.relatedTarget as Node | null
+    if (related && e.currentTarget.contains(related)) return
+    setIsFileDragOver(false)
+  }
+
+  const handleMediaDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsFileDragOver(false)
+    if (isBusy) return
+    addMediaFiles(Array.from(e.dataTransfer.files || []))
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -197,6 +239,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
       revokePendingBlobUrls()
+      setIsFileDragOver(false)
     }
     onOpenChange(isOpen)
   }
@@ -247,41 +290,59 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               multiple
             />
 
-            <DndContext
-              id={`post-edit-media-dnd-${formDndId}`}
-              collisionDetection={closestCenter}
-              sensors={sensors}
-              onDragEnd={(e) => handleDragEndBase(e, { disabled: savePost.isPending })}
+            <div
+              className={styles.mediaDropZone()}
+              aria-label="Drop images or videos here"
+              onDragEnter={handleMediaDragEnter}
+              onDragLeave={handleMediaDragLeave}
+              onDragOver={handleMediaDragOver}
+              onDragOverCapture={handleMediaDragOverCapture}
+              onDrop={handleMediaDrop}
             >
-              <SortableContext items={mediaItems.map((m) => m.id)} strategy={rectSortingStrategy}>
-                <div className={styles.mediaGrid()}>
-                  {mediaItems.map((item) => (
-                    <MediaSortableItem
-                      key={item.id}
-                      disabled={isBusy}
-                      item={item}
-                      onRemove={() => handleRemoveMedia(item.id)}
-                    />
-                  ))}
-
-                  {mediaItems.length < MAX_POST_MEDIA_ITEMS &&
-                    (savePost.isPending ? (
-                      <div className={styles.addSlotDisabled()} aria-hidden>
-                        <Icon icon={Upload} size="md" tone="muted" />
-                        <span className={styles.mutedXs()}>Add</span>
-                      </div>
-                    ) : (
-                      <label className={styles.addSlot()} htmlFor="media-upload">
-                        <Icon icon={Upload} size="md" tone="muted" />
-                        <span className={styles.mutedXs()}>Add</span>
-                      </label>
+              <DndContext
+                id={`post-edit-media-dnd-${formDndId}`}
+                collisionDetection={closestCenter}
+                sensors={sensors}
+                onDragEnd={(e) => handleDragEndBase(e, { disabled: savePost.isPending })}
+              >
+                <SortableContext items={mediaItems.map((m) => m.id)} strategy={rectSortingStrategy}>
+                  <div className={styles.mediaGrid()}>
+                    {mediaItems.map((item) => (
+                      <MediaSortableItem
+                        key={item.id}
+                        disabled={isBusy}
+                        item={item}
+                        onRemove={() => handleRemoveMedia(item.id)}
+                      />
                     ))}
+
+                    {mediaItems.length < MAX_POST_MEDIA_ITEMS &&
+                      (savePost.isPending ? (
+                        <div className={styles.addSlotDisabled()} aria-hidden>
+                          <Icon icon={Upload} size="md" tone="muted" />
+                          <span className={styles.mutedXs()}>Add</span>
+                        </div>
+                      ) : (
+                        <label className={styles.addSlot()} htmlFor="media-upload">
+                          <Icon icon={Upload} size="md" tone="muted" />
+                          <span className={styles.mutedXs()}>Add</span>
+                        </label>
+                      ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
+              {isFileDragOver && !isBusy && (
+                <div className={styles.mediaDropOverlay()} aria-hidden>
+                  <Icon icon={Upload} size="lg" tone="muted" />
+                  <span>Drop to add</span>
                 </div>
-              </SortableContext>
-            </DndContext>
+              )}
+            </div>
 
             <p className={styles.mutedXs()}>
-              Up to {MAX_POST_MEDIA_ITEMS} items. Drag to reorder. First item shows as cover.
+              Up to {MAX_POST_MEDIA_ITEMS} items. Drag files here or use Add. Drag items to reorder;
+              first item shows as cover.
             </p>
           </div>
 
