@@ -20,11 +20,11 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   dialogContent: cva('sm:max-w-md'),
-  headerLeading: cva('bg-muted flex h-8 w-8 items-center justify-center rounded-full'),
+  headerLeading: cva('bg-muted flex size-8 items-center justify-center rounded-full'),
   form: cva('space-y-6'),
   avatarBlock: cva('flex flex-col items-center gap-4'),
   avatarWrap: cva('relative'),
-  avatar: cva('h-24 w-24'),
+  avatar: cva('size-24'),
   avatarFallback: cva('text-2xl'),
   cameraButton: cva(
     'bg-primary text-primary-foreground hover:bg-primary/90 absolute right-0 bottom-0 rounded-full p-2 shadow-lg disabled:pointer-events-none disabled:opacity-50'
@@ -36,11 +36,12 @@ const styles = {
   fieldGroup: cva('space-y-2'),
   gridRow: cva('flex gap-2'),
   gridOptionButton: cva('flex-1'),
-  ratioSquare: cva('mr-2 h-4 w-4 border-2 border-current'),
+  ratioSquare: cva('mr-2 size-4 border-2 border-current'),
   ratioPortrait: cva('mr-2 h-5 w-4 border-2 border-current'),
   gridHint: cva('text-muted-foreground text-xs'),
   footer: cva('flex gap-3'),
-  footerButton: cva('flex-1')
+  footerButton: cva('flex-1'),
+  buttonIconLeading: cva('mr-1.5')
 }
 
 // 2. types
@@ -213,7 +214,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Icon icon={Upload} size="sm" slot="buttonLeading" />
+                <Icon className={styles.buttonIconLeading()} icon={Upload} size="sm" />
                 Upload Photo
               </Button>
               {avatarPreview && (
@@ -224,7 +225,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
                   variant="outline"
                   onClick={removeAvatar}
                 >
-                  <Icon icon={X} size="sm" slot="buttonLeading" />
+                  <Icon className={styles.buttonIconLeading()} icon={X} size="sm" />
                   Remove
                 </Button>
               )}

@@ -7,9 +7,9 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full'),
-  image: cva('aspect-square h-full w-full object-cover'),
-  fallback: cva('bg-muted flex h-full w-full items-center justify-center rounded-full')
+  root: cva('relative flex size-10 shrink-0 overflow-hidden rounded-full'),
+  image: cva('aspect-square size-full object-cover'),
+  fallback: cva('bg-muted flex size-full items-center justify-center rounded-full')
 }
 
 // 2. types

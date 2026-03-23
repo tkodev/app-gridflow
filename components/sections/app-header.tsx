@@ -1,10 +1,9 @@
 'use client'
 
 import type { User } from '@supabase/supabase-js'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Grid3X3, LogIn, LogOut, Moon, Settings, Sun, UserPlus, Users } from 'lucide-react'
+import { Grid3X3, LogIn, LogOut, Settings, UserPlus, Users } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -36,13 +35,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
 
   // b. hooks
   const router = useRouter()
-  const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
   const signOut = useSignOutMutation()
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // c. logic
   const isAuthed = Boolean(user)
@@ -66,22 +59,6 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
         </Link>
 
         <div className={styles.actions()}>
-          <Button
-            aria-label="Toggle theme"
-            size="icon"
-            variant="ghost"
-            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          >
-            {mounted ? (
-              resolvedTheme === 'dark' ? (
-                <Icon icon={Moon} size="sm" />
-              ) : (
-                <Icon icon={Sun} size="sm" />
-              )
-            ) : (
-              <Icon icon={Sun} size="sm" />
-            )}
-          </Button>
           {isAuthed ? (
             <>
               <Button size="icon" variant="ghost" asChild>

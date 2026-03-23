@@ -11,10 +11,11 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('flex flex-col items-center justify-center py-20 text-center'),
-  iconRing: cva('flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed'),
+  iconRing: cva('flex size-16 items-center justify-center rounded-full border-2 border-dashed'),
   title: cva('mt-4 text-xl font-semibold'),
   description: cva('text-muted-foreground mt-2 max-w-sm text-sm'),
-  cta: cva('mt-6')
+  cta: cva('mt-6'),
+  ctaIcon: cva('mr-1.5')
 }
 
 // 2. types
@@ -58,13 +59,13 @@ const MissingView: React.FC<MissingViewProps> = (props) => {
       {href != null ? (
         <Button className={styles.cta()} asChild>
           <Link href={href}>
-            <Icon icon={ctaIcon} size="sm" slot="buttonLeading" />
+            <Icon className={styles.ctaIcon()} icon={ctaIcon} size="sm" />
             {ctaLabel}
           </Link>
         </Button>
       ) : (
         <Button className={styles.cta()} onClick={onClick}>
-          <Icon icon={ctaIcon} size="sm" slot="buttonLeading" />
+          <Icon className={styles.ctaIcon()} icon={ctaIcon} size="sm" />
           {ctaLabel}
         </Button>
       )}

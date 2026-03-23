@@ -50,8 +50,8 @@ const styles = {
       dragging: false
     }
   }),
-  videoWrap: cva('relative h-full w-full'),
-  video: cva('h-full w-full object-cover'),
+  videoWrap: cva('relative size-full'),
+  video: cva('size-full object-cover'),
   videoOverlay: cva('absolute inset-0 flex items-center justify-center bg-black/20'),
   coverImage: cva('object-cover'),
   dragHandle: cva(
@@ -75,7 +75,7 @@ const styles = {
     'absolute bottom-1 left-1 rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-medium text-white'
   ),
   dialogContent: cva('sm:max-w-lg'),
-  headerLeading: cva('bg-muted flex h-8 w-8 items-center justify-center rounded-full'),
+  headerLeading: cva('bg-muted flex size-8 items-center justify-center rounded-full'),
   form: cva('space-y-4'),
   errorBanner: cva(
     'border-destructive bg-destructive/10 text-destructive rounded-lg border p-3 text-sm'
@@ -99,7 +99,8 @@ const styles = {
   footer: cva('flex-col gap-2 sm:flex-row'),
   deleteButton: cva('w-full sm:w-auto'),
   footerActions: cva('flex flex-1 gap-2 sm:justify-end'),
-  footerButton: cva('flex-1 sm:flex-none')
+  footerButton: cva('flex-1 sm:flex-none'),
+  deleteIconLeading: cva('mr-1.5')
 }
 
 // 2. types
@@ -450,7 +451,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               variant="destructive"
               onClick={handleDelete}
             >
-              <Icon icon={Trash2} size="sm" slot="buttonLeading" />
+              <Icon className={styles.deleteIconLeading()} icon={Trash2} size="sm" />
               {deletePost.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           )}

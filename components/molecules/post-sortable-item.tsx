@@ -29,7 +29,7 @@ const styles = {
       dragging: false
     }
   }),
-  video: cva('pointer-events-none absolute inset-0 h-full w-full object-cover'),
+  video: cva('pointer-events-none absolute inset-0 size-full object-cover'),
   image: cva('object-cover'),
   srOnly: cva('sr-only'),
   stackIconWrap: cva('absolute top-2 right-2'),

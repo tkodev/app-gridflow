@@ -28,25 +28,16 @@ const styles = {
         lg: 'size-8',
         xl: 'size-12'
       },
-      slot: {
-        default: '',
-        buttonLeading: 'mr-1.5'
-      },
       tone: {
         default: '',
         muted: 'text-muted-foreground',
         destructive: 'text-destructive',
         inverse: 'text-white',
-        inverseElevated: 'text-white drop-shadow-md',
-        chevron: 'shrink-0 opacity-50',
-        menuItemLeading: 'mr-2',
-        submenuTrailing: 'ml-auto',
-        radioIndicator: 'fill-current'
+        inverseElevated: 'text-white drop-shadow-md'
       }
     },
     defaultVariants: {
       size: 'sm',
-      slot: 'default',
       tone: 'default'
     }
   })
@@ -55,7 +46,6 @@ const styles = {
 // 2. types
 type IconSharedProps = {
   size?: VariantProps<typeof styles.root>['size']
-  slot?: VariantProps<typeof styles.root>['slot']
   tone?: VariantProps<typeof styles.root>['tone']
 } & Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'>
 
@@ -69,7 +59,6 @@ const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref
     icon,
     name,
     size = 'sm',
-    slot = 'default',
     tone = 'default',
     className,
     'aria-hidden': ariaHidden,
@@ -81,7 +70,7 @@ const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref
   return (
     <IconComponent
       ref={ref}
-      className={cn(styles.root({ size, slot, tone }), className)}
+      className={cn(styles.root({ size, tone }), className)}
       aria-hidden={ariaHidden ?? true}
       {...rest}
     />

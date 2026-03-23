@@ -1,5 +1,6 @@
 'use client'
 
+import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { AlertTriangle, Key, Mail, Plus, Trash2, UserCircle, UserPlus } from 'lucide-react'
 import * as React from 'react'
@@ -9,6 +10,7 @@ import { cva } from 'class-variance-authority'
 import type { Profile } from '@/types/profile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar'
 import { Button } from '@/components/atoms/button'
+import { ButtonGroup } from '@/components/atoms/button-group'
 import { Dialog, DialogContent } from '@/components/atoms/dialog'
 import { Icon } from '@/components/atoms/icon'
 import { Input } from '@/components/atoms/input'
@@ -34,7 +36,7 @@ const styles = {
   list: cva('space-y-2'),
   profileRow: cva('flex items-center justify-between rounded-lg border p-3'),
   profileRowInner: cva('flex items-center gap-3'),
-  profileAvatar: cva('h-10 w-10'),
+  profileAvatar: cva('size-10'),
   profileName: cva('font-medium'),
   profileDisplay: cva('text-muted-foreground text-sm'),
   deleteProfileBtn: cva('text-destructive hover:bg-destructive/10 hover:text-destructive'),
@@ -49,9 +51,9 @@ const styles = {
   dangerDescription: cva('text-muted-foreground text-sm'),
   dangerActions: cva('flex justify-end'),
   dialogSm: cva('sm:max-w-md'),
-  headerLeading: cva('bg-muted flex h-8 w-8 items-center justify-center rounded-full'),
+  headerLeading: cva('bg-muted flex size-8 items-center justify-center rounded-full'),
   headerLeadingDanger: cva(
-    'bg-destructive/10 flex h-8 w-8 items-center justify-center rounded-full'
+    'bg-destructive/10 flex size-8 items-center justify-center rounded-full'
   ),
   form: cva('space-y-4'),
   errorBanner: cva(
@@ -65,7 +67,13 @@ const styles = {
   hint: cva('text-muted-foreground text-xs'),
   formActions: cva('flex justify-end gap-2'),
   deleteHighlight: cva('font-semibold'),
-  deleteMono: cva('font-mono font-semibold')
+  deleteMono: cva('font-mono font-semibold'),
+  appearanceCard: cva('space-y-4 rounded-lg border p-4'),
+  appearanceHeader: cva('space-y-1'),
+  appearanceDescription: cva('text-muted-foreground text-sm'),
+  appearanceControls: cva('flex justify-end'),
+  appearanceSkeleton: cva('bg-muted h-4 w-40 animate-pulse rounded-md'),
+  buttonIconLeading: cva('mr-1.5')
 }
 
 // 2. types
@@ -89,19 +97,21 @@ type DeleteAccountFormValues = {
   confirmation: string
 }
 
-type SettingsSectionProps = {
+type SettingsViewProps = {
   profiles: Profile[]
   userEmail: string
   className?: string
 }
 
 // 3. component
-const SettingsSection: React.FC<SettingsSectionProps> = ({
+const SettingsView: React.FC<SettingsViewProps> = ({
   profiles: initialProfiles,
   userEmail,
   className
 }) => {
   const router = useRouter()
+  const { theme, setTheme } = useTheme()
+  const [themeMounted, setThemeMounted] = React.useState(false)
   const [profiles, setProfiles] = useState<Profile[]>(initialProfiles)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showPasswordDialog, setShowPasswordDialog] = useState(false)
@@ -117,6 +127,10 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({
   const changePassword = useChangePasswordMutation()
   const changeEmail = useChangeEmailMutation()
   const deleteAccount = useDeleteAccountMutation()
+
+  React.useEffect(() => {
+    setThemeMounted(true)
+  }, [])
 
   const addForm = useForm<AddProfileFormValues>({
     defaultValues: { username: '' }
@@ -228,14 +242,66 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({
     }
   })
 
+  const themeValue = theme ?? 'system'
+
   return (
     <div className={cn(styles.root({ className }))}>
+      <div className={styles.appearanceCard()}>
+        <div className={styles.appearanceHeader()}>
+          <h2 id="appearance-heading" className={styles.sectionTitle()}>
+            Appearance
+          </h2>
+          <p className={styles.appearanceDescription()}>
+            Choose a fixed theme or match your device&apos;s light or dark mode.
+          </p>
+        </div>
+
+        <div className={styles.appearanceControls()}>
+          {!themeMounted ? (
+            <div className={styles.appearanceSkeleton()} aria-hidden />
+          ) : (
+            <ButtonGroup aria-labelledby="appearance-heading" role="radiogroup">
+              <Button
+                type="button"
+                aria-checked={themeValue === 'light'}
+                role="radio"
+                size="sm"
+                variant={themeValue === 'light' ? 'secondary' : 'outline'}
+                onClick={() => setTheme('light')}
+              >
+                Light
+              </Button>
+              <Button
+                type="button"
+                aria-checked={themeValue === 'dark'}
+                role="radio"
+                size="sm"
+                variant={themeValue === 'dark' ? 'secondary' : 'outline'}
+                onClick={() => setTheme('dark')}
+              >
+                Dark
+              </Button>
+              <Button
+                type="button"
+                aria-checked={themeValue === 'system'}
+                role="radio"
+                size="sm"
+                variant={themeValue === 'system' ? 'secondary' : 'outline'}
+                onClick={() => setTheme('system')}
+              >
+                System
+              </Button>
+            </ButtonGroup>
+          )}
+        </div>
+      </div>
+
       {/* Profiles List */}
       <div className={styles.card()}>
         <div className={styles.cardHeader()}>
           <h2 className={styles.sectionTitle()}>Profiles</h2>
           <Button size="sm" onClick={() => setShowAddDialog(true)}>
-            <Icon icon={Plus} size="sm" slot="buttonLeading" />
+            <Icon className={styles.buttonIconLeading()} icon={Plus} size="sm" />
             Add Profile
           </Button>
         </div>
@@ -307,11 +373,11 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({
             variant="outline"
             onClick={() => setShowEmailDialog(true)}
           >
-            <Icon icon={Mail} size="sm" slot="buttonLeading" />
+            <Icon className={styles.buttonIconLeading()} icon={Mail} size="sm" />
             Change email
           </Button>
           <Button size="sm" variant="outline" onClick={() => setShowPasswordDialog(true)}>
-            <Icon icon={Key} size="sm" slot="buttonLeading" />
+            <Icon className={styles.buttonIconLeading()} icon={Key} size="sm" />
             Change Password
           </Button>
         </div>
@@ -717,4 +783,4 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({
 }
 
 // 4. exports
-export { SettingsSection }
+export { SettingsView }

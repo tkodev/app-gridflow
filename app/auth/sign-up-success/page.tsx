@@ -8,7 +8,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('w-full max-w-sm text-center'),
-  iconRing: cva('bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full'),
+  iconRing: cva('bg-primary/10 mx-auto flex size-16 items-center justify-center rounded-full'),
   iconGlyph: cva('text-primary size-8'),
   title: cva('mt-6 text-2xl font-bold'),
   description: cva('text-muted-foreground mt-2'),
@@ -24,10 +24,6 @@ type SignUpSuccessPageProps = {
 const SignUpSuccessPage: React.FC<SignUpSuccessPageProps> = (props) => {
   // a. props
   const { className } = props
-
-  // b. hooks
-
-  // c. logic
 
   // d. component
   return (

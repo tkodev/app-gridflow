@@ -5,8 +5,8 @@ import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
+import { IntroView } from '@/components/sections/intro-view'
 import { PostGridView } from '@/components/sections/post-grid-view'
-import { ProfileView } from '@/components/sections/profile-view'
 import { createLandingDemoPosts, LANDING_DEMO_PROFILE } from '@/constants/landing-demo'
 import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { cn } from '@/utils/tailwind'
@@ -43,11 +43,11 @@ const DemoView: React.FC<DemoViewProps> = (props) => {
     <div className={cn(styles.root(), className)} {...rest}>
       <React.Suspense fallback={<div className={styles.previewFallback()} aria-hidden />}>
         <div className={styles.previewCard()}>
-          <ProfileView
+          <IntroView
             postsCount={posts.length}
             profile={LANDING_DEMO_PROFILE}
             profiles={[LANDING_DEMO_PROFILE]}
-            nameOnly
+            readOnly
           />
           <hr className={styles.previewDivider()} />
           <PostGridView

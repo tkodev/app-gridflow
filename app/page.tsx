@@ -27,8 +27,11 @@ const styles = {
   featureCol4a: cva('col-span-12 sm:col-span-6 md:col-span-4'),
   featureCol4b: cva('col-span-12 sm:col-span-6 sm:col-start-4 md:col-span-4 md:col-start-auto'),
   featureCard: cva('items-center text-center'),
+  featureCardContent: cva('flex flex-col items-center pt-2 pb-6'),
+  featureCardTitle: cva('mt-4 text-lg font-semibold'),
+  featureCardDescription: cva('mt-2 text-balance'),
   featureIconWrap: cva(
-    'bg-primary/10 text-primary flex h-12 w-12 items-center justify-center rounded-full'
+    'bg-primary/10 text-primary flex size-12 items-center justify-center rounded-full'
   ),
   ctaSection: cva('py-16 md:py-24'),
   ctaInner: cva('mx-auto max-w-2xl text-center'),
@@ -92,12 +95,12 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
             <div className={styles.featuresGrid()}>
               <div className={styles.featureCol4a()}>
                 <Card className={styles.featureCard()}>
-                  <CardContent className="flex flex-col items-center pt-2 pb-6">
+                  <CardContent className={styles.featureCardContent()}>
                     <div className={styles.featureIconWrap()}>
                       <Icon name="grid3x3" size="lg" />
                     </div>
-                    <CardTitle className="mt-4 text-lg font-semibold">Grid Preview</CardTitle>
-                    <CardDescription className="mt-2 text-balance">
+                    <CardTitle className={styles.featureCardTitle()}>Grid Preview</CardTitle>
+                    <CardDescription className={styles.featureCardDescription()}>
                       {
                         "See your posts exactly as they'll appear on your Instagram profile. No more guessing."
                       }
@@ -107,12 +110,12 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
               </div>
               <div className={styles.featureCol4a()}>
                 <Card className={styles.featureCard()}>
-                  <CardContent className="flex flex-col items-center pt-2 pb-6">
+                  <CardContent className={styles.featureCardContent()}>
                     <div className={styles.featureIconWrap()}>
                       <Icon name="moveVertical" size="lg" />
                     </div>
-                    <CardTitle className="mt-4 text-lg font-semibold">Drag & Drop</CardTitle>
-                    <CardDescription className="mt-2 text-balance">
+                    <CardTitle className={styles.featureCardTitle()}>Drag & Drop</CardTitle>
+                    <CardDescription className={styles.featureCardDescription()}>
                       Easily rearrange posts to find the perfect order. Move things around until it
                       feels right.
                     </CardDescription>
@@ -121,12 +124,12 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
               </div>
               <div className={styles.featureCol4b()}>
                 <Card className={styles.featureCard()}>
-                  <CardContent className="flex flex-col items-center pt-2 pb-6">
+                  <CardContent className={styles.featureCardContent()}>
                     <div className={styles.featureIconWrap()}>
                       <Icon name="eye" size="lg" />
                     </div>
-                    <CardTitle className="mt-4 text-lg font-semibold">Feed View</CardTitle>
-                    <CardDescription className="mt-2 text-balance">
+                    <CardTitle className={styles.featureCardTitle()}>Feed View</CardTitle>
+                    <CardDescription className={styles.featureCardDescription()}>
                       Preview individual posts with captions in a scrollable feed format.
                     </CardDescription>
                   </CardContent>

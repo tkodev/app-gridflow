@@ -1,7 +1,7 @@
 'use client'
 
 import type { DragEndEvent } from '@dnd-kit/core'
-import { Grid3X3, Image as ImageIcon, List, Pencil, Plus } from 'lucide-react'
+import { Grid3X3, Image as ImageIcon, List, Plus } from 'lucide-react'
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { cva } from 'class-variance-authority'
@@ -12,7 +12,6 @@ import { Icon } from '@/components/atoms/icon'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs'
 import { PostEditDialog } from '@/components/organisms/post-edit-dialog'
 import { PostPreviewDialog } from '@/components/organisms/post-preview-dialog'
-import { ProfileEditDialog } from '@/components/organisms/profile-edit-dialog'
 import { MissingView } from '@/components/sections/missing-view'
 import { PostFeedView } from '@/components/sections/post-feed-view'
 import { PostGridView } from '@/components/sections/post-grid-view'
@@ -27,7 +26,8 @@ const styles = {
   tabTrigger: cva('gap-1.5'),
   actions: cva('flex gap-2'),
   tabsContent: cva('mt-4'),
-  tabsRoot: cva('w-full')
+  tabsRoot: cva('w-full'),
+  addPostIcon: cva('mr-1.5')
 }
 
 // 2. types
@@ -47,7 +47,6 @@ const PostView: React.FC<PostViewProps> = (props) => {
   const [previewPost, setPreviewPost] = useState<Post | null>(null)
   const [editPost, setEditPost] = useState<Post | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false)
   const reorderPosts = useReorderPostsMutation()
 
   // c. logic
@@ -105,12 +104,8 @@ const PostView: React.FC<PostViewProps> = (props) => {
             </TabsTrigger>
           </TabsList>
           <div className={styles.actions()}>
-            <Button size="sm" variant="outline" onClick={() => setShowEditProfileDialog(true)}>
-              <Icon icon={Pencil} size="sm" slot="buttonLeading" />
-              Edit Profile
-            </Button>
-            <Button size="sm" onClick={() => setShowAddDialog(true)}>
-              <Icon icon={Plus} size="sm" slot="buttonLeading" />
+            <Button size="lg" onClick={() => setShowAddDialog(true)}>
+              <Icon className={styles.addPostIcon()} icon={Plus} size="sm" />
               Add Post
             </Button>
           </div>
@@ -174,12 +169,6 @@ const PostView: React.FC<PostViewProps> = (props) => {
         profile={profile}
         onClose={() => setPreviewPost(null)}
         onEditClick={handleEditFromPreview}
-      />
-
-      <ProfileEditDialog
-        open={showEditProfileDialog}
-        profile={profile}
-        onOpenChange={setShowEditProfileDialog}
       />
     </>
   )

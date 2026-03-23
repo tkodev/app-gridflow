@@ -35,11 +35,11 @@ const styles = {
   }),
   emptyLabel: cva('text-muted-foreground'),
   track: cva('flex h-full transition-transform duration-300 ease-out'),
-  slide: cva('relative h-full w-full shrink-0'),
-  video: cva('h-full w-full object-cover'),
+  slide: cva('relative size-full shrink-0'),
+  video: cva('size-full object-cover'),
   image: cva('object-cover'),
   navButton: cva(
-    'absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-opacity hover:bg-black/70'
+    'absolute top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-opacity hover:bg-black/70'
   ),
   navButtonPrev: cva('left-2'),
   navButtonNext: cva('right-2'),

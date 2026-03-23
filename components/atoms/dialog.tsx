@@ -24,7 +24,7 @@ const styles = {
   headerTitle: cva('text-left text-sm leading-none font-semibold tracking-tight'),
   headerDescription: cva('text-muted-foreground text-left text-xs leading-snug font-normal'),
   headerActions: cva('flex shrink-0 items-center gap-3'),
-  closeButton: cva('h-8 w-8 shrink-0'),
+  closeButton: cva('size-8 shrink-0'),
   srOnly: cva('sr-only'),
   body: cva('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain', {
     variants: {

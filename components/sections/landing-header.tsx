@@ -1,8 +1,7 @@
 'use client'
 
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
-import { Grid3X3, Moon, Sun } from 'lucide-react'
+import { Grid3X3 } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -27,16 +26,6 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
   // a. props
   const { className, ...rest } = props
 
-  // b. hooks
-  const { resolvedTheme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // c. logic
-
   // d. component
   return (
     <header className={cn(styles.root({ className }))} {...rest}>
@@ -47,22 +36,6 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
         </Link>
 
         <div className={styles.actions()}>
-          <Button
-            aria-label="Toggle theme"
-            size="icon"
-            variant="ghost"
-            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          >
-            {mounted ? (
-              resolvedTheme === 'dark' ? (
-                <Icon icon={Moon} size="md" />
-              ) : (
-                <Icon icon={Sun} size="md" />
-              )
-            ) : (
-              <Icon icon={Sun} size="md" />
-            )}
-          </Button>
           <Button variant="ghost" asChild>
             <Link href="/auth/login">Sign In</Link>
           </Button>

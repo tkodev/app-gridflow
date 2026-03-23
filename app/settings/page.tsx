@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Profile } from '@/types/profile'
-import { SettingsSection } from '@/components/sections/settings-section'
+import { SettingsView } from '@/components/sections/settings-view'
 import { SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
@@ -22,8 +22,6 @@ type SettingsPageProps = {
 const SettingsPage = async (props: SettingsPageProps) => {
   // a. props
   const { className } = props
-
-  // b. hooks
 
   // c. logic
   const supabase = await createClient()
@@ -47,7 +45,7 @@ const SettingsPage = async (props: SettingsPageProps) => {
       <p className={styles.subtitle()}>Manage your profiles and account</p>
 
       <div className={styles.sectionWrap()}>
-        <SettingsSection profiles={profiles} userEmail={user!.email || ''} />
+        <SettingsView profiles={profiles} userEmail={user!.email || ''} />
       </div>
     </div>
   )

@@ -4,8 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
 import { MissingView } from '@/components/sections/missing-view'
-import { PostView } from '@/components/sections/post-view'
-import { ProfileView } from '@/components/sections/profile-view'
+import { ProfilesView } from '@/components/sections/profiles-view'
 import { SUPABASE_TABLE_POSTS, SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { sortPostMediaByPosition } from '@/utils/post-media'
 import { createClient } from '@/utils/supabase-server'
@@ -97,8 +96,12 @@ const ProfilesPage = async (props: ProfilesPageProps) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <ProfileView postsCount={posts?.length || 0} profile={profile} profiles={profiles} />
-      <PostView initialPosts={posts || []} profile={profile} />
+      <ProfilesView
+        posts={posts || []}
+        postsCount={posts?.length || 0}
+        profile={profile}
+        profiles={profiles}
+      />
     </div>
   )
 }
