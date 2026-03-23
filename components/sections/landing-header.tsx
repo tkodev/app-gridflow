@@ -6,13 +6,14 @@ import { Grid3X3, Moon, Sun } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
+import { Container } from '@/components/atoms/container'
 import { Icon } from '@/components/atoms/icon'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
   root: cva('bg-background/80 fixed top-0 z-50 w-full border-b backdrop-blur-sm'),
-  inner: cva('mx-auto flex h-16 max-w-6xl items-center justify-between px-4'),
+  inner: cva('flex h-16 items-center justify-between'),
   brand: cva('flex items-center gap-2'),
   brandText: cva('text-xl font-bold'),
   actions: cva('flex items-center gap-2')
@@ -39,7 +40,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
   // d. component
   return (
     <header className={cn(styles.root({ className }))} {...rest}>
-      <div className={styles.inner()}>
+      <Container className={styles.inner()}>
         <Link className={styles.brand()} href="/">
           <Icon icon={Grid3X3} size="lg" />
           <span className={styles.brandText()}>GridFlow</span>
@@ -69,7 +70,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
             <Link href="/auth/sign-up">Get Started</Link>
           </Button>
         </div>
-      </div>
+      </Container>
     </header>
   )
 }

@@ -28,7 +28,7 @@ const styles = {
 }
 
 // 2. types
-type PostsGridViewProps = Omit<React.ComponentProps<'div'>, 'onDragEnd'> &
+type PostGridViewProps = Omit<React.ComponentProps<'div'>, 'onDragEnd'> &
   VariantProps<typeof styles.root> & {
     posts: Post[]
     profile: Profile
@@ -37,7 +37,7 @@ type PostsGridViewProps = Omit<React.ComponentProps<'div'>, 'onDragEnd'> &
   }
 
 // 3. component
-const PostsGridView: React.FC<PostsGridViewProps> = (props) => {
+const PostGridView: React.FC<PostGridViewProps> = (props) => {
   // a. props
   const { posts, profile, onPostClick, onDragEnd, className, ...rest } = props
 
@@ -53,12 +53,10 @@ const PostsGridView: React.FC<PostsGridViewProps> = (props) => {
     })
   )
 
-  // c. logic
-
   // d. component
   return (
     <DndContext
-      id="posts-grid-dnd"
+      id="post-grid-dnd"
       collisionDetection={closestCenter}
       sensors={sensors}
       onDragEnd={onDragEnd}
@@ -81,4 +79,4 @@ const PostsGridView: React.FC<PostsGridViewProps> = (props) => {
 }
 
 // 4. exports
-export { PostsGridView }
+export { PostGridView }

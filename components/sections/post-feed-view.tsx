@@ -14,7 +14,7 @@ const styles = {
 }
 
 // 2. types
-type PostsFeedViewProps = React.ComponentProps<'div'> &
+type PostFeedViewProps = React.ComponentProps<'div'> &
   VariantProps<typeof styles.root> & {
     posts: Post[]
     profile: Profile
@@ -22,13 +22,9 @@ type PostsFeedViewProps = React.ComponentProps<'div'> &
   }
 
 // 3. component
-const PostsFeedView: React.FC<PostsFeedViewProps> = (props) => {
+const PostFeedView: React.FC<PostFeedViewProps> = (props) => {
   // a. props
   const { posts, profile, onEditClick, className, ...rest } = props
-
-  // b. hooks
-
-  // c. logic
 
   // d. component
   return (
@@ -48,4 +44,4 @@ const PostsFeedView: React.FC<PostsFeedViewProps> = (props) => {
 }
 
 // 4. exports
-export { PostsFeedView }
+export { PostFeedView }

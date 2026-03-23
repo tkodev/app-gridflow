@@ -3,9 +3,9 @@ import { UserPlus } from 'lucide-react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
-import { MissingView } from '@/components/molecules/missing-view'
-import { ProfileView } from '@/components/organisms/profile-view'
-import { ProfileSection } from '@/components/sections/profile-section'
+import { MissingView } from '@/components/sections/missing-view'
+import { PostView } from '@/components/sections/post-view'
+import { ProfileView } from '@/components/sections/profile-view'
 import { SUPABASE_TABLE_POSTS, SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { sortPostMediaByPosition } from '@/utils/post-media'
 import { createClient } from '@/utils/supabase-server'
@@ -98,7 +98,7 @@ const ProfilesPage = async (props: ProfilesPageProps) => {
   return (
     <div className={cn(styles.root({ className }))}>
       <ProfileView postsCount={posts?.length || 0} profile={profile} profiles={profiles} />
-      <ProfileSection initialPosts={posts || []} profile={profile} />
+      <PostView initialPosts={posts || []} profile={profile} />
     </div>
   )
 }

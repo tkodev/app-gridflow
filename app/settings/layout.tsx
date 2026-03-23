@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { Container } from '@/components/atoms/container'
 import { AppHeader } from '@/components/sections/app-header'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
@@ -8,7 +9,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('bg-background min-h-screen'),
-  main: cva('mx-auto max-w-lg px-4 pb-20')
+  main: cva('pb-20')
 }
 
 // 2. types
@@ -38,7 +39,9 @@ const SettingsLayout = async (props: SettingsLayoutProps) => {
   return (
     <div className={cn(styles.root({ className }))}>
       <AppHeader user={user} />
-      <main className={styles.main()}>{children}</main>
+      <main className={styles.main()}>
+        <Container>{children}</Container>
+      </main>
     </div>
   )
 }

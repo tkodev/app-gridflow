@@ -12,7 +12,7 @@ const styles = {
           'px-4 sm:px-6 lg:px-8',
           'sm:max-w-[min(100%,var(--breakpoint-sm))]',
           'md:max-w-[min(100%,var(--breakpoint-md))]',
-          'lg:max-w-[min(100%,var(--breakpoint-lg))]',
+          'lg:max-w-[min(100%,var(--breakpoint-lg))]'
           'xl:max-w-[min(100%,var(--breakpoint-xl))]',
           '2xl:max-w-[min(100%,var(--breakpoint-2xl))]'
         ].join(' '),

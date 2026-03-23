@@ -10,12 +10,12 @@ import type { Profile } from '@/types/profile'
 import { Button } from '@/components/atoms/button'
 import { Icon } from '@/components/atoms/icon'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs'
-import { MissingView } from '@/components/molecules/missing-view'
-import { PostFormDialog } from '@/components/organisms/post-form-dialog'
+import { PostEditDialog } from '@/components/organisms/post-edit-dialog'
 import { PostPreviewDialog } from '@/components/organisms/post-preview-dialog'
-import { PostsFeedView } from '@/components/organisms/posts-feed-view'
-import { PostsGridView } from '@/components/organisms/posts-grid-view'
 import { ProfileEditDialog } from '@/components/organisms/profile-edit-dialog'
+import { MissingView } from '@/components/sections/missing-view'
+import { PostFeedView } from '@/components/sections/post-feed-view'
+import { PostGridView } from '@/components/sections/post-grid-view'
 import { useReorderPostsMutation } from '@/queries/posts'
 import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { cn } from '@/utils/tailwind'
@@ -31,14 +31,14 @@ const styles = {
 }
 
 // 2. types
-type ProfileSectionProps = {
+type PostViewProps = {
   initialPosts: Post[]
   profile: Profile
   className?: string
 }
 
 // 3. component
-const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
+const PostView: React.FC<PostViewProps> = (props) => {
   // a. props
   const { initialPosts, profile, className } = props
 
@@ -127,7 +127,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
               onClick={() => setShowAddDialog(true)}
             />
           ) : (
-            <PostsGridView
+            <PostGridView
               posts={posts}
               profile={profile}
               onDragEnd={handleDragEnd}
@@ -147,12 +147,12 @@ const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
               onClick={() => setShowAddDialog(true)}
             />
           ) : (
-            <PostsFeedView posts={posts} profile={profile} onEditClick={setEditPost} />
+            <PostFeedView posts={posts} profile={profile} onEditClick={setEditPost} />
           )}
         </TabsContent>
       </Tabs>
 
-      <PostFormDialog
+      <PostEditDialog
         nextPosition={posts.length}
         open={showAddDialog}
         profileId={profile.id}
@@ -160,7 +160,7 @@ const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
         onSave={handleSavePost}
       />
 
-      <PostFormDialog
+      <PostEditDialog
         open={!!editPost}
         post={editPost}
         profileId={profile.id}
@@ -186,4 +186,4 @@ const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
 }
 
 // 4. exports
-export { ProfileSection }
+export { PostView }
