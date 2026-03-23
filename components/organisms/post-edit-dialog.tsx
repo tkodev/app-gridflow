@@ -1,7 +1,6 @@
 'use client'
 
-import Image from 'next/image'
-import { GripVertical, ImagePlus, Music, Play, Trash2, Upload, X } from 'lucide-react'
+import { ImagePlus, Music, Trash2, Upload } from 'lucide-react'
 import * as React from 'react'
 import { useEffect, useId, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -16,22 +15,21 @@ import {
 import {
   rectSortingStrategy,
   SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable
+  sortableKeyboardCoordinates
 } from '@dnd-kit/sortable'
-import { cva, type VariantProps } from 'class-variance-authority'
-import type { LocalMediaItem, Post } from '@/types/post'
+import { cva } from 'class-variance-authority'
+import type { Post } from '@/types/post'
 import { Button } from '@/components/atoms/button'
 import { Dialog, DialogContent, DialogFooter } from '@/components/atoms/dialog'
 import { Icon } from '@/components/atoms/icon'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
 import { Textarea } from '@/components/atoms/textarea'
+import { MediaSortableItem } from '@/components/molecules/media-sortable-item'
 import { MAX_POST_MEDIA_ITEMS } from '@/constants/posts'
 import { usePostFormMedia } from '@/hooks/use-post-form-media'
 import { useDeletePostMutation, useSavePostMutation } from '@/queries/posts'
-import { sortableItemStyle } from '@/utils/dnd-kit'
-import { isLocalImageUrlUnoptimized, revokeNewBlobUrls } from '@/utils/local-media'
+import { revokeNewBlobUrls } from '@/utils/local-media'
 import { formatSupabaseError } from '@/utils/supabase-errors'
 import { cn } from '@/utils/tailwind'
 
@@ -39,41 +37,6 @@ import { cn } from '@/utils/tailwind'
 const POST_EDIT_FORM_ID = 'post-edit-dialog-form'
 
 const styles = {
-  sortableTile: cva('group bg-muted relative col-span-4 aspect-square overflow-hidden rounded-lg', {
-    variants: {
-      dragging: {
-        true: 'z-10 opacity-80 shadow-lg',
-        false: ''
-      }
-    },
-    defaultVariants: {
-      dragging: false
-    }
-  }),
-  videoWrap: cva('relative size-full'),
-  video: cva('size-full object-cover'),
-  videoOverlay: cva('absolute inset-0 flex items-center justify-center bg-black/20'),
-  coverImage: cva('object-cover'),
-  dragHandle: cva(
-    'absolute top-1 left-1 rounded bg-black/50 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100',
-    {
-      variants: {
-        disabled: {
-          true: 'cursor-not-allowed opacity-40',
-          false: 'cursor-grab active:cursor-grabbing'
-        }
-      },
-      defaultVariants: {
-        disabled: false
-      }
-    }
-  ),
-  removeBtn: cva(
-    'hover:bg-destructive absolute top-1 right-1 rounded bg-black/50 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-40'
-  ),
-  typeBadge: cva(
-    'absolute bottom-1 left-1 rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-medium text-white'
-  ),
   dialogContent: cva('sm:max-w-lg'),
   headerLeading: cva('bg-muted flex size-8 items-center justify-center rounded-full'),
   form: cva('space-y-4'),
@@ -119,74 +82,6 @@ type PostEditDialogProps = {
   onSave: (post: Post) => void
   onDelete?: (postId: string) => void
   className?: string
-}
-
-type SortableMediaItemProps = VariantProps<typeof styles.sortableTile> & {
-  item: LocalMediaItem
-  onRemove: () => void
-  disabled?: boolean
-  className?: string
-}
-
-// 3. component — sortable media tile
-const SortableMediaItem: React.FC<SortableMediaItemProps> = (props) => {
-  // a. props
-  const { item, onRemove, disabled, className } = props
-
-  // b. hooks
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: item.id,
-    disabled
-  })
-
-  // c. logic
-  const style = sortableItemStyle(transform, transition)
-
-  // d. component
-  return (
-    <div
-      ref={setNodeRef}
-      className={cn(styles.sortableTile({ dragging: isDragging ? true : false, className }))}
-      style={style}
-    >
-      {item.type === 'video' ? (
-        <div className={styles.videoWrap()}>
-          <video className={styles.video()} src={item.url} muted />
-          <div className={styles.videoOverlay()}>
-            <Icon icon={Play} size="lg" tone="inverse" />
-          </div>
-        </div>
-      ) : (
-        <Image
-          className={styles.coverImage()}
-          sizes="(max-width: 768px) 28vw, 180px"
-          unoptimized={isLocalImageUrlUnoptimized(item.url)}
-          alt=""
-          src={item.url}
-          fill
-        />
-      )}
-
-      {/* Drag handle */}
-      <button
-        type="button"
-        {...attributes}
-        {...(disabled ? {} : listeners)}
-        className={styles.dragHandle({ disabled: !!disabled })}
-        disabled={disabled}
-      >
-        <Icon icon={GripVertical} size="sm" />
-      </button>
-
-      {/* Remove button */}
-      <button type="button" className={styles.removeBtn()} disabled={disabled} onClick={onRemove}>
-        <Icon icon={X} size="sm" />
-      </button>
-
-      {/* Type indicator */}
-      {item.type === 'video' && <span className={styles.typeBadge()}>VIDEO</span>}
-    </div>
-  )
 }
 
 // 3. component — post create/edit dialog
@@ -361,7 +256,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               <SortableContext items={mediaItems.map((m) => m.id)} strategy={rectSortingStrategy}>
                 <div className={styles.mediaGrid()}>
                   {mediaItems.map((item) => (
-                    <SortableMediaItem
+                    <MediaSortableItem
                       key={item.id}
                       disabled={isBusy}
                       item={item}
