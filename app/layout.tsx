@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Geist } from 'next/font/google'
+import { Geist, Inter } from 'next/font/google'
+import * as React from 'react'
+import { cva } from 'class-variance-authority'
 import { QueryProvider } from '@/components/providers/query-provider'
-import { ThemeProvider } from '@/components/theme-provider'
-import './globals.css'
+import { ThemeProvider } from '@/components/providers/theme-provider'
 import { cn } from '@/utils/tailwind'
+import './globals.css'
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+// 1. styles & constants
+const styles = {
+  html: cva('font-sans'),
+  body: cva('font-sans')
+}
+
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -26,10 +34,20 @@ export const viewport: Viewport = {
   userScalable: false
 }
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+// 2. types
+type RootLayoutProps = {
+  children: React.ReactNode
+}
+
+// 3. component
+const RootLayout = (props: RootLayoutProps) => {
+  // a. props
+  const { children } = props
+
+  // d. component
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} font-sans`}>
+    <html className={cn(styles.html(), geist.variable)} lang="en" suppressHydrationWarning>
+      <body className={cn(styles.body(), inter.variable)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -43,4 +61,5 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   )
 }
 
+// 4. exports
 export default RootLayout

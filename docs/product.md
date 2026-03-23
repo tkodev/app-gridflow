@@ -33,6 +33,16 @@ Use a clean, modern mobile-first layout inspired by Instagram, with minimal SaaS
    - Functional, data-focused layout
    - Not implemented in MVP
 
+## Routes
+
+```txt
+/ - landing
+/profiles - core app — profile grid and feed planner
+/settings - user's settings
+/admin - admin/superadmin stuff
+/auth - sign-in, sign-out, sign-up, forgot-pw
+```
+
 ## MVP features
 
 - Auth — fully supported

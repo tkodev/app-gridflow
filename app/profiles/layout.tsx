@@ -1,8 +1,30 @@
 import { redirect } from 'next/navigation'
-import { AppHeader } from '@/components/app/header'
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { AppHeader } from '@/components/organisms/app-header'
 import { createClient } from '@/utils/supabase-server'
+import { cn } from '@/utils/tailwind'
 
-const ProfilesLayout = async ({ children }: { children: React.ReactNode }) => {
+// 1. styles & constants
+const styles = {
+  root: cva('bg-background min-h-screen'),
+  main: cva('mx-auto max-w-lg px-4 pb-20')
+}
+
+// 2. types
+type ProfilesLayoutProps = {
+  children: React.ReactNode
+  className?: string
+} & VariantProps<typeof styles.root>
+
+// 3. component
+const ProfilesLayout = async (props: ProfilesLayoutProps) => {
+  // a. props
+  const { children, className } = props
+
+  // b. hooks
+
+  // c. logic
   const supabase = await createClient()
   const {
     data: { user }
@@ -12,12 +34,14 @@ const ProfilesLayout = async ({ children }: { children: React.ReactNode }) => {
     redirect('/auth/login')
   }
 
+  // d. component
   return (
-    <div className="bg-background min-h-screen">
+    <div className={cn(styles.root({ className }))}>
       <AppHeader user={user} />
-      <main className="mx-auto max-w-lg px-4 pb-20">{children}</main>
+      <main className={styles.main()}>{children}</main>
     </div>
   )
 }
 
+// 4. exports
 export default ProfilesLayout

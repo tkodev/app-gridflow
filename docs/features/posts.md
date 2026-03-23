@@ -10,18 +10,18 @@ Posts are the core content unit in GridFlow. Each post belongs to a profile and 
 
 ### Posts Table (`public.posts`)
 
-| Column        | Type        | Description                                        |
-| ------------- | ----------- | -------------------------------------------------- |
-| id            | UUID        | Primary key                                        |
-| profile_id    | UUID        | Foreign key to profiles                            |
-| caption       | TEXT        | Post caption (optional)                            |
+| Column        | Type        | Description                                              |
+| ------------- | ----------- | -------------------------------------------------------- |
+| id            | UUID        | Primary key                                              |
+| profile_id    | UUID        | Foreign key to profiles                                  |
+| caption       | TEXT        | Post caption (optional)                                  |
 | subtitle      | TEXT        | Subtitle shown below username (e.g., song/location note) |
-| grid_position | INTEGER     | Position in the profile grid                       |
-| status        | TEXT        | draft, scheduled, or published                     |
-| scheduled_at  | TIMESTAMPTZ | Scheduled publish time (optional)                  |
-| published_at  | TIMESTAMPTZ | Actual publish time (optional)                     |
-| created_at    | TIMESTAMPTZ | Record creation time                               |
-| updated_at    | TIMESTAMPTZ | Last update time                                   |
+| grid_position | INTEGER     | Position in the profile grid                             |
+| status        | TEXT        | draft, scheduled, or published                           |
+| scheduled_at  | TIMESTAMPTZ | Scheduled publish time (optional)                        |
+| published_at  | TIMESTAMPTZ | Actual publish time (optional)                           |
+| created_at    | TIMESTAMPTZ | Record creation time                                     |
+| updated_at    | TIMESTAMPTZ | Last update time                                         |
 
 There is no `image_url` on `posts`; all media URLs live on `post_media`. Apply [`scripts/005_drop_posts_image_url.sql`](/scripts/005_drop_posts_image_url.sql) on existing databases that still have that column before relying on inserts without it.
 
@@ -29,14 +29,14 @@ Apply [`scripts/006_drop_posts_location_music.sql`](/scripts/006_drop_posts_loca
 
 ### Post Media Table (`public.post_media`)
 
-| Column     | Type    | Description                              |
-| ---------- | ------- | ---------------------------------------- |
-| id         | UUID    | Primary key                              |
-| post_id    | UUID    | Foreign key to posts                     |
-| media_url  | TEXT    | URL to the image/video in storage        |
-| media_type | TEXT    | "image" or "video"                       |
-| position   | INTEGER | Order in the carousel (0-indexed)        |
-| created_at | TIMESTAMPTZ | Record creation time                  |
+| Column     | Type        | Description                        |
+| ---------- | ------------| ---------------------------------- |
+| id         | UUID        | Primary key                        |
+| post_id    | UUID        | Foreign key to posts               |
+| media_url  | TEXT        | URL to the image/video in storage  |
+| media_type | TEXT        | "image" or "video"                 |
+| position   | INTEGER     | Order in the carousel (0-indexed)  |
+| created_at | TIMESTAMPTZ | Record creation time               |
 
 ## Features
 
@@ -70,7 +70,7 @@ Apply [`scripts/006_drop_posts_location_music.sql`](/scripts/006_drop_posts_loca
 
 ## Storage Structure
 
-```
+```txt
 posts/
   {profile_id}/
     {post_id}/

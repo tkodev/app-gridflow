@@ -1,18 +1,42 @@
-import Link from 'next/link'
-import { Grid3X3 } from 'lucide-react'
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { AppHeader } from '@/components/organisms/app-header'
+import { createClient } from '@/utils/supabase-server'
+import { cn } from '@/utils/tailwind'
 
-const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+// 1. styles & constants
+const styles = {
+  root: cva('flex min-h-screen flex-col'),
+  main: cva('flex flex-1 items-center justify-center p-4')
+}
+
+// 2. types
+type AuthLayoutProps = {
+  children: React.ReactNode
+  className?: string
+} & VariantProps<typeof styles.root>
+
+// 3. component
+const AuthLayout = async (props: AuthLayoutProps) => {
+  // a. props
+  const { children, className } = props
+
+  // b. hooks
+
+  // c. logic
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  // d. component
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex h-16 items-center justify-center border-b px-4">
-        <Link className="flex items-center gap-2" href="/">
-          <Grid3X3 className="h-6 w-6" />
-          <span className="text-xl font-bold">GridFlow</span>
-        </Link>
-      </header>
-      <main className="flex flex-1 items-center justify-center p-4">{children}</main>
+    <div className={cn(styles.root({ className }))}>
+      <AppHeader user={user} />
+      <main className={styles.main()}>{children}</main>
     </div>
   )
 }
 
+// 4. exports
 export default AuthLayout

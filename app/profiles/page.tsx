@@ -1,14 +1,34 @@
 import { redirect } from 'next/navigation'
+import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
-import { PostsSection } from '@/components/profiles/posts-section'
-import { ProfileMissingView } from '@/components/profiles/profile-missing-view'
-import { ProfileSection } from '@/components/profiles/profile-section'
+import { PostsSection } from '@/components/organisms/posts-section'
+import { ProfileMissingView } from '@/components/organisms/profile-missing-view'
+import { ProfileSection } from '@/components/organisms/profile-section'
 import { SUPABASE_TABLE_POSTS, SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { sortPostMediaByPosition } from '@/utils/post-media'
 import { createClient } from '@/utils/supabase-server'
+import { cn } from '@/utils/tailwind'
 
-const ProfilesPage = async ({ searchParams }: { searchParams: Promise<{ profile?: string }> }) => {
+// 1. styles & constants
+const styles = {
+  root: cva('py-6')
+}
+
+// 2. types
+type ProfilesPageProps = {
+  searchParams: Promise<{ profile?: string }>
+  className?: string
+} & VariantProps<typeof styles.root>
+
+// 3. component
+const ProfilesPage = async (props: ProfilesPageProps) => {
+  // a. props
+  const { searchParams, className } = props
+
+  // b. hooks
+
+  // c. logic
   const supabase = await createClient()
   const params = await searchParams
 
@@ -35,7 +55,6 @@ const ProfilesPage = async ({ searchParams }: { searchParams: Promise<{ profile?
   const currentProfileId = params.profile || profiles[0].id
   const profile = profiles.find((p) => p.id === currentProfileId) ?? profiles[0]
 
-  // Fetch posts for current profile with their media
   const { data: postsRaw } = await supabase
     .from(SUPABASE_TABLE_POSTS)
     .select(
@@ -66,12 +85,14 @@ const ProfilesPage = async ({ searchParams }: { searchParams: Promise<{ profile?
     }
   })
 
+  // d. component
   return (
-    <div className="py-6">
+    <div className={cn(styles.root({ className }))}>
       <ProfileSection postsCount={posts?.length || 0} profile={profile} profiles={profiles} />
       <PostsSection initialPosts={posts || []} profile={profile} />
     </div>
   )
 }
 
+// 4. exports
 export default ProfilesPage
