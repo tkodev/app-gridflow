@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { AppHeader } from '@/components/organisms/app-header'
+import { AppHeader } from '@/components/sections/app-header'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
 

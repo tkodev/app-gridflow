@@ -4,8 +4,8 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/atoms/card'
 import { Icon } from '@/components/atoms/icon'
-import { LandingHeader } from '@/components/organisms/landing-header'
-import { LandingProfileDemo } from '@/components/organisms/landing-profile-demo'
+import { DemoSection } from '@/components/sections/demo-section'
+import { LandingHeader } from '@/components/sections/landing-header'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -59,10 +59,6 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
   // a. props
   const { className } = props
 
-  // b. hooks
-
-  // c. logic
-
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
@@ -95,7 +91,7 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
 
           <div className={styles.previewSection()}>
             <React.Suspense fallback={<div className={styles.previewFallback()} aria-hidden />}>
-              <LandingProfileDemo />
+              <DemoSection />
             </React.Suspense>
           </div>
         </div>

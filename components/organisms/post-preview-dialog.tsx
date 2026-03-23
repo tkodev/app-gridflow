@@ -4,8 +4,8 @@ import * as React from 'react'
 import { cva } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
-import { PostPreviewItem } from '@/components/molecules/post-preview-item'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/atoms/dialog'
+import { PostPreviewItem } from '@/components/molecules/post-preview-item'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants

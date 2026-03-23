@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Profile } from '@/types/profile'
-import { SettingsSection } from '@/components/organisms/settings-section'
+import { SettingsSection } from '@/components/sections/settings-section'
 import { SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'

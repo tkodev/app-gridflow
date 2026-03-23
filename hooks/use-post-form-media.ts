@@ -12,10 +12,10 @@ import {
   type RefObject,
   type SetStateAction
 } from 'react'
-import { arrayMove } from '@dnd-kit/sortable'
 import type { LocalMediaItem } from '@/types/post'
 import type { Post } from '@/types/post'
 import { MAX_POST_MEDIA_FILE_BYTES, MAX_POST_MEDIA_ITEMS } from '@/constants/posts'
+import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { revokeNewBlobUrls } from '@/utils/local-media'
 import { mapPostMediaToLocalItems } from '@/utils/post-media-local'
 
@@ -135,15 +135,10 @@ export function usePostFormMedia({
 
   const handleDragEnd = useCallback((event: DragEndEvent, options: { disabled: boolean }) => {
     if (options.disabled) return
-    const { active, over } = event
-
-    if (over && active.id !== over.id) {
-      setMediaItems((items) => {
-        const oldIndex = items.findIndex((i) => i.id === active.id)
-        const newIndex = items.findIndex((i) => i.id === over.id)
-        return arrayMove(items, oldIndex, newIndex)
-      })
-    }
+    setMediaItems((items) => {
+      const next = reorderItemsFromDragEnd(items, event, (i) => i.id)
+      return next ?? items
+    })
   }, [])
 
   const revokePendingBlobUrls = useCallback(() => {

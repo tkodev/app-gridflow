@@ -95,7 +95,12 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
                   <span className={styles.srOnly()}>Settings</span>
                 </Link>
               </Button>
-              <Button disabled={signOut.isPending} size="icon" variant="ghost" onClick={handleSignOut}>
+              <Button
+                disabled={signOut.isPending}
+                size="icon"
+                variant="ghost"
+                onClick={handleSignOut}
+              >
                 <Icon icon={LogOut} size="sm" />
                 <span className={styles.srOnly()}>Sign out</span>
               </Button>

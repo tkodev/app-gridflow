@@ -42,7 +42,7 @@ const styles = {
 }
 
 // 2. types
-type ProfileSectionProps = React.ComponentProps<'div'> &
+type ProfileViewProps = React.ComponentProps<'div'> &
   VariantProps<typeof styles.root> & {
     profile: Profile
     profiles: Profile[]
@@ -52,7 +52,7 @@ type ProfileSectionProps = React.ComponentProps<'div'> &
   }
 
 // 3. component
-const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
+const ProfileView: React.FC<ProfileViewProps> = (props) => {
   // a. props
   const { profile, profiles, postsCount, nameOnly = false, className, ...rest } = props
 
@@ -147,4 +147,4 @@ const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
 }
 
 // 4. exports
-export { ProfileSection }
+export { ProfileView }

@@ -4,30 +4,24 @@ import type { DragEndEvent } from '@dnd-kit/core'
 import { Grid3X3, Image as ImageIcon, List, Pencil, Plus } from 'lucide-react'
 import * as React from 'react'
 import { useCallback, useState } from 'react'
-import { arrayMove } from '@dnd-kit/sortable'
-import { cva, type VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
+import { Button } from '@/components/atoms/button'
+import { Icon } from '@/components/atoms/icon'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs'
+import { MissingView } from '@/components/molecules/missing-view'
 import { PostFormDialog } from '@/components/organisms/post-form-dialog'
 import { PostPreviewDialog } from '@/components/organisms/post-preview-dialog'
 import { PostsFeedView } from '@/components/organisms/posts-feed-view'
 import { PostsGridView } from '@/components/organisms/posts-grid-view'
 import { ProfileEditDialog } from '@/components/organisms/profile-edit-dialog'
-import { Button } from '@/components/atoms/button'
-import { Icon } from '@/components/atoms/icon'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs'
 import { useReorderPostsMutation } from '@/queries/posts'
+import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  emptyRoot: cva('flex flex-col items-center justify-center py-16 text-center'),
-  emptyIconRing: cva(
-    'flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed'
-  ),
-  emptyTitle: cva('mt-4 font-semibold'),
-  emptyDescription: cva('text-muted-foreground mt-1 text-sm'),
-  emptyAddButton: cva('mt-4'),
   toolbar: cva('flex items-center justify-between gap-2 pt-2'),
   tabLabel: cva('hidden sm:inline'),
   tabTrigger: cva('gap-1.5'),
@@ -37,45 +31,14 @@ const styles = {
 }
 
 // 2. types
-type PostsSectionProps = {
+type ProfileSectionProps = {
   initialPosts: Post[]
   profile: Profile
   className?: string
 }
 
-type EmptyStateProps = React.ComponentProps<'div'> &
-  VariantProps<typeof styles.emptyRoot> & {
-    onAdd: () => void
-  }
-
 // 3. component
-const EmptyState: React.FC<EmptyStateProps> = (props) => {
-  // a. props
-  const { onAdd, className, ...rest } = props
-
-  // b. hooks
-
-  // c. logic
-
-  // d. component
-  return (
-    <div className={cn(styles.emptyRoot({ className }))} {...rest}>
-      <div className={styles.emptyIconRing()}>
-        <Icon icon={ImageIcon} size="lg" tone="muted" />
-      </div>
-      <h3 className={styles.emptyTitle()}>No posts yet</h3>
-      <p className={styles.emptyDescription()}>
-        Start building your grid by adding your first post
-      </p>
-      <Button className={styles.emptyAddButton()} onClick={onAdd}>
-        <Icon icon={Plus} size="sm" slot="buttonLeading" />
-        Add Your First Post
-      </Button>
-    </div>
-  )
-}
-
-const PostsSection: React.FC<PostsSectionProps> = (props) => {
+const ProfileSection: React.FC<ProfileSectionProps> = (props) => {
   // a. props
   const { initialPosts, profile, className } = props
 
@@ -90,21 +53,15 @@ const PostsSection: React.FC<PostsSectionProps> = (props) => {
   // c. logic
   const handleDragEnd = useCallback(
     async (event: DragEndEvent) => {
-      const { active, over } = event
+      const previous = posts
+      const newPosts = reorderItemsFromDragEnd(posts, event, (p) => p.id)
+      if (!newPosts) return
 
-      if (over && active.id !== over.id) {
-        const oldIndex = posts.findIndex((p) => p.id === active.id)
-        const newIndex = posts.findIndex((p) => p.id === over.id)
-
-        const previous = posts
-        const newPosts = arrayMove(posts, oldIndex, newIndex)
-        setPosts(newPosts)
-
-        try {
-          await reorderPosts.mutateAsync({ orderedPosts: newPosts })
-        } catch {
-          setPosts(previous)
-        }
+      setPosts(newPosts)
+      try {
+        await reorderPosts.mutateAsync({ orderedPosts: newPosts })
+      } catch {
+        setPosts(previous)
       }
     },
     [posts, reorderPosts]
@@ -161,7 +118,14 @@ const PostsSection: React.FC<PostsSectionProps> = (props) => {
 
         <TabsContent className={styles.tabsContent()} value="grid">
           {posts.length === 0 ? (
-            <EmptyState onAdd={() => setShowAddDialog(true)} />
+            <MissingView
+              ctaIcon={Plus}
+              ctaLabel="Add Your First Post"
+              description="Start building your grid by adding your first post"
+              icon={ImageIcon}
+              title="No posts yet"
+              onClick={() => setShowAddDialog(true)}
+            />
           ) : (
             <PostsGridView
               posts={posts}
@@ -174,7 +138,14 @@ const PostsSection: React.FC<PostsSectionProps> = (props) => {
 
         <TabsContent className={styles.tabsContent()} value="feed">
           {posts.length === 0 ? (
-            <EmptyState onAdd={() => setShowAddDialog(true)} />
+            <MissingView
+              ctaIcon={Plus}
+              ctaLabel="Add Your First Post"
+              description="Start building your grid by adding your first post"
+              icon={ImageIcon}
+              title="No posts yet"
+              onClick={() => setShowAddDialog(true)}
+            />
           ) : (
             <PostsFeedView posts={posts} profile={profile} onEditClick={setEditPost} />
           )}
@@ -215,4 +186,4 @@ const PostsSection: React.FC<PostsSectionProps> = (props) => {
 }
 
 // 4. exports
-export { PostsSection }
+export { ProfileSection }

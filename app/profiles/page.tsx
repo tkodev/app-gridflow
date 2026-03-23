@@ -1,10 +1,11 @@
 import { redirect } from 'next/navigation'
+import { UserPlus } from 'lucide-react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
-import { PostsSection } from '@/components/organisms/posts-section'
-import { ProfileMissingView } from '@/components/organisms/profile-missing-view'
-import { ProfileSection } from '@/components/organisms/profile-section'
+import { MissingView } from '@/components/molecules/missing-view'
+import { ProfileView } from '@/components/organisms/profile-view'
+import { ProfileSection } from '@/components/sections/profile-section'
 import { SUPABASE_TABLE_POSTS, SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
 import { sortPostMediaByPosition } from '@/utils/post-media'
 import { createClient } from '@/utils/supabase-server'
@@ -49,7 +50,15 @@ const ProfilesPage = async (props: ProfilesPageProps) => {
   const profiles = (profilesRaw ?? []) as Profile[]
 
   if (profiles.length === 0) {
-    return <ProfileMissingView />
+    return (
+      <MissingView
+        ctaLabel="Create Your First Profile"
+        description="Create your first profile to start planning your Instagram grid. You can add multiple profiles for different accounts."
+        icon={UserPlus}
+        title="No Profiles Yet"
+        href="/settings"
+      />
+    )
   }
 
   const currentProfileId = params.profile || profiles[0].id
@@ -88,8 +97,8 @@ const ProfilesPage = async (props: ProfilesPageProps) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <ProfileSection postsCount={posts?.length || 0} profile={profile} profiles={profiles} />
-      <PostsSection initialPosts={posts || []} profile={profile} />
+      <ProfileView postsCount={posts?.length || 0} profile={profile} profiles={profiles} />
+      <ProfileSection initialPosts={posts || []} profile={profile} />
     </div>
   )
 }
