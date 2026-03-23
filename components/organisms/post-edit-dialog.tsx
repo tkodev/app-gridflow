@@ -27,7 +27,7 @@ import { Label } from '@/components/atoms/label'
 import { Textarea } from '@/components/atoms/textarea'
 import { MediaSortableItem } from '@/components/molecules/media-sortable-item'
 import { MAX_POST_MEDIA_ITEMS } from '@/constants/posts'
-import { usePostFormMedia } from '@/hooks/use-post-form-media'
+import { usePostEditMedia } from '@/hooks/use-post-edit-media'
 import { useDeletePostMutation, useSavePostMutation } from '@/queries/posts'
 import { revokeNewBlobUrls } from '@/utils/local-media'
 import { formatSupabaseError } from '@/utils/supabase-errors'
@@ -111,7 +111,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
     handleRemoveMedia,
     handleDragEnd: handleDragEndBase,
     revokePendingBlobUrls
-  } = usePostFormMedia({ post, open, setError })
+  } = usePostEditMedia({ post, open, setError })
 
   const {
     register,
