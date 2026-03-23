@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, Music, X } from 'lucide-react'
+import { MoreHorizontal, Music, Share2, X } from 'lucide-react'
 import * as React from 'react'
 import { useCallback, useRef } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -12,6 +12,7 @@ import { Button } from '@/components/atoms/button'
 import { Icon } from '@/components/atoms/icon'
 import { Status } from '@/components/atoms/status'
 import { PostMediaCarousel } from '@/components/molecules/post-media-carousel'
+import { usePostShare } from '@/hooks/use-post-share'
 import { getPostDateLabel } from '@/utils/post-dates'
 import { cn } from '@/utils/tailwind'
 
@@ -67,6 +68,7 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
     const innerRef = useRef<HTMLElement | null>(null)
     const isInView = useInView(innerRef, { amount: 0.6 })
     const isActive = isActiveProp !== undefined ? isActiveProp : isInView
+    const { handleShare, isSharing, canShare } = usePostShare({ post, profile })
 
     const setRef = useCallback(
       (node: HTMLElement | null) => {
@@ -108,6 +110,19 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
               </div>
             )}
           </div>
+          {canShare && (
+            <Button
+              type="button"
+              className={styles.toolbarButton()}
+              size="icon"
+              variant="ghost"
+              onClick={handleShare}
+              disabled={isSharing}
+            >
+              <Icon icon={Share2} size="md" />
+              <span className={styles.srOnly()}>Share post</span>
+            </Button>
+          )}
           <Button
             type="button"
             className={styles.toolbarButton()}
