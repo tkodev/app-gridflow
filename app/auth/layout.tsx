@@ -1,13 +1,15 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { Container } from '@/components/atoms/container'
 import { AppHeader } from '@/components/sections/app-header'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('flex min-h-screen flex-col'),
-  main: cva('flex flex-1 items-center justify-center p-4')
+  root: cva('bg-background flex min-h-screen flex-col'),
+  main: cva('flex flex-1 pb-20'),
+  container: cva('flex flex-1 flex-col items-center justify-center py-4')
 }
 
 // 2. types
@@ -33,7 +35,9 @@ const AuthLayout = async (props: AuthLayoutProps) => {
   return (
     <div className={cn(styles.root({ className }))}>
       <AppHeader user={user} />
-      <main className={styles.main()}>{children}</main>
+      <main className={styles.main()}>
+        <Container className={styles.container()}>{children}</Container>
+      </main>
     </div>
   )
 }

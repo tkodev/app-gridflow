@@ -8,6 +8,7 @@ import { Grid3X3, LogIn, LogOut, Moon, Settings, Sun, UserPlus, Users } from 'lu
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
+import { Container } from '@/components/atoms/container'
 import { Icon } from '@/components/atoms/icon'
 import { useSignOutMutation } from '@/queries/auth'
 import { cn } from '@/utils/tailwind'
@@ -15,7 +16,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('bg-background/80 sticky top-0 z-50 border-b backdrop-blur-sm'),
-  inner: cva('mx-auto flex h-14 max-w-lg items-center justify-between px-4'),
+  inner: cva('flex h-14 items-center justify-between'),
   brand: cva('flex items-center gap-2'),
   brandText: cva('font-bold'),
   srOnly: cva('sr-only'),
@@ -58,7 +59,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
   // d. component
   return (
     <header className={cn(styles.root({ className }))} {...rest}>
-      <div className={styles.inner()}>
+      <Container className={styles.inner()}>
         <Link className={styles.brand()} href={isAuthed ? '/profiles' : '/'}>
           <Icon icon={Grid3X3} size="md" />
           <span className={styles.brandText()}>GridFlow</span>
@@ -122,7 +123,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
             </>
           )}
         </div>
-      </div>
+      </Container>
     </header>
   )
 }
