@@ -1,9 +1,30 @@
 import tkodevEslintConfig from '@tkodev/config-eslint-next'
-import nextVitals from 'eslint-config-next/core-web-vitals'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  ...nextVitals,
   globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
-  ...tkodevEslintConfig
+  ...tkodevEslintConfig,
+  {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'swr',
+              message: 'Use TanStack Query instead (see docs/tech.md).'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    files: ['**/*.{jsx,tsx}'],
+    rules: {
+      'jsx-a11y/anchor-is-valid': 'warn',
+      'jsx-a11y/label-has-associated-control': 'warn'
+    }
+  }
 ])

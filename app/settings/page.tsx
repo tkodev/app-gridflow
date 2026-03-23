@@ -19,7 +19,7 @@ type SettingsPageProps = {
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const SettingsPage = async (props: SettingsPageProps) => {
+const SettingsPage: React.FC<SettingsPageProps> = async (props) => {
   // a. props
   const { className } = props
 

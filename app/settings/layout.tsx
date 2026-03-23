@@ -19,7 +19,7 @@ type SettingsLayoutProps = {
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const SettingsLayout = async (props: SettingsLayoutProps) => {
+const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
   // a. props
   const { children, className } = props
 

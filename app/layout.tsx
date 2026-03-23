@@ -40,7 +40,7 @@ type RootLayoutProps = {
 }
 
 // 3. component
-const RootLayout = (props: RootLayoutProps) => {
+const RootLayout: React.FC<RootLayoutProps> = (props) => {
   // a. props
   const { children } = props
 

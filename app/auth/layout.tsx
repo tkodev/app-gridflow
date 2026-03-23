@@ -19,7 +19,7 @@ type AuthLayoutProps = {
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const AuthLayout = async (props: AuthLayoutProps) => {
+const AuthLayout: React.FC<AuthLayoutProps> = async (props) => {
   // a. props
   const { children, className } = props
 

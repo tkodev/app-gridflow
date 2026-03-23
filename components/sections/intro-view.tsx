@@ -28,7 +28,7 @@ const styles = {
   contentCol: cva('min-w-0 space-y-2'),
 
   usernameCell: cva('flex min-w-0 items-center gap-2'),
-  nameLabelButton: cva('pl-0'),
+  nameLabelButton: cva('-ml-2.5'),
   nameCell: cva('text-base leading-snug font-normal'),
   statsCell: cva('flex flex-wrap justify-start gap-x-4 gap-y-1 text-sm sm:gap-x-6'),
   bioCell: cva(

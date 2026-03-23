@@ -22,7 +22,7 @@ type ProfilesPageProps = {
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const ProfilesPage = async (props: ProfilesPageProps) => {
+const ProfilesPage: React.FC<ProfilesPageProps> = async (props) => {
   // a. props
   const { searchParams, className } = props
 

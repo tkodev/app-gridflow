@@ -19,7 +19,7 @@ type ProfilesLayoutProps = {
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const ProfilesLayout = async (props: ProfilesLayoutProps) => {
+const ProfilesLayout: React.FC<ProfilesLayoutProps> = async (props) => {
   // a. props
   const { children, className } = props
 
