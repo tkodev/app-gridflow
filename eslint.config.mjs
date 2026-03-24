@@ -1,9 +1,9 @@
-import tkodevEslintConfig from '@tkodev/config-eslint-next'
+import { tkodevConfig } from '@tkodev/config-eslint-next'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
-  ...tkodevEslintConfig,
+  ...tkodevConfig,
   {
     files: ['**/*.{ts,tsx}'],
     rules: {

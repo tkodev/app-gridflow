@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@tkodev/config-eslint-next": "github:tkodev/config-eslint-next",
+    "@tkodev/config-eslint-next": "github:tkodev/config-eslint-next#681e7ac283d11b5f9b8a7962df726f9383328fa8",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

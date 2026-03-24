@@ -17,13 +17,13 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
-export const metadata: Metadata = {
+const metadata: Metadata = {
   title: 'GridFlow - Visual Instagram Content Planner',
   description:
     'Plan, preview, and perfect your Instagram feed before you post. Drag and drop to rearrange your grid and see exactly how your profile will look.'
 }
 
-export const viewport: Viewport = {
+const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
     { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' }
@@ -63,3 +63,4 @@ const RootLayout: React.FC<RootLayoutProps> = (props) => {
 
 // 4. exports
 export default RootLayout
+export { metadata, viewport }

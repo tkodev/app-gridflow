@@ -1,11 +1,11 @@
 import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase-middleware'
 
-async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return await updateSession(request)
 }
 
-const config = {
+export const config = {
   matcher: [
     /*
      * Match all request paths except:
@@ -18,5 +18,3 @@ const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
   ]
 }
-
-export { config, proxy }
