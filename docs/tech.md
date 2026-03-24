@@ -14,14 +14,13 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 
 ## Stack
 
-**Application:** Next.js (App Router) · Tailwind CSS (theme and styling) · Shadcn UI (includes dark mode) · Radix UI (primitives when there is no shadcn/ui equivalent) · React (`useState`, `useOptimistic`; Server Actions for mutations where used) · React Hook Form · Framer Motion (scroll, animations, gestures) · Playwright (e2e) · ESLint — [`@tkodev/config-eslint-next`](https://github.com/tkodev/config-eslint-next) (Git dependency in `package.json`). Root [`eslint.config.mjs`](/eslint.config.mjs) uses `withTkodevConfig([...])` so the shared flat config is **extended** with app-specific entries, **not** replaced.
+**Application:** Next.js (App Router) · Tailwind CSS (theme and styling) · Shadcn UI (includes dark mode) · Radix UI (primitives when there is no shadcn/ui equivalent) · React · TanStack Query · React Hook Form · Framer Motion (scroll, animations, gestures)
 
 **Data & backend:** TanStack Query (`@tanstack/react-query`) — async state for browser Supabase calls; hooks and helpers in [`queries/`](/queries/). Supabase — Database, Auth, Storage. Cron is reserved for a post-scheduling stretch feature.
 
 ## Next.js
 
 - This is not the Next.js version most training data describes: APIs, conventions, and layout can differ. Before writing Next-specific code, read the relevant guide under `node_modules/next/dist/docs/` and heed deprecation notices.
-- Use the **`src` folder** convention for the app.
 
 ## TypeScript
 
@@ -33,26 +32,12 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 - Cross-cutting mutation/query payloads shared by hooks and callers live in [`types/mutations.ts`](/types/mutations.ts), alongside domain types such as [`types/post.ts`](/types/post.ts).
 - **Constants:** values under [`constants/`](/constants/) (and other module-level constants) use **camelCase** — e.g. `maxPostMediaItems`, `supabaseTablePosts`, `routeProfiles`. Do **not** use `SCREAMING_SNAKE_CASE` for these. Names from the runtime environment (`process.env.*`) stay as defined by the platform.
 
-## ES modules & exports
+## Exports
 
 - Prefer a single export block, using named exports at the **end** of the file.
   - Except where a tool requires it — e.g. [`proxy.ts`](/proxy.ts) or [`middleware.ts`](/middleware.ts), uses inline export as required by Next.js.
 - Avoid `export default`
   - Except where a tool requires it — e.g. [`next.config.ts`](/next.config.ts), uses default export as required by Next.js.
-
-```typescript
-// ✅ Good
-type PostProps = {
-  post: Post
-  onEdit: (post: Post) => void
-}
-
-// ❌ Avoid
-interface PostProps {
-  post: any
-  onEdit: Function
-}
-```
 
 ## Repository layout
 
@@ -148,12 +133,12 @@ The **Tailwind** subsection below is token/layout guidance; express it **via `cv
 - Prefer Tailwind’s **12-column grid**: `grid grid-cols-12` on the container, then `col-span-*` with breakpoint prefixes (`sm:col-span-6`, `md:col-span-4`, etc.) so columns reflow across breakpoints.
 - For **three equal columns** (e.g. profile grid, landing grid preview, post media thumbnails), use `grid-cols-12` with **`col-span-4`** on each cell (three × four = twelve).
 
-```tsx
-// ✅ Good (express via cva in real components)
-<div className="flex items-center gap-4 p-4 bg-card rounded-lg border">
+```ts
+// Prefer: semantic tokens, spacing scale, theme-aware surfaces
+cva("flex items-center gap-4 p-4 bg-card rounded-lg border")
 
-// ❌ Avoid
-<div className="flex items-center p-[17px] bg-white dark:bg-gray-800 rounded-[10px]">
+// Avoid: arbitrary pixels and ad-hoc light/dark when tokens exist
+cva("flex items-center p-[17px] bg-white dark:bg-gray-800 rounded-[10px]")
 ```
 
 ### Post status utility classes
