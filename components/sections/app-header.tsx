@@ -9,6 +9,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Container } from '@/components/atoms/container'
 import { Icon } from '@/components/atoms/icon'
+import { profileRoute, rootRoute } from '@/constants/routes'
 import { useSignOutMutation } from '@/queries/auth'
 import { cn } from '@/utils/tailwind'
 
@@ -43,7 +44,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
   const handleSignOut = () => {
     signOut.mutate(undefined, {
       onSuccess: () => {
-        router.push('/')
+        router.push(rootRoute)
         router.refresh()
       }
     })
@@ -53,7 +54,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
   return (
     <header className={cn(styles.root({ className }))} {...rest}>
       <Container className={styles.inner()}>
-        <Link className={styles.brand()} href={isAuthed ? '/profiles' : '/'}>
+        <Link className={styles.brand()} href={isAuthed ? profileRoute : rootRoute}>
           <Icon icon={Grid3X3} size="md" />
           <span className={styles.brandText()}>GridFlow</span>
         </Link>
@@ -62,7 +63,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
           {isAuthed ? (
             <>
               <Button size="icon" variant="ghost" asChild>
-                <Link href="/profiles">
+                <Link href={profileRoute}>
                   <Icon icon={Users} size="sm" />
                   <span className={styles.srOnly()}>Profiles</span>
                 </Link>

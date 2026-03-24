@@ -8,6 +8,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
+import { profileRoute } from '@/constants/routes'
 import { useSignUpMutation } from '@/queries/auth'
 import { cn } from '@/utils/tailwind'
 
@@ -65,7 +66,7 @@ const SignUpPage: React.FC<SignUpPageProps> = (props) => {
         password: data.password,
         username: data.username
       })
-      router.push('/profiles')
+      router.push(profileRoute)
       router.refresh()
     } catch (err) {
       setError('root', {

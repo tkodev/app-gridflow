@@ -5,7 +5,7 @@ import type { Profile } from '@/types/profile'
  * Demo assets in `public/landing/`. Photos from Unsplash (free to use under the Unsplash License).
  * @see https://unsplash.com/license
  */
-export const LANDING_DEMO_MEDIA_URLS = [
+export const demoMediaUrls = [
   '/landing/grid-01.jpg',
   '/landing/grid-02.jpg',
   '/landing/grid-03.jpg',
@@ -17,36 +17,36 @@ export const LANDING_DEMO_MEDIA_URLS = [
   '/landing/grid-09.jpg'
 ] as const
 
-const DEMO_TS = '2024-06-01T12:00:00.000Z'
+const demoTimestamp = '2024-06-01T12:00:00.000Z'
 
 /** Hypothetical interior designer — matches the landing grid preview persona. */
-export const LANDING_DEMO_PROFILE: Profile = {
+export const demoProfile: Profile = {
   id: 'demo-profile-landing',
   user_id: 'demo-user-landing',
   username: 'atelier.nova',
   display_name: 'Mara Ellis Studio',
   bio: 'Residential interiors — light, materials, and layout. Planning the grid before the reveal.',
   avatar_url: '/landing/avatar.jpg',
-  created_at: DEMO_TS,
-  updated_at: DEMO_TS,
+  created_at: demoTimestamp,
+  updated_at: demoTimestamp,
   grid_ratio: 'square'
 }
 
-export function createLandingDemoPosts(): Post[] {
+export const demoPosts = ((): Post[] => {
   return Array.from({ length: 9 }, (_, i) => {
     const id = `demo-post-${i + 1}`
-    const mediaUrl = LANDING_DEMO_MEDIA_URLS[i]
+    const mediaUrl = demoMediaUrls[i]
     return {
       id,
-      profile_id: LANDING_DEMO_PROFILE.id,
+      profile_id: demoProfile.id,
       caption: null,
       subtitle: null,
       grid_position: i,
       status: 'published' as const,
       scheduled_at: null,
-      published_at: DEMO_TS,
-      created_at: DEMO_TS,
-      updated_at: DEMO_TS,
+      published_at: demoTimestamp,
+      created_at: demoTimestamp,
+      updated_at: demoTimestamp,
       media: [
         {
           id: `demo-media-${i + 1}`,
@@ -54,9 +54,9 @@ export function createLandingDemoPosts(): Post[] {
           media_url: mediaUrl,
           media_type: 'image' as const,
           position: 0,
-          created_at: DEMO_TS
+          created_at: demoTimestamp
         }
       ]
     }
   })
-}
+})()

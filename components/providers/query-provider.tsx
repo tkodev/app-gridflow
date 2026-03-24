@@ -3,7 +3,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { QUERY_STALE_TIME_MS } from '@/constants/query'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -15,7 +14,7 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: QUERY_STALE_TIME_MS
+        staleTime: 0
       },
       mutations: {
         retry: false

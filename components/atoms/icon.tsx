@@ -6,8 +6,8 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils/tailwind'
 
-/** Icons addressable by `name` (serializable from Server Components). Use camelCase keys; add entries as needed. */
-const ICONS = {
+// 1. styles & constants
+const icons = {
   alertCircle: AlertCircle,
   arrowRight: ArrowRight,
   eye: Eye,
@@ -15,9 +15,7 @@ const ICONS = {
   mail: Mail,
   moveVertical: MoveVertical
 } as const satisfies Record<string, LucideIcon>
-type IconName = keyof typeof ICONS
 
-// 1. styles & constants
 const styles = {
   root: cva('shrink-0', {
     variants: {
@@ -44,17 +42,17 @@ const styles = {
 }
 
 // 2. types
+export type IconName = keyof typeof icons
 type IconSharedProps = {
   size?: VariantProps<typeof styles.root>['size']
   tone?: VariantProps<typeof styles.root>['tone']
 } & Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'>
-
-type IconProps =
+export type IconProps =
   | (IconSharedProps & { name: IconName; icon?: undefined })
   | (IconSharedProps & { icon: LucideIcon; name?: undefined })
 
 // 3. component
-const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref) {
+export const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref) {
   const {
     icon,
     name,
@@ -65,7 +63,7 @@ const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref
     ...rest
   } = props
 
-  const IconComponent = name != null ? ICONS[name] : icon
+  const IconComponent = name != null ? icons[name] : icon
 
   return (
     <IconComponent
@@ -77,7 +75,3 @@ const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref
   )
 })
 Icon.displayName = 'Icon'
-
-// 4. exports
-export { Icon }
-export type { IconName, IconProps }

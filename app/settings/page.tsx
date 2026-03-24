@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Profile } from '@/types/profile'
 import { SettingsView } from '@/components/sections/settings-view'
-import { SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
+import { supabaseTableProfiles } from '@/constants/db'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
 
@@ -31,7 +31,7 @@ const SettingsPage: React.FC<SettingsPageProps> = async (props) => {
   } = await supabase.auth.getUser()
 
   const { data: profilesRaw } = await supabase
-    .from(SUPABASE_TABLE_PROFILES)
+    .from(supabaseTableProfiles)
     .select('*')
     .eq('user_id', user!.id)
     .order('created_at', { ascending: true })

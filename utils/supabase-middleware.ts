@@ -1,3 +1,4 @@
+import { profileRoute } from '@/constants/routes'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
@@ -39,7 +40,7 @@ export async function updateSession(request: NextRequest) {
     data: { user }
   } = await supabase.auth.getUser()
 
-  const protectedPaths = ['/profiles', '/settings']
+  const protectedPaths = [profileRoute, '/settings']
   const isProtectedPath = protectedPaths.some((path) => request.nextUrl.pathname.startsWith(path))
 
   if (isProtectedPath && !user) {

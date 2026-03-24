@@ -14,7 +14,7 @@ import {
 } from 'react'
 import type { LocalMediaItem } from '@/types/post'
 import type { Post } from '@/types/post'
-import { MAX_POST_MEDIA_FILE_BYTES, MAX_POST_MEDIA_ITEMS } from '@/constants/posts'
+import { maxPostMediaFileBytes, maxPostMediaItems } from '@/constants/storage'
 import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { revokeNewBlobUrls } from '@/utils/local-media'
 import { mapPostMediaToLocalItems } from '@/utils/post-media-local'
@@ -79,7 +79,7 @@ export function usePostEditMedia({
           continue
         }
 
-        if (file.size > MAX_POST_MEDIA_FILE_BYTES) {
+        if (file.size > maxPostMediaFileBytes) {
           setError('Files must be less than 50MB')
           continue
         }
@@ -91,10 +91,10 @@ export function usePostEditMedia({
       }
 
       setMediaItems((prev) => {
-        const remaining = MAX_POST_MEDIA_ITEMS - prev.length
+        const remaining = maxPostMediaItems - prev.length
         if (remaining <= 0) {
           if (validMeta.length > 0) {
-            setError(`Maximum ${MAX_POST_MEDIA_ITEMS} media items per post`)
+            setError(`Maximum ${maxPostMediaItems} media items per post`)
           }
           return prev
         }
@@ -109,7 +109,7 @@ export function usePostEditMedia({
         }))
 
         if (validMeta.length > toAddMeta.length) {
-          setError(`Maximum ${MAX_POST_MEDIA_ITEMS} media items per post`)
+          setError(`Maximum ${maxPostMediaItems} media items per post`)
         } else if (toAdd.length > 0) {
           setError(null)
         }

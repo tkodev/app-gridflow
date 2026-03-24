@@ -35,7 +35,9 @@ export function usePostShare({ post, profile }: UsePostShareArgs): UsePostShareR
         post.media.map(async (item) => {
           const res = await fetch(item.media_url)
           const blob = await res.blob()
-          const ext = blob.type.split('/')[1]?.replace('jpeg', 'jpg') ?? (item.media_type === 'video' ? 'mp4' : 'jpg')
+          const ext =
+            blob.type.split('/')[1]?.replace('jpeg', 'jpg') ??
+            (item.media_type === 'video' ? 'mp4' : 'jpg')
           return new File([blob], `${item.id}.${ext}`, { type: blob.type })
         })
       )

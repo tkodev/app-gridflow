@@ -7,7 +7,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import { IntroView } from '@/components/sections/intro-view'
 import { PostGridView } from '@/components/sections/post-grid-view'
-import { createLandingDemoPosts, LANDING_DEMO_PROFILE } from '@/constants/landing-demo'
+import { demoPosts, demoProfile } from '@/constants/demo'
 import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { cn } from '@/utils/tailwind'
 
@@ -29,7 +29,7 @@ type DemoViewProps = React.ComponentProps<'div'> & VariantProps<typeof styles.ro
 const DemoView: React.FC<DemoViewProps> = (props) => {
   const { className, ...rest } = props
 
-  const [posts, setPosts] = useState<Post[]>(() => createLandingDemoPosts())
+  const [posts, setPosts] = useState<Post[]>(demoPosts)
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -45,14 +45,14 @@ const DemoView: React.FC<DemoViewProps> = (props) => {
         <div className={styles.previewCard()}>
           <IntroView
             postsCount={posts.length}
-            profile={LANDING_DEMO_PROFILE}
-            profiles={[LANDING_DEMO_PROFILE]}
+            profile={demoProfile}
+            profiles={[demoProfile]}
             readOnly
           />
           <hr className={styles.previewDivider()} />
           <PostGridView
             posts={posts}
-            profile={LANDING_DEMO_PROFILE}
+            profile={demoProfile}
             onDragEnd={handleDragEnd}
             onPostClick={() => {}}
           />

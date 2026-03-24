@@ -27,7 +27,7 @@ import { Icon } from '@/components/atoms/icon'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
 import { Textarea } from '@/components/atoms/textarea'
-import { MAX_POST_MEDIA_ITEMS } from '@/constants/posts'
+import { maxPostMediaItems } from '@/constants/storage'
 import { usePostEditMedia } from '@/hooks/use-post-edit-media'
 import { useDeletePostMutation, useSavePostMutation } from '@/queries/posts'
 import { sortableItemStyle } from '@/utils/dnd-kit'
@@ -36,7 +36,7 @@ import { formatSupabaseError } from '@/utils/supabase-errors'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
-const POST_EDIT_FORM_ID = 'post-edit-dialog-form'
+const postEditFormId = 'post-edit-dialog-form'
 
 const styles = {
   sortableTile: cva('group bg-muted relative col-span-4 aspect-square overflow-hidden rounded-lg', {
@@ -261,8 +261,8 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
       return
     }
 
-    if (mediaItems.length > MAX_POST_MEDIA_ITEMS) {
-      setError(`Maximum ${MAX_POST_MEDIA_ITEMS} media items per post`)
+    if (mediaItems.length > maxPostMediaItems) {
+      setError(`Maximum ${maxPostMediaItems} media items per post`)
       return
     }
 
@@ -334,7 +334,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
           </div>
         }
       >
-        <form id={POST_EDIT_FORM_ID} className={styles.form()} onSubmit={onSubmit} noValidate>
+        <form id={postEditFormId} className={styles.form()} onSubmit={onSubmit} noValidate>
           <input type="hidden" {...register('status')} />
           {error && <div className={styles.errorBanner()}>{error}</div>}
 
@@ -369,7 +369,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
                     />
                   ))}
 
-                  {mediaItems.length < MAX_POST_MEDIA_ITEMS &&
+                  {mediaItems.length < maxPostMediaItems &&
                     (savePost.isPending ? (
                       <div className={styles.addSlotDisabled()} aria-hidden>
                         <Icon icon={Upload} size="md" tone="muted" />
@@ -386,7 +386,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
             </DndContext>
 
             <p className={styles.mutedXs()}>
-              Up to {MAX_POST_MEDIA_ITEMS} items. Drag to reorder. First item shows as cover.
+              Up to {maxPostMediaItems} items. Drag to reorder. First item shows as cover.
             </p>
           </div>
 
@@ -469,7 +469,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               type="submit"
               className={styles.footerButton()}
               disabled={isBusy || mediaItems.length === 0}
-              form={POST_EDIT_FORM_ID}
+              form={postEditFormId}
             >
               {savePost.isPending ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Post'}
             </Button>

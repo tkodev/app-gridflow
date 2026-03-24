@@ -5,7 +5,7 @@ import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
 import { MissingView } from '@/components/sections/missing-view'
 import { ProfilesView } from '@/components/sections/profiles-view'
-import { SUPABASE_TABLE_POSTS, SUPABASE_TABLE_PROFILES } from '@/constants/supabase'
+import { supabaseTablePosts, supabaseTableProfiles } from '@/constants/db'
 import { sortPostMediaByPosition } from '@/utils/post-media'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
@@ -41,7 +41,7 @@ const ProfilesPage: React.FC<ProfilesPageProps> = async (props) => {
   }
 
   const { data: profilesRaw } = await supabase
-    .from(SUPABASE_TABLE_PROFILES)
+    .from(supabaseTableProfiles)
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: true })
@@ -64,7 +64,7 @@ const ProfilesPage: React.FC<ProfilesPageProps> = async (props) => {
   const profile = profiles.find((p) => p.id === currentProfileId) ?? profiles[0]
 
   const { data: postsRaw } = await supabase
-    .from(SUPABASE_TABLE_POSTS)
+    .from(supabaseTablePosts)
     .select(
       `
       id,

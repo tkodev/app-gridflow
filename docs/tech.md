@@ -30,6 +30,7 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 - Avoid `any` — use `unknown` when the type is truly unknown.
 - Shared types: app-wide in [`types/<name>.ts`](/types/) or next to what they describe (e.g. component props in the same file), per usual TS practice.
 - Cross-cutting mutation/query payloads shared by hooks and callers live in [`types/mutations.ts`](/types/mutations.ts), alongside domain types such as [`types/post.ts`](/types/post.ts).
+- **Constants:** `const` bindings and exports under [`constants/`](/constants/) (and other module-level constants) use **camelCase** — e.g. `maxPostMediaItems`, `supabaseTablePosts`, `routeProfiles`. Do **not** use `SCREAMING_SNAKE_CASE` for these. Names from the runtime environment (`process.env.*`) stay as defined by the platform.
 
 ```typescript
 // ✅ Good
@@ -52,7 +53,7 @@ interface PostProps {
 | [`utils/`](/utils/) | Pure helpers, formatting, small algorithms, integration glue (e.g. Supabase `createClient` for browser/server, proxy/session helpers, Tailwind `cn`). |
 | [`types/`](/types/) | Shared TypeScript shapes used in multiple places (domain models, mutation inputs, etc.). |
 | [`queries/`](/queries/) | TanStack Query only: `useMutation` / `useQuery`, `mutationFn` / `queryFn`, and [`keys.ts`](/queries/keys.ts). No React providers and no generic utilities here. |
-| [`constants/`](/constants/) | App-wide constants (Supabase table and bucket names, query defaults, routes, limits such as max post media). |
+| [`constants/`](/constants/) | App-wide constants in **camelCase** (Supabase table and bucket names, query defaults, routes, limits such as max post media). |
 
 **Providers:** Tree wrappers (e.g. TanStack `QueryClientProvider`) belong in [`components/providers/`](/components/providers/), not in `queries/`. Provider modules are logic/context only: they do **not** use the `cva` styling pattern, and exported components do **not** need a `className` prop or other presentational styling API.
 
@@ -109,7 +110,7 @@ interface PostProps {
 
 New UI must follow one of the two layouts in [`components/atoms/example-base.tsx`](/components/atoms/example-base.tsx) and [`components/atoms/example-ref.tsx`](/components/atoms/example-ref.tsx) — pick the one that fits.
 
-- Use the file as a starting point: same section order (styles & constants → types → component → exports). Colocate TypeScript props in the same file. Prefer named exports; default export is optional and matches those examples when used.
+- Use the file as a starting point: same section order (styles & constants → types → component → exports). Colocate TypeScript props in the same file.
 - Inside `// 3. component`, the examples use lettered subsections (`// a. props`, `// b. hooks`, `// c. logic`, `// d. component`). **Omit the comment line for any subsection that has no code** — do not leave empty `// b. hooks` / `// c. logic` (or other) placeholders when unused.
 - **Base (`example-base.tsx`):** Use when callers do not need a ref to the root DOM node (`React.FC<…>`).
 - **With ref (`example-ref.tsx`):** Use when the root must accept a ref — focus, `useSortable`/measurement, or any parent that passes `ref` (`React.forwardRef` + `displayName`).
