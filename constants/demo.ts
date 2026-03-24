@@ -5,7 +5,7 @@ import type { Profile } from '@/types/profile'
  * Demo assets in `public/landing/`. Photos from Unsplash (free to use under the Unsplash License).
  * @see https://unsplash.com/license
  */
-export const demoMediaUrls = [
+const demoMediaUrls = [
   '/landing/grid-01.jpg',
   '/landing/grid-02.jpg',
   '/landing/grid-03.jpg',
@@ -20,7 +20,7 @@ export const demoMediaUrls = [
 const demoTimestamp = '2024-06-01T12:00:00.000Z'
 
 /** Hypothetical interior designer — matches the landing grid preview persona. */
-export const demoProfile: Profile = {
+const demoProfile: Profile = {
   id: 'demo-profile-landing',
   user_id: 'demo-user-landing',
   username: 'atelier.nova',
@@ -32,7 +32,7 @@ export const demoProfile: Profile = {
   grid_ratio: 'square'
 }
 
-export const demoPosts = ((): Post[] => {
+const demoPosts = ((): Post[] => {
   return Array.from({ length: 9 }, (_, i) => {
     const id = `demo-post-${i + 1}`
     const mediaUrl = demoMediaUrls[i]
@@ -60,3 +60,5 @@ export const demoPosts = ((): Post[] => {
     }
   })
 })()
+
+export { demoMediaUrls, demoPosts, demoProfile }

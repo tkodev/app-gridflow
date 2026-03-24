@@ -16,4 +16,5 @@ const ThemeProvider: React.FC<ThemeProviderProps> = (props) => {
 }
 
 // 3. exports
+export type { ThemeProviderProps }
 export { ThemeProvider }

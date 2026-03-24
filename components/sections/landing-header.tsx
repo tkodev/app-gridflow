@@ -49,4 +49,5 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
 }
 
 // 4. exports
+export type { LandingHeaderProps }
 export { LandingHeader }

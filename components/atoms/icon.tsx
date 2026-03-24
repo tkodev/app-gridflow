@@ -42,17 +42,21 @@ const styles = {
 }
 
 // 2. types
-export type IconName = keyof typeof icons
-type IconSharedProps = {
-  size?: VariantProps<typeof styles.root>['size']
-  tone?: VariantProps<typeof styles.root>['tone']
-} & Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'>
-export type IconProps =
-  | (IconSharedProps & { name: IconName; icon?: undefined })
-  | (IconSharedProps & { icon: LucideIcon; name?: undefined })
+type IconName = keyof typeof icons
+type IconProps =
+  | (VariantProps<typeof styles.root> &
+      Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'> & {
+        name: IconName
+        icon?: undefined
+      })
+  | (VariantProps<typeof styles.root> &
+      Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'> & {
+        icon: LucideIcon
+        name?: undefined
+      })
 
 // 3. component
-export const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref) {
+const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref) {
   const {
     icon,
     name,
@@ -75,3 +79,7 @@ export const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(pro
   )
 })
 Icon.displayName = 'Icon'
+
+// 4. exports
+export type { IconName, IconProps }
+export { Icon }

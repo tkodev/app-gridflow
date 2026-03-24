@@ -79,4 +79,5 @@ const PostGridView: React.FC<PostGridViewProps> = (props) => {
 }
 
 // 4. exports
+export type { PostGridViewProps }
 export { PostGridView }

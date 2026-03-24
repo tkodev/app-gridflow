@@ -29,5 +29,5 @@ const Example: React.FC<ExampleProps> = (props) => {
 }
 
 // 4. exports
+export type { ExampleProps }
 export { Example }
-export default Example

@@ -41,12 +41,12 @@ const styles = {
   dialogFooter: cva('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2')
 }
 
-// 2. types
 const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
 const DialogPortal = DialogPrimitive.Portal
 const DialogClose = DialogPrimitive.Close
 
+// 2. types
 type DialogOverlayProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> &
   VariantProps<typeof styles.overlay>
 type DialogTitleProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> &

@@ -18,7 +18,7 @@ type UsePostShareResult = {
 }
 
 // 3. hook
-export function usePostShare({ post, profile }: UsePostShareArgs): UsePostShareResult {
+function usePostShare({ post, profile }: UsePostShareArgs): UsePostShareResult {
   const [isSharing, setIsSharing] = useState(false)
   const [canShare, setCanShare] = useState(false)
 
@@ -72,3 +72,5 @@ export function usePostShare({ post, profile }: UsePostShareArgs): UsePostShareR
 
   return { handleShare, isSharing, canShare }
 }
+
+export { usePostShare }

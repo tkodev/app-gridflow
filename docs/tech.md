@@ -29,8 +29,15 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 - Prefer `type` for object shapes (matches `@tkodev/config-eslint-next` / `@typescript-eslint/consistent-type-definitions`).
 - Avoid `any` — use `unknown` when the type is truly unknown.
 - Shared types: app-wide in [`types/<name>.ts`](/types/) or next to what they describe (e.g. component props in the same file), per usual TS practice.
+- **Component props:** Prefer **one** `ComponentNameProps` type per file for the primary export. If you would split `BaseProps` and `ComponentProps`, merge them into a single `ComponentNameProps` when the base is only used once. **Export** that type when other modules need the shape (`export type ComponentNameProps = …` or `export type { ComponentNameProps }`). Compound UI that exposes several named subcomponents (e.g. `Card` + `CardHeader`) may use one `*Props` type per subcomponent; keep those **internal** unless a consumer needs them.
 - Cross-cutting mutation/query payloads shared by hooks and callers live in [`types/mutations.ts`](/types/mutations.ts), alongside domain types such as [`types/post.ts`](/types/post.ts).
-- **Constants:** `const` bindings and exports under [`constants/`](/constants/) (and other module-level constants) use **camelCase** — e.g. `maxPostMediaItems`, `supabaseTablePosts`, `routeProfiles`. Do **not** use `SCREAMING_SNAKE_CASE` for these. Names from the runtime environment (`process.env.*`) stay as defined by the platform.
+- **Constants:** values under [`constants/`](/constants/) (and other module-level constants) use **camelCase** — e.g. `maxPostMediaItems`, `supabaseTablePosts`, `routeProfiles`. Do **not** use `SCREAMING_SNAKE_CASE` for these. Names from the runtime environment (`process.env.*`) stay as defined by the platform.
+
+## ES modules & exports
+
+- Prefer a single export block, using named exports at the **end** of the file. For UI that follows the numbered section layout ([`components/atoms/example-base.tsx`](/components/atoms/example-base.tsx)), use **`// 4. exports`** as the final section.
+- [`app/`](/app/):** Route files (`page.tsx`, `layout.tsx`, etc.) may use **`export default`** for the route component, plus any other patterns Next.js requires (`metadata`, `generateMetadata`, `viewport`, etc.).
+- Avoid **`export default`** except where a tool requires it — e.g. [`next.config.ts`](/next.config.ts) uses default export as required by Next.js.
 
 ```typescript
 // ✅ Good
@@ -93,7 +100,7 @@ interface PostProps {
 
 - Pages assemble React components, content, and hooks; they are the main place that defines how a screen is composed.
 - All pages share a common header bar. Pages that use a sidebar share the same sidebar component. Visual principles: [design.md](/docs/design.md).
-- **Exports:** `app/**/page.tsx` and `app/**/layout.tsx` must export the route component **only** as the **default** export. Do not add a named export for the page or layout component (Next.js App Router convention; keeps route modules unambiguous). Other named exports in those files (e.g. `metadata`, `generateMetadata`, `viewport`) are fine when the framework allows them.
+- **Exports:** `app/**/page.tsx` and `app/**/layout.tsx` default-export the route component; other route files follow Next.js as needed. See [ES modules & exports](#es-modules--exports) — rules for end-of-file exports do **not** apply under `app/`.
 
 ## React components
 
@@ -110,7 +117,9 @@ interface PostProps {
 
 New UI must follow one of the two layouts in [`components/atoms/example-base.tsx`](/components/atoms/example-base.tsx) and [`components/atoms/example-ref.tsx`](/components/atoms/example-ref.tsx) — pick the one that fits.
 
-- Use the file as a starting point: same section order (styles & constants → types → component → exports). Colocate TypeScript props in the same file.
+- Use the file as a starting point: same section order (styles & constants → types → component → **`// 4. exports`**). Colocate TypeScript props in the same file as a single `MyComponentProps` when possible. Define the component as `const MyComponent = …` (or `React.forwardRef`) and finish with `export type { MyComponentProps }` (when consumers need the type) and `export { MyComponent }`. **Do not** use `export default` for components in [`components/`](/components/).
+- The same end-of-file export pattern applies to [`constants/`](/constants/), [`hooks/`](/hooks/), [`queries/`](/queries/), [`types/`](/types/), [`utils/`](/utils/), and other non-`app` modules — use **`// exports`** at the end when the file does not use the numbered `1–4` layout.
+- Compound modules (several related components or `cva` helpers such as `buttonVariants`) list every public symbol in the same exports block.
 - Inside `// 3. component`, the examples use lettered subsections (`// a. props`, `// b. hooks`, `// c. logic`, `// d. component`). **Omit the comment line for any subsection that has no code** — do not leave empty `// b. hooks` / `// c. logic` (or other) placeholders when unused.
 - **Base (`example-base.tsx`):** Use when callers do not need a ref to the root DOM node (`React.FC<…>`).
 - **With ref (`example-ref.tsx`):** Use when the root must accept a ref — focus, `useSortable`/measurement, or any parent that passes `ref` (`React.forwardRef` + `displayName`).

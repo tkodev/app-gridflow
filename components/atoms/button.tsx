@@ -74,4 +74,5 @@ const Button: React.FC<ButtonProps> = (props) => {
 }
 
 // 4. exports
+export type { ButtonProps }
 export { Button, buttonVariants }

@@ -322,4 +322,5 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
 }
 
 // 4. exports
+export type { ProfileEditDialogProps }
 export { ProfileEditDialog }

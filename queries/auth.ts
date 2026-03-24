@@ -6,7 +6,7 @@ import { profileRoute } from '@/constants/routes'
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
-export function useSignInMutation() {
+function useSignInMutation() {
   return useMutation({
     mutationFn: async (vars: SignInMutationInput) => {
       const supabase = createClient()
@@ -19,7 +19,7 @@ export function useSignInMutation() {
   })
 }
 
-export function useSignUpMutation() {
+function useSignUpMutation() {
   return useMutation({
     mutationFn: async (vars: SignUpMutationInput) => {
       const supabase = createClient()
@@ -41,7 +41,7 @@ export function useSignUpMutation() {
   })
 }
 
-export function useSignOutMutation() {
+function useSignOutMutation() {
   return useMutation({
     mutationFn: async () => {
       const supabase = createClient()
@@ -50,3 +50,5 @@ export function useSignOutMutation() {
     }
   })
 }
+
+export { useSignInMutation, useSignOutMutation, useSignUpMutation }

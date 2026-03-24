@@ -1,4 +1,4 @@
-export type PostMedia = {
+type PostMedia = {
   id: string
   post_id: string
   media_url: string
@@ -7,7 +7,7 @@ export type PostMedia = {
   created_at: string
 }
 
-export type Post = {
+type Post = {
   id: string
   profile_id: string
   caption: string | null
@@ -23,10 +23,12 @@ export type Post = {
 }
 
 // Local media item for form handling (before upload)
-export type LocalMediaItem = {
+type LocalMediaItem = {
   id: string
   file?: File
   url: string
   type: 'image' | 'video'
   isNew: boolean // true if file needs to be uploaded
 }
+
+export type { LocalMediaItem, Post, PostMedia }

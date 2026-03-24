@@ -64,4 +64,5 @@ const DemoView: React.FC<DemoViewProps> = (props) => {
 }
 
 // 4. exports
+export type { DemoViewProps }
 export { DemoView }

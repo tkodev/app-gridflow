@@ -1,8 +1,8 @@
-import { profileRoute } from '@/constants/routes'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { profileRoute } from '@/constants/routes'
 
-export async function updateSession(request: NextRequest) {
+async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request
   })
@@ -65,3 +65,5 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse
 }
+
+export { updateSession }

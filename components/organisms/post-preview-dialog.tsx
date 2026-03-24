@@ -55,4 +55,5 @@ const PostPreviewDialog: React.FC<PostPreviewDialogProps> = (props) => {
 }
 
 // 4. exports
+export type { PostPreviewDialogProps }
 export { PostPreviewDialog }

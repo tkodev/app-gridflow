@@ -18,9 +18,9 @@ const styles = {
   )
 }
 
-// 2. types
 const Tabs = TabsPrimitive.Root
 
+// 2. types
 type TabsListProps = React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> &
   VariantProps<typeof styles.list>
 type TabsTriggerProps = React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> &
@@ -56,4 +56,5 @@ const TabsContent = React.forwardRef<
 TabsContent.displayName = TabsPrimitive.Content.displayName
 
 // 4. exports
+export type { TabsContentProps, TabsListProps, TabsTriggerProps }
 export { Tabs, TabsContent, TabsList, TabsTrigger }

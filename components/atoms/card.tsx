@@ -107,4 +107,13 @@ const CardFooter: React.FC<CardFooterProps> = (props) => {
 }
 
 // 4. exports
+export type {
+  CardActionProps,
+  CardContentProps,
+  CardDescriptionProps,
+  CardFooterProps,
+  CardHeaderProps,
+  CardProps,
+  CardTitleProps
+}
 export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }

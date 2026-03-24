@@ -54,10 +54,17 @@ type MediaSortableItemProps = {
 // 3. component
 const MediaSortableItem: React.FC<MediaSortableItemProps> = (props) => {
   // a. props
-  const { item, onRemove, disabled, className } = props
+  const { item, onRemove, disabled = false, className } = props
 
   // b. hooks
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: dragging
+  } = useSortable({
     id: item.id,
     disabled
   })
@@ -71,8 +78,8 @@ const MediaSortableItem: React.FC<MediaSortableItemProps> = (props) => {
       ref={setNodeRef}
       className={cn(
         styles.root({
-          dragging: isDragging ? true : false,
-          disabled: !!disabled
+          dragging,
+          disabled
         }),
         className
       )}
@@ -114,4 +121,5 @@ const MediaSortableItem: React.FC<MediaSortableItemProps> = (props) => {
 }
 
 // 4. exports
+export type { MediaSortableItemProps }
 export { MediaSortableItem }

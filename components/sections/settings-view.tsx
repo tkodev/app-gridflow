@@ -784,4 +784,5 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 }
 
 // 4. exports
+export type { SettingsViewProps }
 export { SettingsView }

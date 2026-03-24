@@ -107,4 +107,5 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
 }
 
 // 4. exports
+export type { AppHeaderProps }
 export { AppHeader }

@@ -30,5 +30,5 @@ const Example = React.forwardRef<HTMLDivElement, ExampleProps>((props, ref) => {
 Example.displayName = 'Example'
 
 // 4. exports
+export type { ExampleProps }
 export { Example }
-export default Example

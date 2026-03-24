@@ -10,7 +10,7 @@ type UseMediaCarouselArgs = {
 /**
  * Carousel slide index, navigation, and video play/pause when the active slide changes.
  */
-export function useMediaCarousel({ itemCount, isActive }: UseMediaCarouselArgs): {
+function useMediaCarousel({ itemCount, isActive }: UseMediaCarouselArgs): {
   index: number
   setIndex: (next: number) => void
   goToPrevious: () => void
@@ -84,3 +84,5 @@ export function useMediaCarousel({ itemCount, isActive }: UseMediaCarouselArgs):
     setVideoRef
   }
 }
+
+export { useMediaCarousel }

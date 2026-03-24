@@ -114,10 +114,10 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
             <Button
               type="button"
               className={styles.toolbarButton()}
+              disabled={isSharing}
               size="icon"
               variant="ghost"
               onClick={handleShare}
-              disabled={isSharing}
             >
               <Icon icon={Share2} size="md" />
               <span className={styles.srOnly()}>Share post</span>
@@ -175,4 +175,5 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
 PostPreviewItem.displayName = 'PostPreviewItem'
 
 // 4. exports
+export type { PostPreviewItemProps }
 export { PostPreviewItem }

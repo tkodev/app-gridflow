@@ -36,4 +36,5 @@ const Separator = React.forwardRef<
 Separator.displayName = SeparatorPrimitive.Root.displayName
 
 // 4. exports
+export type { SeparatorProps }
 export { Separator }

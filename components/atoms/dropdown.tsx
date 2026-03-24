@@ -67,7 +67,6 @@ const styles = {
   radioIndicatorIcon: cva('fill-current')
 }
 
-// 2. types
 const DropdownMenu = DropdownMenuPrimitive.Root
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
 const DropdownMenuGroup = DropdownMenuPrimitive.Group
@@ -75,6 +74,7 @@ const DropdownMenuPortal = DropdownMenuPrimitive.Portal
 const DropdownMenuSub = DropdownMenuPrimitive.Sub
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup
 
+// 2. types
 type DropdownMenuSubTriggerProps = React.ComponentPropsWithoutRef<
   typeof DropdownMenuPrimitive.SubTrigger
 > &

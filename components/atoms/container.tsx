@@ -45,4 +45,5 @@ const Container: React.FC<ContainerProps> = (props) => {
 }
 
 // 4. exports
+export type { ContainerProps }
 export { Container }

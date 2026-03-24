@@ -1,36 +1,36 @@
 import type { LocalMediaItem, Post } from './post'
 import type { Profile } from './profile'
 
-export type AddProfileMutationInput = {
+type AddProfileMutationInput = {
   username: string
 }
 
-export type DeleteProfileMutationInput = {
+type DeleteProfileMutationInput = {
   profile: Profile
 }
 
-export type ChangePasswordMutationInput = {
+type ChangePasswordMutationInput = {
   currentPassword: string
   newPassword: string
 }
 
-export type ChangeEmailMutationInput = {
+type ChangeEmailMutationInput = {
   currentPassword: string
   newEmail: string
 }
 
-export type SignInMutationInput = {
+type SignInMutationInput = {
   email: string
   password: string
 }
 
-export type SignUpMutationInput = {
+type SignUpMutationInput = {
   email: string
   password: string
   username: string
 }
 
-export type SavePostMutationInput = {
+type SavePostMutationInput = {
   isEditing: boolean
   post: Post | null | undefined
   profileId: string
@@ -41,17 +41,17 @@ export type SavePostMutationInput = {
   mediaItems: LocalMediaItem[]
 }
 
-export type DeletePostMutationInput = {
+type DeletePostMutationInput = {
   post: Post
   profileId: string
 }
 
-export type ReorderPostsMutationInput = {
+type ReorderPostsMutationInput = {
   /** Posts in display order; `grid_position` is set to each index. */
   orderedPosts: Pick<Post, 'id'>[]
 }
 
-export type UpdateProfileMutationInput = {
+type UpdateProfileMutationInput = {
   profileId: string
   username: string
   displayName: string
@@ -61,4 +61,17 @@ export type UpdateProfileMutationInput = {
   newAvatarFile: File | null
   /** True when preview was cleared and a stored avatar should be removed. */
   removeStoredAvatar: boolean
+}
+
+export type {
+  AddProfileMutationInput,
+  ChangeEmailMutationInput,
+  ChangePasswordMutationInput,
+  DeletePostMutationInput,
+  DeleteProfileMutationInput,
+  ReorderPostsMutationInput,
+  SavePostMutationInput,
+  SignInMutationInput,
+  SignUpMutationInput,
+  UpdateProfileMutationInput
 }

@@ -7,7 +7,7 @@ import { CSS } from '@dnd-kit/utilities'
  * If the drag ended on a new position, returns a new array with that order.
  * Otherwise returns null (no-op drag, invalid target, or unknown ids).
  */
-export function reorderItemsFromDragEnd<T>(
+function reorderItemsFromDragEnd<T>(
   items: readonly T[],
   event: DragEndEvent,
   getId: (item: T) => string | number
@@ -25,7 +25,7 @@ export function reorderItemsFromDragEnd<T>(
 /**
  * Style object for sortable list items (transform + transition).
  */
-export function sortableItemStyle(
+function sortableItemStyle(
   transform: Parameters<typeof CSS.Transform.toString>[0],
   transition: string | undefined
 ): CSSProperties {
@@ -34,3 +34,5 @@ export function sortableItemStyle(
     transition
   }
 }
+
+export { reorderItemsFromDragEnd, sortableItemStyle }

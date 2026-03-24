@@ -34,4 +34,5 @@ const LandingFooter: React.FC<LandingFooterProps> = (props) => {
 }
 
 // 4. exports
+export type { LandingFooterProps }
 export { LandingFooter }

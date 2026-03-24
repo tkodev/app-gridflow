@@ -185,4 +185,5 @@ const PostMediaCarousel: React.FC<PostMediaCarouselProps> = (props) => {
 }
 
 // 4. exports
+export type { PostMediaCarouselProps }
 export { PostMediaCarousel }

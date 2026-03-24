@@ -175,4 +175,5 @@ const PostView: React.FC<PostViewProps> = (props) => {
 }
 
 // 4. exports
+export type { PostViewProps }
 export { PostView }

@@ -9,7 +9,7 @@ import { supabaseStorageBucketPosts } from '@/constants/db'
  * Object path inside the posts bucket from a Supabase Storage URL.
  * Handles both public and signed URLs (the client only checked public before).
  */
-export function extractPostsBucketObjectPath(url: string): string | null {
+function extractPostsBucketObjectPath(url: string): string | null {
   if (!url) return null
   try {
     const u = new URL(url)
@@ -24,7 +24,7 @@ export function extractPostsBucketObjectPath(url: string): string | null {
 }
 
 /** Remove every object under `{profileId}/{postId}/` in the posts bucket. */
-export async function removePostFolderObjects(
+async function removePostFolderObjects(
   supabase: SupabaseClient,
   profileId: string,
   postId: string
@@ -39,3 +39,5 @@ export async function removePostFolderObjects(
   const paths = files.map((f) => `${prefix}/${f.name}`)
   await supabase.storage.from(supabaseStorageBucketPosts).remove(paths)
 }
+
+export { extractPostsBucketObjectPath, removePostFolderObjects }

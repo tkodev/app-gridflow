@@ -31,4 +31,5 @@ const ProfilesView: React.FC<ProfilesViewProps> = (props) => {
 }
 
 // 3. exports
+export type { ProfilesViewProps }
 export { ProfilesView }

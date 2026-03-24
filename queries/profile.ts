@@ -6,7 +6,7 @@ import { supabaseStorageBucketAvatars, supabaseTableProfiles } from '@/constants
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
-export async function updateProfileMutationFn(vars: UpdateProfileMutationInput): Promise<void> {
+async function updateProfileMutationFn(vars: UpdateProfileMutationInput): Promise<void> {
   const supabase = createClient()
   let newAvatarUrl: string | null = vars.existingAvatarUrl
 
@@ -57,8 +57,10 @@ export async function updateProfileMutationFn(vars: UpdateProfileMutationInput):
   if (updateError) throw updateError
 }
 
-export function useUpdateProfileMutation() {
+function useUpdateProfileMutation() {
   return useMutation({
     mutationFn: updateProfileMutationFn
   })
 }
+
+export { updateProfileMutationFn, useUpdateProfileMutation }

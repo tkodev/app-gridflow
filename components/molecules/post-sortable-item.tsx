@@ -50,7 +50,14 @@ const PostSortableItem: React.FC<PostSortableItemProps> = (props) => {
   const { className, post, onClick, gridRatio = 'square', ...rest } = props
 
   // b. hooks
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: dragging
+  } = useSortable({
     id: post.id
   })
 
@@ -64,7 +71,7 @@ const PostSortableItem: React.FC<PostSortableItemProps> = (props) => {
   return (
     <button
       ref={setNodeRef}
-      className={cn(styles.root({ gridRatio, dragging: isDragging ? true : false, className }))}
+      className={cn(styles.root({ gridRatio, dragging, className }))}
       style={style}
       onClick={onClick}
       {...attributes}
@@ -114,4 +121,5 @@ const PostSortableItem: React.FC<PostSortableItemProps> = (props) => {
 }
 
 // 4. exports
+export type { PostSortableItemProps }
 export { PostSortableItem }

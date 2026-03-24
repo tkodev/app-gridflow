@@ -19,17 +19,14 @@ const styles = {
 }
 
 // 2. types
-type MissingViewBaseProps = React.ComponentProps<'div'> &
+type MissingViewProps = React.ComponentProps<'div'> &
   VariantProps<typeof styles.root> & {
     title: string
     description: string
     icon: LucideIcon
     ctaLabel: string
     ctaIcon?: LucideIcon
-  }
-
-type MissingViewProps = MissingViewBaseProps &
-  ({ href: string; onClick?: never } | { onClick: () => void; href?: never })
+  } & ({ href: string; onClick?: never } | { onClick: () => void; href?: never })
 
 // 3. component
 const MissingView: React.FC<MissingViewProps> = (props) => {
@@ -74,5 +71,5 @@ const MissingView: React.FC<MissingViewProps> = (props) => {
 }
 
 // 4. exports
-export { MissingView }
 export type { MissingViewProps }
+export { MissingView }

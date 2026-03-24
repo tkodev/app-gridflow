@@ -33,4 +33,5 @@ const Label = React.forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, Lab
 Label.displayName = LabelPrimitive.Root.displayName
 
 // 4. exports
+export type { LabelProps }
 export { Label }

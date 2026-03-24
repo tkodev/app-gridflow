@@ -188,4 +188,5 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
 }
 
 // 4. exports
+export type { IntroViewProps }
 export { IntroView }

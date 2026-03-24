@@ -1,4 +1,4 @@
-export function formatSupabaseError(err: unknown): string {
+function formatSupabaseError(err: unknown): string {
   if (err instanceof Error) return err.message
   if (err && typeof err === 'object') {
     const o = err as { message?: string; details?: string; hint?: string }
@@ -7,3 +7,5 @@ export function formatSupabaseError(err: unknown): string {
   }
   return 'An error occurred'
 }
+
+export { formatSupabaseError }

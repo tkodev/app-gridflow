@@ -74,4 +74,5 @@ const ButtonGroupSeparator: React.FC<ButtonGroupSeparatorProps> = (props) => {
 }
 
 // 4. exports
+export type { ButtonGroupProps, ButtonGroupSeparatorProps, ButtonGroupTextProps }
 export { ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants }

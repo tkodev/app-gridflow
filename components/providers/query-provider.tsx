@@ -6,21 +6,10 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
+const queryClient = new QueryClient()
+
 const styles = {
   root: cva('')
-}
-
-function makeQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 0
-      },
-      mutations: {
-        retry: false
-      }
-    }
-  })
 }
 
 // 2. types
@@ -35,7 +24,7 @@ const QueryProvider: React.FC<QueryProviderProps> = (props) => {
   const { children, className } = props
 
   // b. hooks
-  const [client] = React.useState(makeQueryClient)
+  const [client] = React.useState(queryClient)
 
   // c. logic
 
@@ -52,4 +41,5 @@ const QueryProvider: React.FC<QueryProviderProps> = (props) => {
 }
 
 // 4. exports
+export type { QueryProviderProps }
 export { QueryProvider }

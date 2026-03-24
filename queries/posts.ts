@@ -17,7 +17,7 @@ import { extensionForPostMediaUpload } from '@/utils/post-media'
 import { extractPostsBucketObjectPath, removePostFolderObjects } from '@/utils/post-storage'
 import { createClient } from '@/utils/supabase-browser'
 
-export async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
+async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   const supabase = createClient()
   const { isEditing, post, profileId, nextPosition, caption, subtitle, status, mediaItems } = vars
 
@@ -127,13 +127,13 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
   return postData
 }
 
-export function useSavePostMutation() {
+function useSavePostMutation() {
   return useMutation({
     mutationFn: savePostMutationFn
   })
 }
 
-export async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void> {
+async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void> {
   const supabase = createClient()
   const { post, profileId } = vars
 
@@ -152,13 +152,13 @@ export async function deletePostMutationFn(vars: DeletePostMutationInput): Promi
   if (error) throw error
 }
 
-export function useDeletePostMutation() {
+function useDeletePostMutation() {
   return useMutation({
     mutationFn: deletePostMutationFn
   })
 }
 
-export async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<void> {
+async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<void> {
   const supabase = createClient()
   const results = await Promise.all(
     vars.orderedPosts.map((p, index) =>
@@ -169,8 +169,17 @@ export async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): P
   if (persistError) throw persistError
 }
 
-export function useReorderPostsMutation() {
+function useReorderPostsMutation() {
   return useMutation({
     mutationFn: reorderPostsMutationFn
   })
+}
+
+export {
+  deletePostMutationFn,
+  reorderPostsMutationFn,
+  savePostMutationFn,
+  useDeletePostMutation,
+  useReorderPostsMutation,
+  useSavePostMutation
 }

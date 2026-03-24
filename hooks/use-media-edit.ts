@@ -19,13 +19,13 @@ import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { revokeNewBlobUrls } from '@/utils/local-media'
 import { mapPostMediaToLocalItems } from '@/utils/post-media-local'
 
-type UsePostEditMediaArgs = {
+type UseMediaEditArgs = {
   post: Post | null | undefined
   open: boolean
   setError: Dispatch<SetStateAction<string | null>>
 }
 
-type UsePostEditMediaResult = {
+type UseMediaEditResult = {
   mediaItems: LocalMediaItem[]
   fileInputRef: RefObject<HTMLInputElement | null>
   handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void
@@ -37,11 +37,7 @@ type UsePostEditMediaResult = {
   revokePendingBlobUrls: () => void
 }
 
-export function usePostEditMedia({
-  post,
-  open,
-  setError
-}: UsePostEditMediaArgs): UsePostEditMediaResult {
+function useMediaEdit({ post, open, setError }: UseMediaEditArgs): UseMediaEditResult {
   const [mediaItems, setMediaItems] = useState<LocalMediaItem[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -163,3 +159,5 @@ export function usePostEditMedia({
     revokePendingBlobUrls
   }
 }
+
+export { useMediaEdit }

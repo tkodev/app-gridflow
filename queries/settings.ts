@@ -16,7 +16,7 @@ import {
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
-export function useAddProfileMutation() {
+function useAddProfileMutation() {
   return useMutation({
     mutationFn: async (vars: AddProfileMutationInput) => {
       const supabase = createClient()
@@ -49,7 +49,7 @@ export function useAddProfileMutation() {
   })
 }
 
-export function useDeleteProfileMutation() {
+function useDeleteProfileMutation() {
   return useMutation({
     mutationFn: async (vars: DeleteProfileMutationInput) => {
       const supabase = createClient()
@@ -83,7 +83,7 @@ export function useDeleteProfileMutation() {
   })
 }
 
-export function useChangePasswordMutation() {
+function useChangePasswordMutation() {
   return useMutation({
     mutationFn: async (vars: ChangePasswordMutationInput) => {
       const supabase = createClient()
@@ -116,7 +116,7 @@ export function useChangePasswordMutation() {
   })
 }
 
-export function useChangeEmailMutation() {
+function useChangeEmailMutation() {
   return useMutation({
     mutationFn: async (vars: ChangeEmailMutationInput) => {
       const supabase = createClient()
@@ -154,7 +154,7 @@ export function useChangeEmailMutation() {
   })
 }
 
-export function useDeleteAccountMutation() {
+function useDeleteAccountMutation() {
   return useMutation({
     mutationFn: async () => {
       const supabase = createClient()
@@ -204,4 +204,12 @@ export function useDeleteAccountMutation() {
       if (signOutError) throw signOutError
     }
   })
+}
+
+export {
+  useAddProfileMutation,
+  useChangeEmailMutation,
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
+  useDeleteProfileMutation
 }

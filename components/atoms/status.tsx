@@ -36,4 +36,5 @@ const Status: React.FC<StatusProps> = (props) => {
 }
 
 // 4. exports
-export { Status, type StatusProps }
+export type { StatusProps }
+export { Status }

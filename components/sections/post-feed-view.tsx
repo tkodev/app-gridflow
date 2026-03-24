@@ -44,4 +44,5 @@ const PostFeedView: React.FC<PostFeedViewProps> = (props) => {
 }
 
 // 4. exports
+export type { PostFeedViewProps }
 export { PostFeedView }
