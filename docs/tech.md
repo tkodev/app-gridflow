@@ -1,6 +1,6 @@
 # Tech stack & conventions
 
-This file defines **how the product is built** — technology, routes, structure, and code rules. For product behaviour see [product.md](/docs/product.md); for visuals see [design.md](/docs/design.md).
+This file defines **how the product is built** — technology, routes, structure, and code rules. For visuals see [design.md](/docs/design.md).
 
 ## Environment & scripts
 
