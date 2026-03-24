@@ -35,9 +35,10 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 
 ## ES modules & exports
 
-- Prefer a single export block, using named exports at the **end** of the file. For UI that follows the numbered section layout ([`components/atoms/example-base.tsx`](/components/atoms/example-base.tsx)), use **`// 4. exports`** as the final section.
-- [`app/`](/app/):** Route files (`page.tsx`, `layout.tsx`, etc.) may use **`export default`** for the route component, plus any other patterns Next.js requires (`metadata`, `generateMetadata`, `viewport`, etc.).
-- Avoid **`export default`** except where a tool requires it — e.g. [`next.config.ts`](/next.config.ts) uses default export as required by Next.js.
+- Prefer a single export block, using named exports at the **end** of the file.
+  - Except where a tool requires it — e.g. [`proxy.ts`](/proxy.ts) or [`middleware.ts`](/middleware.ts), uses inline export as required by Next.js.
+- Avoid `export default`
+  - Except where a tool requires it — e.g. [`next.config.ts`](/next.config.ts), uses default export as required by Next.js.
 
 ```typescript
 // ✅ Good
@@ -62,7 +63,7 @@ interface PostProps {
 | [`queries/`](/queries/) | TanStack Query only: `useMutation` / `useQuery`, `mutationFn` / `queryFn`, and [`keys.ts`](/queries/keys.ts). No React providers and no generic utilities here. |
 | [`constants/`](/constants/) | App-wide constants in **camelCase** (Supabase table and bucket names, query defaults, routes, limits such as max post media). |
 
-**Providers:** Tree wrappers (e.g. TanStack `QueryClientProvider`) belong in [`components/providers/`](/components/providers/), not in `queries/`. Provider modules are logic/context only: they do **not** use the `cva` styling pattern, and exported components do **not** need a `className` prop or other presentational styling API.
+**Providers:** Tree wrappers (e.g. TanStack `QueryClientProvider`) belong in [`components/providers/`](/components/providers/), not in `queries/`. Provider modules are logic/context only: they do **not** use the `cva` styling pattern or `classNames`, and exported components do **not** need a `className` prop or other presentational styling API.
 
 ## Data fetching, mutations & state
 
@@ -100,7 +101,6 @@ interface PostProps {
 
 - Pages assemble React components, content, and hooks; they are the main place that defines how a screen is composed.
 - All pages share a common header bar. Pages that use a sidebar share the same sidebar component. Visual principles: [design.md](/docs/design.md).
-- **Exports:** `app/**/page.tsx` and `app/**/layout.tsx` default-export the route component; other route files follow Next.js as needed. See [ES modules & exports](#es-modules--exports) — rules for end-of-file exports do **not** apply under `app/`.
 
 ## React components
 
@@ -117,10 +117,8 @@ interface PostProps {
 
 New UI must follow one of the two layouts in [`components/atoms/example-base.tsx`](/components/atoms/example-base.tsx) and [`components/atoms/example-ref.tsx`](/components/atoms/example-ref.tsx) — pick the one that fits.
 
-- Use the file as a starting point: same section order (styles & constants → types → component → **`// 4. exports`**). Colocate TypeScript props in the same file as a single `MyComponentProps` when possible. Define the component as `const MyComponent = …` (or `React.forwardRef`) and finish with `export type { MyComponentProps }` (when consumers need the type) and `export { MyComponent }`. **Do not** use `export default` for components in [`components/`](/components/).
-- The same end-of-file export pattern applies to [`constants/`](/constants/), [`hooks/`](/hooks/), [`queries/`](/queries/), [`types/`](/types/), [`utils/`](/utils/), and other non-`app` modules — use **`// exports`** at the end when the file does not use the numbered `1–4` layout.
+- Use the file as a starting point: same section order (styles & constants → types → component → exports). Colocate TypeScript props in the same file as a single `MyComponentProps` when possible.
 - Compound modules (several related components or `cva` helpers such as `buttonVariants`) list every public symbol in the same exports block.
-- Inside `// 3. component`, the examples use lettered subsections (`// a. props`, `// b. hooks`, `// c. logic`, `// d. component`). **Omit the comment line for any subsection that has no code** — do not leave empty `// b. hooks` / `// c. logic` (or other) placeholders when unused.
 - **Base (`example-base.tsx`):** Use when callers do not need a ref to the root DOM node (`React.FC<…>`).
 - **With ref (`example-ref.tsx`):** Use when the root must accept a ref — focus, `useSortable`/measurement, or any parent that passes `ref` (`React.forwardRef` + `displayName`).
 
