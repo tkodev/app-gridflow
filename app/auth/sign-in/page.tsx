@@ -8,7 +8,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
-import { profileRoute } from '@/constants/routes'
+import { planRoute } from '@/constants/routes'
 import { useSignInMutation } from '@/queries/auth'
 import { cn } from '@/utils/tailwind'
 
@@ -30,17 +30,17 @@ const styles = {
 }
 
 // 2. types
-type LoginFormValues = {
+type SignInFormValues = {
   email: string
   password: string
 }
 
-type LoginPageProps = {
+type SignInPageProps = {
   className?: string
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const LoginPage: React.FC<LoginPageProps> = (props) => {
+const SignInPage: React.FC<SignInPageProps> = (props) => {
   // a. props
   const { className } = props
 
@@ -52,7 +52,7 @@ const LoginPage: React.FC<LoginPageProps> = (props) => {
     handleSubmit,
     setError,
     formState: { errors }
-  } = useForm<LoginFormValues>({
+  } = useForm<SignInFormValues>({
     defaultValues: { email: '', password: '' }
   })
 
@@ -60,7 +60,7 @@ const LoginPage: React.FC<LoginPageProps> = (props) => {
   const onSubmit = handleSubmit(async (data) => {
     try {
       await signIn.mutateAsync({ email: data.email, password: data.password })
-      router.push(profileRoute)
+      router.push(planRoute)
       router.refresh()
     } catch (err) {
       setError('root', {
@@ -122,4 +122,4 @@ const LoginPage: React.FC<LoginPageProps> = (props) => {
 }
 
 // 4. exports
-export default LoginPage
+export default SignInPage

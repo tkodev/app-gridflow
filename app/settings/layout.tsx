@@ -3,6 +3,7 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
 import { AppHeader } from '@/components/sections/app-header'
+import { signInRoute } from '@/constants/routes'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
 
@@ -32,7 +33,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect(signInRoute)
   }
 
   // d. component

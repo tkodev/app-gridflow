@@ -3,13 +3,13 @@
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Grid3X3, LogIn, LogOut, Settings, UserPlus, Users } from 'lucide-react'
+import { Grid3X3, LayoutGrid, LogIn, LogOut, Settings, UserPlus } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Container } from '@/components/atoms/container'
 import { Icon } from '@/components/atoms/icon'
-import { profileRoute, rootRoute } from '@/constants/routes'
+import { planRoute, rootRoute, signInRoute } from '@/constants/routes'
 import { useSignOutMutation } from '@/queries/auth'
 import { cn } from '@/utils/tailwind'
 
@@ -54,7 +54,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
   return (
     <header className={cn(styles.root({ className }))} {...rest}>
       <Container className={styles.inner()}>
-        <Link className={styles.brand()} href={isAuthed ? profileRoute : rootRoute}>
+        <Link className={styles.brand()} href={isAuthed ? planRoute : rootRoute}>
           <Icon icon={Grid3X3} size="md" />
           <span className={styles.brandText()}>GridFlow</span>
         </Link>
@@ -63,9 +63,9 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
           {isAuthed ? (
             <>
               <Button size="icon" variant="ghost" asChild>
-                <Link href={profileRoute}>
-                  <Icon icon={Users} size="sm" />
-                  <span className={styles.srOnly()}>Profiles</span>
+                <Link href={planRoute}>
+                  <Icon icon={LayoutGrid} size="sm" />
+                  <span className={styles.srOnly()}>Plan</span>
                 </Link>
               </Button>
               <Button size="icon" variant="ghost" asChild>
@@ -87,9 +87,9 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
           ) : (
             <>
               <Button size="icon" variant="ghost" asChild>
-                <Link href="/auth/login">
+                <Link href={signInRoute}>
                   <Icon icon={LogIn} size="sm" />
-                  <span className={styles.srOnly()}>Log in</span>
+                  <span className={styles.srOnly()}>Sign in</span>
                 </Link>
               </Button>
               <Button size="icon" variant="ghost" asChild>

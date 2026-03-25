@@ -7,7 +7,7 @@ import { IntroView } from '@/components/sections/intro-view'
 import { PostView } from '@/components/sections/post-view'
 
 // 1. types
-type ProfilesViewProps = {
+type PlanViewProps = {
   posts: Post[]
   postsCount: number
   profile: Profile
@@ -15,7 +15,7 @@ type ProfilesViewProps = {
 }
 
 // 2. component
-const ProfilesView: React.FC<ProfilesViewProps> = (props) => {
+const PlanView: React.FC<PlanViewProps> = (props) => {
   // a. props
   const { posts, postsCount, profile, profiles } = props
 
@@ -31,5 +31,5 @@ const ProfilesView: React.FC<ProfilesViewProps> = (props) => {
 }
 
 // 3. exports
-export type { ProfilesViewProps }
-export { ProfilesView }
+export type { PlanViewProps }
+export { PlanView }

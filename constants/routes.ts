@@ -1,4 +1,6 @@
 const rootRoute = '/' as const
-const profileRoute = '/profiles' as const
+const planRoute = '/plan' as const
+const settingsRoute = '/settings' as const
+const signInRoute = '/auth/sign-in' as const
 
-export { profileRoute, rootRoute }
+export { planRoute, rootRoute, settingsRoute, signInRoute }

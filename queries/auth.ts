@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query'
 import type { SignInMutationInput, SignUpMutationInput } from '@/types/mutations'
-import { profileRoute } from '@/constants/routes'
+import { planRoute } from '@/constants/routes'
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
@@ -29,7 +29,7 @@ function useSignUpMutation() {
         options: {
           emailRedirectTo:
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-            `${window.location.origin}${profileRoute}`,
+            `${window.location.origin}${planRoute}`,
           data: {
             username: sanitizeUsername(vars.username),
             display_name: vars.username

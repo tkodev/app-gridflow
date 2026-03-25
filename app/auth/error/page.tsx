@@ -3,6 +3,7 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Icon } from '@/components/atoms/icon'
+import { signInRoute } from '@/constants/routes'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -41,7 +42,7 @@ const AuthErrorPage: React.FC<AuthErrorPageProps> = (props) => {
       </p>
       <div className={styles.actions()}>
         <Button asChild>
-          <Link href="/auth/login">Try Again</Link>
+          <Link href={signInRoute}>Try Again</Link>
         </Button>
         <Button variant="outline" asChild>
           <Link href="/">Go Home</Link>

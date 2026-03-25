@@ -8,7 +8,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
-import { profileRoute } from '@/constants/routes'
+import { planRoute, signInRoute } from '@/constants/routes'
 import { useSignUpMutation } from '@/queries/auth'
 import { cn } from '@/utils/tailwind'
 
@@ -66,7 +66,7 @@ const SignUpPage: React.FC<SignUpPageProps> = (props) => {
         password: data.password,
         username: data.username
       })
-      router.push(profileRoute)
+      router.push(planRoute)
       router.refresh()
     } catch (err) {
       setError('root', {
@@ -139,7 +139,7 @@ const SignUpPage: React.FC<SignUpPageProps> = (props) => {
 
       <p className={styles.footer()}>
         Already have an account?{' '}
-        <Link className={styles.footerLink()} href="/auth/login">
+        <Link className={styles.footerLink()} href={signInRoute}>
           Sign in
         </Link>
       </p>

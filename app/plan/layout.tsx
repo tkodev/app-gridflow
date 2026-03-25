@@ -3,6 +3,7 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
 import { AppHeader } from '@/components/sections/app-header'
+import { signInRoute } from '@/constants/routes'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
 
@@ -13,13 +14,13 @@ const styles = {
 }
 
 // 2. types
-type ProfilesLayoutProps = {
+type PlanLayoutProps = {
   children: React.ReactNode
   className?: string
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const ProfilesLayout: React.FC<ProfilesLayoutProps> = async (props) => {
+const PlanLayout: React.FC<PlanLayoutProps> = async (props) => {
   // a. props
   const { children, className } = props
 
@@ -32,7 +33,7 @@ const ProfilesLayout: React.FC<ProfilesLayoutProps> = async (props) => {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect(signInRoute)
   }
 
   // d. component
@@ -47,4 +48,4 @@ const ProfilesLayout: React.FC<ProfilesLayoutProps> = async (props) => {
 }
 
 // 4. exports
-export default ProfilesLayout
+export default PlanLayout

@@ -4,8 +4,9 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
 import { MissingView } from '@/components/sections/missing-view'
-import { ProfilesView } from '@/components/sections/profiles-view'
+import { PlanView } from '@/components/sections/plan-view'
 import { supabaseTablePosts, supabaseTableProfiles } from '@/constants/db'
+import { signInRoute } from '@/constants/routes'
 import { sortPostMediaByPosition } from '@/utils/post-media'
 import { createClient } from '@/utils/supabase-server'
 import { cn } from '@/utils/tailwind'
@@ -16,13 +17,13 @@ const styles = {
 }
 
 // 2. types
-type ProfilesPageProps = {
+type PlanPageProps = {
   searchParams: Promise<{ profile?: string }>
   className?: string
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const ProfilesPage: React.FC<ProfilesPageProps> = async (props) => {
+const PlanPage: React.FC<PlanPageProps> = async (props) => {
   // a. props
   const { searchParams, className } = props
 
@@ -37,7 +38,7 @@ const ProfilesPage: React.FC<ProfilesPageProps> = async (props) => {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect(signInRoute)
   }
 
   const { data: profilesRaw } = await supabase
@@ -96,7 +97,7 @@ const ProfilesPage: React.FC<ProfilesPageProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <ProfilesView
+      <PlanView
         posts={posts || []}
         postsCount={posts?.length || 0}
         profile={profile}
@@ -107,4 +108,4 @@ const ProfilesPage: React.FC<ProfilesPageProps> = async (props) => {
 }
 
 // 4. exports
-export default ProfilesPage
+export default PlanPage

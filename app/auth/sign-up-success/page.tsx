@@ -3,6 +3,7 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Icon } from '@/components/atoms/icon'
+import { signInRoute } from '@/constants/routes'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -36,7 +37,7 @@ const SignUpSuccessPage: React.FC<SignUpSuccessPageProps> = (props) => {
         We sent you a confirmation link. Click the link in your email to activate your account.
       </p>
       <Button className={styles.cta()} variant="outline" asChild>
-        <Link href="/auth/login">Back to Sign In</Link>
+        <Link href={signInRoute}>Back to Sign In</Link>
       </Button>
     </div>
   )

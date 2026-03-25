@@ -7,6 +7,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Container } from '@/components/atoms/container'
 import { Icon } from '@/components/atoms/icon'
+import { signInRoute } from '@/constants/routes'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -37,7 +38,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
 
         <div className={styles.actions()}>
           <Button variant="ghost" asChild>
-            <Link href="/auth/login">Sign In</Link>
+            <Link href={signInRoute}>Sign In</Link>
           </Button>
           <Button asChild>
             <Link href="/auth/sign-up">Get Started</Link>

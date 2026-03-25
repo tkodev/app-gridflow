@@ -8,6 +8,7 @@ import { Icon } from '@/components/atoms/icon'
 import { DemoView } from '@/components/sections/demo-view'
 import { LandingFooter } from '@/components/sections/landing-footer'
 import { LandingHeader } from '@/components/sections/landing-header'
+import { signInRoute } from '@/constants/routes'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -74,7 +75,7 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
                   </Link>
                 </Button>
                 <Button className={styles.ctaLg()} size="lg" variant="outline" asChild>
-                  <Link href="/auth/login">Sign In</Link>
+                  <Link href={signInRoute}>Sign In</Link>
                 </Button>
               </div>
             </div>
