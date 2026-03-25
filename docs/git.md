@@ -33,6 +33,8 @@ fix(components): resolve dialog overflow on desktop
 chore(deps): update next.js to latest
 ```
 
+**Tooling footers**: Do not leave automated lines such as `Made-with: Cursor` in commit messages or PR descriptions. If your editor or a git hook adds them, remove them before pushing (or amend the commit).
+
 ## Pull Requests
 
 **Title**: follow the same `type(scope): description` format as commits.

@@ -1,23 +1,45 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState, type ReactNode } from 'react'
-import { QUERY_STALE_TIME_MS } from '@/constants/query'
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/utils/tailwind'
 
-function makeQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: QUERY_STALE_TIME_MS
-      },
-      mutations: {
-        retry: false
-      }
-    }
-  })
+// 1. styles & constants
+const queryClient = new QueryClient()
+
+const styles = {
+  root: cva('')
 }
 
-export const QueryProvider = ({ children }: { children: ReactNode }) => {
-  const [client] = useState(makeQueryClient)
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>
+// 2. types
+type QueryProviderProps = {
+  children: React.ReactNode
+  className?: string
+} & VariantProps<typeof styles.root>
+
+// 3. component
+const QueryProvider: React.FC<QueryProviderProps> = (props) => {
+  // a. props
+  const { children, className } = props
+
+  // b. hooks
+  const [client] = React.useState(queryClient)
+
+  // c. logic
+
+  // d. component
+  return (
+    <QueryClientProvider client={client}>
+      {className != null && className !== '' ? (
+        <div className={cn(styles.root({ className }))}>{children}</div>
+      ) : (
+        children
+      )}
+    </QueryClientProvider>
+  )
 }
+
+// 4. exports
+export type { QueryProviderProps }
+export { QueryProvider }

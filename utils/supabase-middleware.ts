@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { planRoute, settingsRoute, signInRoute } from '@/constants/routes'
 
-export async function updateSession(request: NextRequest) {
+async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request
   })
@@ -39,13 +40,13 @@ export async function updateSession(request: NextRequest) {
     data: { user }
   } = await supabase.auth.getUser()
 
-  const protectedPaths = ['/profiles', '/settings']
+  const protectedPaths = [planRoute, settingsRoute]
   const isProtectedPath = protectedPaths.some((path) => request.nextUrl.pathname.startsWith(path))
 
   if (isProtectedPath && !user) {
-    // no user, potentially respond by redirecting the user to the login page
+    // no user, potentially respond by redirecting the user to the sign-in page
     const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
+    url.pathname = signInRoute
     return NextResponse.redirect(url)
   }
 
@@ -64,3 +65,5 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse
 }
+
+export { updateSession }

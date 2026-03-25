@@ -2,11 +2,11 @@
 
 import { useMutation } from '@tanstack/react-query'
 import type { SignInMutationInput, SignUpMutationInput } from '@/types/mutations'
-import { ROUTE_PROFILES } from '@/constants/routes'
+import { planRoute } from '@/constants/routes'
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
-export function useSignInMutation() {
+function useSignInMutation() {
   return useMutation({
     mutationFn: async (vars: SignInMutationInput) => {
       const supabase = createClient()
@@ -19,7 +19,7 @@ export function useSignInMutation() {
   })
 }
 
-export function useSignUpMutation() {
+function useSignUpMutation() {
   return useMutation({
     mutationFn: async (vars: SignUpMutationInput) => {
       const supabase = createClient()
@@ -29,7 +29,7 @@ export function useSignUpMutation() {
         options: {
           emailRedirectTo:
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-            `${window.location.origin}${ROUTE_PROFILES}`,
+            `${window.location.origin}${planRoute}`,
           data: {
             username: sanitizeUsername(vars.username),
             display_name: vars.username
@@ -41,7 +41,7 @@ export function useSignUpMutation() {
   })
 }
 
-export function useSignOutMutation() {
+function useSignOutMutation() {
   return useMutation({
     mutationFn: async () => {
       const supabase = createClient()
@@ -50,3 +50,5 @@ export function useSignOutMutation() {
     }
   })
 }
+
+export { useSignInMutation, useSignOutMutation, useSignUpMutation }

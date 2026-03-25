@@ -9,14 +9,14 @@ import type {
 } from '@/types/mutations'
 import type { Profile } from '@/types/profile'
 import {
-  SUPABASE_STORAGE_BUCKET_AVATARS,
-  SUPABASE_STORAGE_BUCKET_POSTS,
-  SUPABASE_TABLE_PROFILES
-} from '@/constants/supabase'
+  supabaseStorageBucketAvatars,
+  supabaseStorageBucketPosts,
+  supabaseTableProfiles
+} from '@/constants/db'
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
-export function useAddProfileMutation() {
+function useAddProfileMutation() {
   return useMutation({
     mutationFn: async (vars: AddProfileMutationInput) => {
       const supabase = createClient()
@@ -29,7 +29,7 @@ export function useAddProfileMutation() {
       }
 
       const { data, error: insertError } = await supabase
-        .from(SUPABASE_TABLE_PROFILES)
+        .from(supabaseTableProfiles)
         .insert({
           user_id: user.id,
           username: sanitizeUsername(vars.username)
@@ -49,32 +49,32 @@ export function useAddProfileMutation() {
   })
 }
 
-export function useDeleteProfileMutation() {
+function useDeleteProfileMutation() {
   return useMutation({
     mutationFn: async (vars: DeleteProfileMutationInput) => {
       const supabase = createClient()
       const { profile } = vars
 
       const { data: postFiles } = await supabase.storage
-        .from(SUPABASE_STORAGE_BUCKET_POSTS)
+        .from(supabaseStorageBucketPosts)
         .list(profile.id)
 
       if (postFiles && postFiles.length > 0) {
         const postFilePaths = postFiles.map((f) => `${profile.id}/${f.name}`)
-        await supabase.storage.from(SUPABASE_STORAGE_BUCKET_POSTS).remove(postFilePaths)
+        await supabase.storage.from(supabaseStorageBucketPosts).remove(postFilePaths)
       }
 
       const { data: avatarFiles } = await supabase.storage
-        .from(SUPABASE_STORAGE_BUCKET_AVATARS)
+        .from(supabaseStorageBucketAvatars)
         .list(profile.id)
 
       if (avatarFiles && avatarFiles.length > 0) {
         const avatarFilePaths = avatarFiles.map((f) => `${profile.id}/${f.name}`)
-        await supabase.storage.from(SUPABASE_STORAGE_BUCKET_AVATARS).remove(avatarFilePaths)
+        await supabase.storage.from(supabaseStorageBucketAvatars).remove(avatarFilePaths)
       }
 
       const { error: deleteError } = await supabase
-        .from(SUPABASE_TABLE_PROFILES)
+        .from(supabaseTableProfiles)
         .delete()
         .eq('id', profile.id)
 
@@ -83,7 +83,7 @@ export function useDeleteProfileMutation() {
   })
 }
 
-export function useChangePasswordMutation() {
+function useChangePasswordMutation() {
   return useMutation({
     mutationFn: async (vars: ChangePasswordMutationInput) => {
       const supabase = createClient()
@@ -116,7 +116,7 @@ export function useChangePasswordMutation() {
   })
 }
 
-export function useChangeEmailMutation() {
+function useChangeEmailMutation() {
   return useMutation({
     mutationFn: async (vars: ChangeEmailMutationInput) => {
       const supabase = createClient()
@@ -154,7 +154,7 @@ export function useChangeEmailMutation() {
   })
 }
 
-export function useDeleteAccountMutation() {
+function useDeleteAccountMutation() {
   return useMutation({
     mutationFn: async () => {
       const supabase = createClient()
@@ -167,34 +167,34 @@ export function useDeleteAccountMutation() {
       }
 
       const { data: userProfiles } = await supabase
-        .from(SUPABASE_TABLE_PROFILES)
+        .from(supabaseTableProfiles)
         .select('id')
         .eq('user_id', user.id)
 
       if (userProfiles && userProfiles.length > 0) {
         for (const profile of userProfiles) {
           const { data: postFiles } = await supabase.storage
-            .from(SUPABASE_STORAGE_BUCKET_POSTS)
+            .from(supabaseStorageBucketPosts)
             .list(profile.id)
 
           if (postFiles && postFiles.length > 0) {
             const postFilePaths = postFiles.map((f) => `${profile.id}/${f.name}`)
-            await supabase.storage.from(SUPABASE_STORAGE_BUCKET_POSTS).remove(postFilePaths)
+            await supabase.storage.from(supabaseStorageBucketPosts).remove(postFilePaths)
           }
 
           const { data: avatarFiles } = await supabase.storage
-            .from(SUPABASE_STORAGE_BUCKET_AVATARS)
+            .from(supabaseStorageBucketAvatars)
             .list(profile.id)
 
           if (avatarFiles && avatarFiles.length > 0) {
             const avatarFilePaths = avatarFiles.map((f) => `${profile.id}/${f.name}`)
-            await supabase.storage.from(SUPABASE_STORAGE_BUCKET_AVATARS).remove(avatarFilePaths)
+            await supabase.storage.from(supabaseStorageBucketAvatars).remove(avatarFilePaths)
           }
         }
       }
 
       const { error: profilesError } = await supabase
-        .from(SUPABASE_TABLE_PROFILES)
+        .from(supabaseTableProfiles)
         .delete()
         .eq('user_id', user.id)
 
@@ -204,4 +204,12 @@ export function useDeleteAccountMutation() {
       if (signOutError) throw signOutError
     }
   })
+}
+
+export {
+  useAddProfileMutation,
+  useChangeEmailMutation,
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
+  useDeleteProfileMutation
 }

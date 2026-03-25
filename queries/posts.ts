@@ -8,16 +8,16 @@ import type {
 } from '@/types/mutations'
 import type { Post, PostMedia } from '@/types/post'
 import {
-  SUPABASE_STORAGE_BUCKET_POSTS,
-  SUPABASE_STORAGE_CACHE_CONTROL_POSTS,
-  SUPABASE_TABLE_POST_MEDIA,
-  SUPABASE_TABLE_POSTS
-} from '@/constants/supabase'
+  supabaseStorageBucketPosts,
+  supabaseStorageCacheControlPosts,
+  supabaseTablePostMedia,
+  supabaseTablePosts
+} from '@/constants/db'
 import { extensionForPostMediaUpload } from '@/utils/post-media'
 import { extractPostsBucketObjectPath, removePostFolderObjects } from '@/utils/post-storage'
 import { createClient } from '@/utils/supabase-browser'
 
-export async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
+async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   const supabase = createClient()
   const { isEditing, post, profileId, nextPosition, caption, subtitle, status, mediaItems } = vars
 
@@ -26,7 +26,7 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
 
   if (isEditing && postId) {
     const { data, error: updateError } = await supabase
-      .from(SUPABASE_TABLE_POSTS)
+      .from(supabaseTablePosts)
       .update({
         caption: caption || null,
         subtitle: subtitle || null,
@@ -41,7 +41,7 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
     postData = data as unknown as Post
   } else {
     const { data, error: insertError } = await supabase
-      .from(SUPABASE_TABLE_POSTS)
+      .from(supabaseTablePosts)
       .insert({
         profile_id: profileId,
         caption: caption || null,
@@ -70,9 +70,9 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
     for (const media of toDelete) {
       const path = extractPostsBucketObjectPath(media.media_url)
       if (path) {
-        await supabase.storage.from(SUPABASE_STORAGE_BUCKET_POSTS).remove([path])
+        await supabase.storage.from(supabaseStorageBucketPosts).remove([path])
       }
-      await supabase.from(SUPABASE_TABLE_POST_MEDIA).delete().eq('id', media.id)
+      await supabase.from(supabaseTablePostMedia).delete().eq('id', media.id)
     }
   }
 
@@ -84,9 +84,9 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
       const filePath = `${profileId}/${postId}/${crypto.randomUUID()}.${ext}`
 
       const { error: uploadError } = await supabase.storage
-        .from(SUPABASE_STORAGE_BUCKET_POSTS)
+        .from(supabaseStorageBucketPosts)
         .upload(filePath, item.file, {
-          cacheControl: SUPABASE_STORAGE_CACHE_CONTROL_POSTS,
+          cacheControl: supabaseStorageCacheControlPosts,
           upsert: false,
           contentType: item.file.type || undefined
         })
@@ -94,11 +94,11 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
       if (uploadError) throw uploadError
 
       const { data: urlData } = supabase.storage
-        .from(SUPABASE_STORAGE_BUCKET_POSTS)
+        .from(supabaseStorageBucketPosts)
         .getPublicUrl(filePath)
 
       const { data: mediaData, error: mediaError } = await supabase
-        .from(SUPABASE_TABLE_POST_MEDIA)
+        .from(supabaseTablePostMedia)
         .insert({
           post_id: postId,
           media_url: urlData.publicUrl,
@@ -112,7 +112,7 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
       uploadedMedia.push(mediaData as PostMedia)
     } else {
       const { data: mediaData, error: updateError } = await supabase
-        .from(SUPABASE_TABLE_POST_MEDIA)
+        .from(supabaseTablePostMedia)
         .update({ position: i })
         .eq('id', item.id)
         .select()
@@ -127,13 +127,13 @@ export async function savePostMutationFn(vars: SavePostMutationInput): Promise<P
   return postData
 }
 
-export function useSavePostMutation() {
+function useSavePostMutation() {
   return useMutation({
     mutationFn: savePostMutationFn
   })
 }
 
-export async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void> {
+async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void> {
   const supabase = createClient()
   const { post, profileId } = vars
 
@@ -143,34 +143,43 @@ export async function deletePostMutationFn(vars: DeletePostMutationInput): Promi
     if (path) paths.add(path)
   }
   if (paths.size > 0) {
-    await supabase.storage.from(SUPABASE_STORAGE_BUCKET_POSTS).remove([...paths])
+    await supabase.storage.from(supabaseStorageBucketPosts).remove([...paths])
   }
 
   await removePostFolderObjects(supabase, profileId, post.id)
 
-  const { error } = await supabase.from(SUPABASE_TABLE_POSTS).delete().eq('id', post.id)
+  const { error } = await supabase.from(supabaseTablePosts).delete().eq('id', post.id)
   if (error) throw error
 }
 
-export function useDeletePostMutation() {
+function useDeletePostMutation() {
   return useMutation({
     mutationFn: deletePostMutationFn
   })
 }
 
-export async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<void> {
+async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<void> {
   const supabase = createClient()
   const results = await Promise.all(
     vars.orderedPosts.map((p, index) =>
-      supabase.from(SUPABASE_TABLE_POSTS).update({ grid_position: index }).eq('id', p.id)
+      supabase.from(supabaseTablePosts).update({ grid_position: index }).eq('id', p.id)
     )
   )
   const persistError = results.find((r) => r.error)?.error
   if (persistError) throw persistError
 }
 
-export function useReorderPostsMutation() {
+function useReorderPostsMutation() {
   return useMutation({
     mutationFn: reorderPostsMutationFn
   })
+}
+
+export {
+  deletePostMutationFn,
+  reorderPostsMutationFn,
+  savePostMutationFn,
+  useDeletePostMutation,
+  useReorderPostsMutation,
+  useSavePostMutation
 }

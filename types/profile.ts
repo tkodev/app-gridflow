@@ -1,5 +1,5 @@
 /** Matches `public.profiles` (see migration scripts). */
-export type Profile = {
+type Profile = {
   id: string
   user_id: string
   username: string
@@ -10,3 +10,5 @@ export type Profile = {
   updated_at: string
   grid_ratio: 'square' | 'portrait'
 }
+
+export type { Profile }

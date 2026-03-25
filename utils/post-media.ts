@@ -6,7 +6,7 @@ import type { PostMedia } from '@/types/post'
  */
 
 /** Map upload MIME → safe file extension for storage object keys. */
-export function extensionForPostMediaUpload(file: File): string {
+function extensionForPostMediaUpload(file: File): string {
   const fromName = file.name.split('.').pop()?.toLowerCase()
   if (fromName && /^[a-z0-9]+$/.test(fromName) && fromName.length <= 8) {
     return fromName
@@ -28,6 +28,8 @@ export function extensionForPostMediaUpload(file: File): string {
  * Returns a new array ordered by `position` ascending.
  * Use when normalizing data from the API; prefer relying on `Post.media` already being ordered elsewhere.
  */
-export function sortPostMediaByPosition(media: readonly PostMedia[]): PostMedia[] {
+function sortPostMediaByPosition(media: readonly PostMedia[]): PostMedia[] {
   return [...media].sort((a, b) => a.position - b.position)
 }
+
+export { extensionForPostMediaUpload, sortPostMediaByPosition }

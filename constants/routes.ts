@@ -1,2 +1,8 @@
-/** Default post-auth / email-confirm redirect target (path only; origin added on client). */
-export const ROUTE_PROFILES = '/profiles' as const
+const collectRoute = '/collect' as const
+const rootRoute = '/' as const
+const planRoute = '/plan' as const
+const settingsRoute = '/settings' as const
+const signInRoute = '/auth/sign-in' as const
+const signOutRoute = '/auth/sign-out' as const
+
+export { collectRoute, planRoute, rootRoute, settingsRoute, signInRoute, signOutRoute }

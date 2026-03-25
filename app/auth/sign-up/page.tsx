@@ -2,19 +2,51 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { Button } from '@/components/atoms/button'
+import { Input } from '@/components/atoms/input'
+import { Label } from '@/components/atoms/label'
+import { planRoute, signInRoute } from '@/constants/routes'
 import { useSignUpMutation } from '@/queries/auth'
+import { cn } from '@/utils/tailwind'
 
+// 1. styles & constants
+const styles = {
+  root: cva('py-6'),
+  header: cva('text-center'),
+  title: cva('text-2xl font-bold'),
+  subtitle: cva('text-muted-foreground mt-2 text-sm'),
+  form: cva('mt-8 space-y-4'),
+  errorBanner: cva(
+    'border-destructive bg-destructive/10 text-destructive rounded-(--radius) border p-3 text-sm'
+  ),
+  fieldGroup: cva('space-y-2'),
+  fieldError: cva('text-destructive text-sm'),
+  passwordHint: cva('text-muted-foreground text-xs'),
+  submit: cva('w-full'),
+  footer: cva('text-muted-foreground mt-6 text-center text-sm'),
+  footerLink: cva('text-foreground font-medium underline-offset-4 hover:underline')
+}
+
+// 2. types
 type SignUpFormValues = {
   username: string
   email: string
   password: string
 }
 
-const SignUpPage = () => {
+type SignUpPageProps = {
+  className?: string
+} & VariantProps<typeof styles.root>
+
+// 3. component
+const SignUpPage: React.FC<SignUpPageProps> = (props) => {
+  // a. props
+  const { className } = props
+
+  // b. hooks
   const router = useRouter()
   const signUp = useSignUpMutation()
   const {
@@ -26,6 +58,7 @@ const SignUpPage = () => {
     defaultValues: { username: '', email: '', password: '' }
   })
 
+  // c. logic
   const onSubmit = handleSubmit(async (data) => {
     try {
       await signUp.mutateAsync({
@@ -33,7 +66,7 @@ const SignUpPage = () => {
         password: data.password,
         username: data.username
       })
-      router.push('/profiles')
+      router.push(planRoute)
       router.refresh()
     } catch (err) {
       setError('root', {
@@ -42,23 +75,18 @@ const SignUpPage = () => {
     }
   })
 
+  // d. component
   return (
-    <div className="w-full max-w-sm">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">Create your account</h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Start planning your perfect Instagram grid
-        </p>
+    <div className={cn(styles.root({ className }))}>
+      <div className={styles.header()}>
+        <h1 className={styles.title()}>Create your account</h1>
+        <p className={styles.subtitle()}>Start planning your perfect Instagram grid</p>
       </div>
 
-      <form className="mt-8 space-y-4" onSubmit={onSubmit} noValidate>
-        {errors.root && (
-          <div className="border-destructive bg-destructive/10 text-destructive rounded-(--radius) border p-3 text-sm">
-            {errors.root.message}
-          </div>
-        )}
+      <form className={styles.form()} onSubmit={onSubmit} noValidate>
+        {errors.root && <div className={styles.errorBanner()}>{errors.root.message}</div>}
 
-        <div className="space-y-2">
+        <div className={styles.fieldGroup()}>
           <Label htmlFor="username">Username</Label>
           <Input
             id="username"
@@ -68,10 +96,10 @@ const SignUpPage = () => {
             placeholder="your_username"
             {...register('username', { required: 'Username is required' })}
           />
-          {errors.username && <p className="text-destructive text-sm">{errors.username.message}</p>}
+          {errors.username && <p className={styles.fieldError()}>{errors.username.message}</p>}
         </div>
 
-        <div className="space-y-2">
+        <div className={styles.fieldGroup()}>
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
@@ -81,10 +109,10 @@ const SignUpPage = () => {
             placeholder="you@example.com"
             {...register('email', { required: 'Email is required' })}
           />
-          {errors.email && <p className="text-destructive text-sm">{errors.email.message}</p>}
+          {errors.email && <p className={styles.fieldError()}>{errors.email.message}</p>}
         </div>
 
-        <div className="space-y-2">
+        <div className={styles.fieldGroup()}>
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
@@ -100,21 +128,18 @@ const SignUpPage = () => {
               }
             })}
           />
-          <p className="text-muted-foreground text-xs">Must be at least 6 characters</p>
-          {errors.password && <p className="text-destructive text-sm">{errors.password.message}</p>}
+          <p className={styles.passwordHint()}>Must be at least 6 characters</p>
+          {errors.password && <p className={styles.fieldError()}>{errors.password.message}</p>}
         </div>
 
-        <Button type="submit" className="w-full" disabled={signUp.isPending}>
+        <Button type="submit" className={styles.submit()} disabled={signUp.isPending}>
           {signUp.isPending ? 'Creating account...' : 'Create Account'}
         </Button>
       </form>
 
-      <p className="text-muted-foreground mt-6 text-center text-sm">
+      <p className={styles.footer()}>
         Already have an account?{' '}
-        <Link
-          className="text-foreground font-medium underline-offset-4 hover:underline"
-          href="/auth/login"
-        >
+        <Link className={styles.footerLink()} href={signInRoute}>
           Sign in
         </Link>
       </p>
@@ -122,4 +147,5 @@ const SignUpPage = () => {
   )
 }
 
+// 4. exports
 export default SignUpPage

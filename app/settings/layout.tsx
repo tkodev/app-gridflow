@@ -1,23 +1,51 @@
 import { redirect } from 'next/navigation'
-import { AppHeader } from '@/components/app/header'
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { Container } from '@/components/atoms/container'
+import { AppFooter } from '@/components/sections/app-footer'
+import { AppHeader } from '@/components/sections/app-header'
+import { signInRoute } from '@/constants/routes'
 import { createClient } from '@/utils/supabase-server'
+import { cn } from '@/utils/tailwind'
 
-const SettingsLayout = async ({ children }: { children: React.ReactNode }) => {
+// 1. styles & constants
+const styles = {
+  root: cva('bg-background min-h-screen'),
+  main: cva('pb-20')
+}
+
+// 2. types
+type SettingsLayoutProps = {
+  children: React.ReactNode
+  className?: string
+} & VariantProps<typeof styles.root>
+
+// 3. component
+const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
+  // a. props
+  const { children, className } = props
+
+  // c. logic
   const supabase = await createClient()
   const {
     data: { user }
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect(signInRoute)
   }
 
+  // d. component
   return (
-    <div className="bg-background min-h-screen">
+    <div className={cn(styles.root({ className }))}>
       <AppHeader user={user} />
-      <main className="mx-auto max-w-lg px-4 pb-20">{children}</main>
+      <main className={styles.main()}>
+        <Container>{children}</Container>
+      </main>
+      <AppFooter />
     </div>
   )
 }
 
+// 4. exports
 export default SettingsLayout
