@@ -97,8 +97,8 @@ importers:
         specifier: ^4
         version: 4.2.2
       '@tkodev/config-eslint-next':
-        specifier: github:tkodev/config-eslint-next#681e7ac283d11b5f9b8a7962df726f9383328fa8
-        version: https://codeload.github.com/tkodev/config-eslint-next/tar.gz/681e7ac283d11b5f9b8a7962df726f9383328fa8(eslint@9.39.4(jiti@2.6.1))(next@16.2.0(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)
+        specifier: github:tkodev/config-eslint-next#af14790501654ad67dfd749a4da76775309e9392
+        version: https://codeload.github.com/tkodev/config-eslint-next/tar.gz/af14790501654ad67dfd749a4da76775309e9392(eslint@9.39.4(jiti@2.6.1))(next@16.2.0(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)
       '@types/node':
         specifier: ^20
         version: 20.19.37
@@ -1569,8 +1569,8 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  '@tkodev/config-eslint-next@https://codeload.github.com/tkodev/config-eslint-next/tar.gz/681e7ac283d11b5f9b8a7962df726f9383328fa8':
-    resolution: {tarball: https://codeload.github.com/tkodev/config-eslint-next/tar.gz/681e7ac283d11b5f9b8a7962df726f9383328fa8}
+  '@tkodev/config-eslint-next@https://codeload.github.com/tkodev/config-eslint-next/tar.gz/af14790501654ad67dfd749a4da76775309e9392':
+    resolution: {tarball: https://codeload.github.com/tkodev/config-eslint-next/tar.gz/af14790501654ad67dfd749a4da76775309e9392}
     version: 0.2.0
     peerDependencies:
       eslint: ^9.0.0
@@ -5443,7 +5443,7 @@ snapshots:
       '@tanstack/query-core': 5.91.2
       react: 19.2.4
 
-  '@tkodev/config-eslint-next@https://codeload.github.com/tkodev/config-eslint-next/tar.gz/681e7ac283d11b5f9b8a7962df726f9383328fa8(eslint@9.39.4(jiti@2.6.1))(next@16.2.0(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)':
+  '@tkodev/config-eslint-next@https://codeload.github.com/tkodev/config-eslint-next/tar.gz/af14790501654ad67dfd749a4da76775309e9392(eslint@9.39.4(jiti@2.6.1))(next@16.2.0(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.3)':
     dependencies:
       eslint: 9.39.4(jiti@2.6.1)
       next: 16.2.0(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
