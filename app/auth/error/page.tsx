@@ -8,7 +8,7 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('w-full max-w-sm text-center'),
+  root: cva('py-6 text-center'),
   iconRing: cva('bg-destructive/10 mx-auto flex size-16 items-center justify-center rounded-full'),
   iconGlyph: cva('text-destructive size-8'),
   title: cva('mt-6 text-2xl font-bold'),

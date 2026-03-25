@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Grid3X3 } from 'lucide-react'
+import { Grid3X3, LogIn, UserPlus } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -13,9 +13,9 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('bg-background/80 fixed top-0 z-50 w-full border-b backdrop-blur-sm'),
-  inner: cva('flex h-16 items-center justify-between'),
+  inner: cva('flex h-14 items-center justify-between'),
   brand: cva('flex items-center gap-2'),
-  brandText: cva('text-xl font-bold'),
+  brandText: cva('font-bold'),
   actions: cva('flex items-center gap-2')
 }
 
@@ -32,16 +32,22 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
     <header className={cn(styles.root({ className }))} {...rest}>
       <Container className={styles.inner()}>
         <Link className={styles.brand()} href="/">
-          <Icon icon={Grid3X3} size="lg" />
+          <Icon icon={Grid3X3} size="md" />
           <span className={styles.brandText()}>GridFlow</span>
         </Link>
 
         <div className={styles.actions()}>
           <Button variant="ghost" asChild>
-            <Link href={signInRoute}>Sign In</Link>
+            <Link href={signInRoute}>
+              <Icon icon={LogIn} size="sm" />
+              Sign In
+            </Link>
           </Button>
           <Button asChild>
-            <Link href="/auth/sign-up">Get Started</Link>
+            <Link href="/auth/sign-up">
+              <Icon icon={UserPlus} size="sm" />
+              Get Started
+            </Link>
           </Button>
         </div>
       </Container>

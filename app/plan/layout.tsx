@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
+import { AppFooter } from '@/components/sections/app-footer'
 import { AppHeader } from '@/components/sections/app-header'
 import { signInRoute } from '@/constants/routes'
 import { createClient } from '@/utils/supabase-server'
@@ -24,8 +25,6 @@ const PlanLayout: React.FC<PlanLayoutProps> = async (props) => {
   // a. props
   const { children, className } = props
 
-  // b. hooks
-
   // c. logic
   const supabase = await createClient()
   const {
@@ -43,6 +42,7 @@ const PlanLayout: React.FC<PlanLayoutProps> = async (props) => {
       <main className={styles.main()}>
         <Container size="md">{children}</Container>
       </main>
+      <AppFooter />
     </div>
   )
 }

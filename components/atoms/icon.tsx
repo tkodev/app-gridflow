@@ -35,7 +35,7 @@ const styles = {
       }
     },
     defaultVariants: {
-      size: 'sm',
+      size: 'md',
       tone: 'default'
     }
   })

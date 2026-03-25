@@ -3,7 +3,7 @@
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Grid3X3, LayoutGrid, LogIn, LogOut, Settings, UserPlus } from 'lucide-react'
+import { Grid3X3, LogIn, LogOut } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -15,12 +15,11 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('bg-background/80 sticky top-0 z-50 border-b backdrop-blur-sm'),
+  root: cva('bg-background/80 sticky top-0 z-50 w-full border-b backdrop-blur-sm'),
   inner: cva('flex h-14 items-center justify-between'),
   brand: cva('flex items-center gap-2'),
   brandText: cva('font-bold'),
-  srOnly: cva('sr-only'),
-  actions: cva('flex items-center gap-1')
+  actions: cva('flex items-center gap-2')
 }
 
 // 2. types
@@ -62,40 +61,17 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
         <div className={styles.actions()}>
           {isAuthed ? (
             <>
-              <Button size="icon" variant="ghost" asChild>
-                <Link href={planRoute}>
-                  <Icon icon={LayoutGrid} size="sm" />
-                  <span className={styles.srOnly()}>Plan</span>
-                </Link>
-              </Button>
-              <Button size="icon" variant="ghost" asChild>
-                <Link href="/settings">
-                  <Icon icon={Settings} size="sm" />
-                  <span className={styles.srOnly()}>Settings</span>
-                </Link>
-              </Button>
-              <Button
-                disabled={signOut.isPending}
-                size="icon"
-                variant="ghost"
-                onClick={handleSignOut}
-              >
+              <Button disabled={signOut.isPending} variant="ghost" onClick={handleSignOut}>
                 <Icon icon={LogOut} size="sm" />
-                <span className={styles.srOnly()}>Sign out</span>
+                Sign out
               </Button>
             </>
           ) : (
             <>
-              <Button size="icon" variant="ghost" asChild>
+              <Button variant="ghost" asChild>
                 <Link href={signInRoute}>
                   <Icon icon={LogIn} size="sm" />
-                  <span className={styles.srOnly()}>Sign in</span>
-                </Link>
-              </Button>
-              <Button size="icon" variant="ghost" asChild>
-                <Link href="/auth/sign-up">
-                  <Icon icon={UserPlus} size="sm" />
-                  <span className={styles.srOnly()}>Sign up</span>
+                  Sign in
                 </Link>
               </Button>
             </>

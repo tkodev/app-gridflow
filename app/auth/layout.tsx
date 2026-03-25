@@ -9,7 +9,7 @@ import { cn } from '@/utils/tailwind'
 const styles = {
   root: cva('bg-background flex min-h-screen flex-col'),
   main: cva('flex flex-1 pb-20'),
-  container: cva('flex flex-1 flex-col items-center justify-center py-4')
+  container: cva('flex flex-1 flex-col items-center justify-center')
 }
 
 // 2. types
@@ -36,7 +36,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = async (props) => {
     <div className={cn(styles.root({ className }))}>
       <AppHeader user={user} />
       <main className={styles.main()}>
-        <Container className={styles.container()}>{children}</Container>
+        <Container className={styles.container()} size="sm">
+          {children}
+        </Container>
       </main>
     </div>
   )

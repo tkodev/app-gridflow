@@ -15,13 +15,13 @@ const styles = {
 }
 
 // 2. types
-type SettingsLayoutProps = {
+type CollectLayoutProps = {
   children: React.ReactNode
   className?: string
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
+const CollectLayout: React.FC<CollectLayoutProps> = async (props) => {
   // a. props
   const { children, className } = props
 
@@ -48,4 +48,4 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
 }
 
 // 4. exports
-export default SettingsLayout
+export default CollectLayout

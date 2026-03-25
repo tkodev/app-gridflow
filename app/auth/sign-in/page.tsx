@@ -14,7 +14,7 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('w-full max-w-sm'),
+  root: cva('py-6'),
   header: cva('text-center'),
   title: cva('text-2xl font-bold'),
   subtitle: cva('text-muted-foreground mt-2 text-sm'),

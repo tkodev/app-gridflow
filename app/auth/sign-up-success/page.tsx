@@ -8,9 +8,8 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('w-full max-w-sm text-center'),
+  root: cva('py-6 text-center'),
   iconRing: cva('bg-primary/10 mx-auto flex size-16 items-center justify-center rounded-full'),
-  iconGlyph: cva('text-primary size-8'),
   title: cva('mt-6 text-2xl font-bold'),
   description: cva('text-muted-foreground mt-2'),
   cta: cva('mt-8')
@@ -30,7 +29,7 @@ const SignUpSuccessPage: React.FC<SignUpSuccessPageProps> = (props) => {
   return (
     <div className={cn(styles.root({ className }))}>
       <div className={styles.iconRing()}>
-        <Icon name="mail" className={styles.iconGlyph()} size="lg" />
+        <Icon name="mail" size="lg" />
       </div>
       <h1 className={styles.title()}>Check your email</h1>
       <p className={styles.description()}>
