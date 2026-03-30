@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type {
   AddProfileMutationInput,
   ChangeEmailMutationInput,
@@ -17,7 +17,11 @@ import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
 function useAddProfileMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] })
+    },
     mutationFn: async (vars: AddProfileMutationInput) => {
       const supabase = createClient()
       const {
@@ -50,7 +54,11 @@ function useAddProfileMutation() {
 }
 
 function useDeleteProfileMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] })
+    },
     mutationFn: async (vars: DeleteProfileMutationInput) => {
       const supabase = createClient()
       const { profile } = vars

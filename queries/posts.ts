@@ -1,6 +1,6 @@
 'use client'
 
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type {
   DeletePostMutationInput,
   ReorderPostsMutationInput,
@@ -13,9 +13,48 @@ import {
   supabaseTablePostMedia,
   supabaseTablePosts
 } from '@/constants/db'
-import { extensionForPostMediaUpload } from '@/utils/post-media'
+import { postKeys } from '@/queries/keys'
+import { extensionForPostMediaUpload, sortPostMediaByPosition } from '@/utils/post-media'
 import { extractPostsBucketObjectPath, removePostFolderObjects } from '@/utils/post-storage'
 import { createClient } from '@/utils/supabase-browser'
+
+function usePostsQuery(profileId: string | undefined) {
+  return useQuery({
+    queryKey: postKeys.all(profileId ?? ''),
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from(supabaseTablePosts)
+        .select(
+          `
+          id,
+          profile_id,
+          caption,
+          subtitle,
+          grid_position,
+          status,
+          scheduled_at,
+          published_at,
+          created_at,
+          updated_at,
+          post_media(*)
+        `
+        )
+        .eq('profile_id', profileId!)
+        .order('grid_position', { ascending: true })
+      if (error) throw error
+      return (data ?? []).map((row) => {
+        const { post_media, ...rest } = row as typeof row & { post_media?: Post['media'] }
+        return {
+          ...rest,
+          media: sortPostMediaByPosition(post_media ?? [])
+        } as Post
+      })
+    },
+    enabled: Boolean(profileId),
+    staleTime: 1000 * 60 * 2
+  })
+}
 
 async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   const supabase = createClient()
@@ -128,8 +167,12 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
 }
 
 function useSavePostMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: savePostMutationFn
+    mutationFn: savePostMutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+    }
   })
 }
 
@@ -153,8 +196,12 @@ async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void
 }
 
 function useDeletePostMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: deletePostMutationFn
+    mutationFn: deletePostMutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+    }
   })
 }
 
@@ -170,8 +217,12 @@ async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<
 }
 
 function useReorderPostsMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: reorderPostsMutationFn
+    mutationFn: reorderPostsMutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+    }
   })
 }
 
@@ -180,6 +231,7 @@ export {
   reorderPostsMutationFn,
   savePostMutationFn,
   useDeletePostMutation,
+  usePostsQuery,
   useReorderPostsMutation,
   useSavePostMutation
 }

@@ -1,10 +1,30 @@
 'use client'
 
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Profile } from '@/types/profile'
 import type { UpdateProfileMutationInput } from '@/types/mutations'
 import { supabaseStorageBucketAvatars, supabaseTableProfiles } from '@/constants/db'
+import { profileKeys } from '@/queries/keys'
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
+
+function useProfilesQuery(userId: string | undefined) {
+  return useQuery({
+    queryKey: profileKeys.all(userId ?? ''),
+    queryFn: async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from(supabaseTableProfiles)
+        .select('*')
+        .eq('user_id', userId!)
+        .order('created_at', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as Profile[]
+    },
+    enabled: Boolean(userId),
+    staleTime: 1000 * 60 * 2
+  })
+}
 
 async function updateProfileMutationFn(vars: UpdateProfileMutationInput): Promise<void> {
   const supabase = createClient()
@@ -58,9 +78,13 @@ async function updateProfileMutationFn(vars: UpdateProfileMutationInput): Promis
 }
 
 function useUpdateProfileMutation() {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: updateProfileMutationFn
+    mutationFn: updateProfileMutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] })
+    }
   })
 }
 
-export { updateProfileMutationFn, useUpdateProfileMutation }
+export { updateProfileMutationFn, useProfilesQuery, useUpdateProfileMutation }

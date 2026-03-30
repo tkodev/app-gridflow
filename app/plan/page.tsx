@@ -1,55 +1,55 @@
-import { redirect } from 'next/navigation'
+'use client'
+
 import { UserPlus } from 'lucide-react'
+import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import type { Post } from '@/types/post'
-import type { Profile } from '@/types/profile'
+import { useSearchParams } from 'next/navigation'
 import { MissingView } from '@/components/sections/missing-view'
 import { PlanView } from '@/components/sections/plan-view'
-import { supabaseTablePosts, supabaseTableProfiles } from '@/constants/db'
-import { signInRoute } from '@/constants/routes'
-import { sortPostMediaByPosition } from '@/utils/post-media'
-import { createClient } from '@/utils/supabase-server'
+import { usePostsQuery } from '@/queries/posts'
+import { useProfilesQuery } from '@/queries/profile'
+import { useUserQuery } from '@/queries/user'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('py-6')
+  root: cva('py-6'),
+  loading: cva('flex items-center justify-center py-20 text-muted-foreground')
 }
 
 // 2. types
 type PlanPageProps = {
-  searchParams: Promise<{ profile?: string }>
   className?: string
 } & VariantProps<typeof styles.root>
 
 // 3. component
-const PlanPage: React.FC<PlanPageProps> = async (props) => {
+const PlanPage: React.FC<PlanPageProps> = (props) => {
   // a. props
-  const { searchParams, className } = props
+  const { className } = props
 
   // b. hooks
+  const searchParams = useSearchParams()
+  const { data: user } = useUserQuery()
+  const { data: profiles, isLoading: profilesLoading } = useProfilesQuery(user?.id)
 
   // c. logic
-  const supabase = await createClient()
-  const params = await searchParams
+  const profileParam = searchParams.get('profile')
+  const currentProfileId = profileParam || profiles?.[0]?.id
+  const profile = profiles?.find((p) => p.id === currentProfileId) ?? profiles?.[0]
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
+  const { data: posts, isLoading: postsLoading } = usePostsQuery(profile?.id)
 
-  if (!user) {
-    redirect(signInRoute)
+  const isLoading = profilesLoading || postsLoading
+
+  if (isLoading) {
+    return (
+      <div className={cn(styles.root({ className }))}>
+        <p className={styles.loading()}>Loading...</p>
+      </div>
+    )
   }
 
-  const { data: profilesRaw } = await supabase
-    .from(supabaseTableProfiles)
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
-
-  const profiles = (profilesRaw ?? []) as Profile[]
-
-  if (profiles.length === 0) {
+  if (!profiles || profiles.length === 0) {
     return (
       <MissingView
         ctaLabel="Create Your First Profile"
@@ -61,38 +61,9 @@ const PlanPage: React.FC<PlanPageProps> = async (props) => {
     )
   }
 
-  const currentProfileId = params.profile || profiles[0].id
-  const profile = profiles.find((p) => p.id === currentProfileId) ?? profiles[0]
-
-  const { data: postsRaw } = await supabase
-    .from(supabaseTablePosts)
-    .select(
-      `
-      id,
-      profile_id,
-      caption,
-      subtitle,
-      grid_position,
-      status,
-      scheduled_at,
-      published_at,
-      created_at,
-      updated_at,
-      post_media(*)
-    `
-    )
-    .eq('profile_id', profile.id)
-    .order('grid_position', { ascending: true })
-
-  const posts: Post[] = (postsRaw ?? []).map((row) => {
-    const { post_media, ...rest } = row as typeof row & {
-      post_media?: Post['media']
-    }
-    return {
-      ...rest,
-      media: sortPostMediaByPosition(post_media ?? [])
-    }
-  })
+  if (!profile) {
+    return null
+  }
 
   // d. component
   return (
