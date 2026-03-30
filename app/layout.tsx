@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Inter } from 'next/font/google'
+import { Noto_Sans } from 'next/font/google'
+import localFont from 'next/font/local'
 import * as React from 'react'
 import { cva } from 'class-variance-authority'
 import { QueryProvider } from '@/components/providers/query-provider'
@@ -13,20 +14,28 @@ const styles = {
   body: cva('font-sans')
 }
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })
+const notoSans = Noto_Sans({ subsets: ['latin'], variable: '--font-sans' })
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const liberationSerif = localFont({
+  src: [
+    { path: '../public/fonts/LiberationSerif-Regular.woff2', weight: '400', style: 'normal' },
+    { path: '../public/fonts/LiberationSerif-Bold.woff2', weight: '700', style: 'normal' },
+    { path: '../public/fonts/LiberationSerif-Italic.woff2', weight: '400', style: 'italic' },
+    { path: '../public/fonts/LiberationSerif-BoldItalic.woff2', weight: '700', style: 'italic' }
+  ],
+  variable: '--font-serif'
+})
 
 const metadata: Metadata = {
-  title: 'GridFlow - Visual Instagram Content Planner',
+  title: 'Gridflow - Design your Instagram like a system',
   description:
-    'Plan, preview, and perfect your Instagram feed before you post. Drag and drop to rearrange your grid and see exactly how your profile will look.'
+    'The premium workspace for visual architects. Curate, organize, and preview your aesthetic with the precision of a gallery curator.'
 }
 
 const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' }
+    { media: '(prefers-color-scheme: light)', color: '#f9f9f9' },
+    { media: '(prefers-color-scheme: dark)', color: '#121212' }
   ],
   width: 'device-width',
   initialScale: 1,
@@ -46,8 +55,12 @@ const RootLayout: React.FC<RootLayoutProps> = (props) => {
 
   // d. component
   return (
-    <html className={cn(styles.html(), geist.variable)} lang="en" suppressHydrationWarning>
-      <body className={cn(styles.body(), inter.variable)}>
+    <html
+      className={cn(styles.html(), notoSans.variable, liberationSerif.variable)}
+      lang="en"
+      suppressHydrationWarning
+    >
+      <body className={cn(styles.body())}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

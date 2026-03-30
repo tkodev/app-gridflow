@@ -5,7 +5,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva(
-    'group/card bg-card text-card-foreground ring-foreground/10 flex flex-col overflow-hidden rounded-xl text-sm ring-1 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl',
+    'group/card bg-card text-card-foreground flex flex-col overflow-hidden rounded-lg shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)] text-sm has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg',
     {
       variants: {
         size: {
@@ -19,14 +19,14 @@ const styles = {
     }
   ),
   header: cva(
-    'group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-4 group-data-[size=sm]/card:px-3 has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3'
+    'group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-lg px-4 group-data-[size=sm]/card:px-3 has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]'
   ),
   title: cva('text-base leading-snug font-medium group-data-[size=sm]/card:text-sm'),
   description: cva('text-muted-foreground text-sm'),
   action: cva('col-start-2 row-span-2 row-start-1 self-start justify-self-end'),
   content: cva('px-4 group-data-[size=sm]/card:px-3'),
   footer: cva(
-    'bg-muted/50 flex items-center rounded-b-xl border-t p-4 group-data-[size=sm]/card:p-3'
+    'bg-surface-container-low flex items-center rounded-b-lg p-4 group-data-[size=sm]/card:p-3'
   )
 }
 

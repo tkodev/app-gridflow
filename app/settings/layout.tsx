@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Settings } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
@@ -11,7 +12,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('bg-background min-h-screen'),
-  main: cva('pb-20')
+  main: cva('pt-20 pb-24')
 }
 
 // 2. types
@@ -38,7 +39,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <AppHeader user={user} />
+      <AppHeader user={user} title="Settings" leadingIcon={Settings} />
       <main className={styles.main()}>
         <Container>{children}</Container>
       </main>

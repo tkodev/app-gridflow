@@ -1,60 +1,80 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Noto Sans", system-ui, sans-serif;
+  --font-serif: "Liberation Serif", "Georgia", serif;
   --font-mono: "JetBrains Mono", monospace;
-  --radius: 0.625rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+  --radius: var(--radius-md);
 }
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
+  /* surface hierarchy (light) */
+  --surface: 0 0% 97.6%;
+  --surface-container-lowest: 0 0% 100%;
+  --surface-container-low: 0 0% 95.3%;
+  --surface-container-highest: 0 0% 88.6%;
+
+  /* semantic mappings */
+  --background: var(--surface);
+  --foreground: 180 5% 10.6%;
+  --card: var(--surface-container-low);
+  --card-foreground: 180 5% 10.6%;
+  --popover: var(--surface-container-lowest);
+  --popover-foreground: 180 5% 10.6%;
+  --primary: 0 0% 0%;
+  --primary-foreground: 0 0% 88.6%;
+  --primary-container: 0 0% 23.1%;
+  --secondary: var(--surface-container-low);
+  --secondary-foreground: 180 5% 10.6%;
+  --muted: var(--surface-container-low);
+  --muted-foreground: 0 0% 27.8%;
+  --accent: var(--surface-container-low);
+  --accent-foreground: 180 5% 10.6%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
+  --border: var(--surface-container-highest);
+  --input: var(--surface-container-low);
+  --ring: 0 0% 0%;
+  --outline-variant: 0 0% 77.6%;
 }
 
 .dark {
-  --background: 0 0% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 14.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 14.9%;
+  /* surface hierarchy (dark) */
+  --surface: 0 0% 7%;
+  --surface-container-lowest: 0 0% 4%;
+  --surface-container-low: 0 0% 10%;
+  --surface-container-highest: 0 0% 16%;
+
+  /* semantic mappings */
+  --background: var(--surface);
+  --foreground: 0 0% 93%;
+  --card: var(--surface-container-low);
+  --card-foreground: 0 0% 93%;
+  --popover: var(--surface-container-lowest);
+  --popover-foreground: 0 0% 93%;
+  --primary: 0 0% 93%;
+  --primary-foreground: 0 0% 10%;
+  --primary-container: 0 0% 30%;
+  --secondary: var(--surface-container-low);
+  --secondary-foreground: 0 0% 93%;
+  --muted: var(--surface-container-low);
   --muted-foreground: 0 0% 63.9%;
-  --accent: 0 0% 14.9%;
-  --accent-foreground: 0 0% 98%;
+  --accent: var(--surface-container-low);
+  --accent-foreground: 0 0% 93%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 14.9%;
-  --input: 0 0% 14.9%;
+  --border: var(--surface-container-highest);
+  --input: var(--surface-container-low);
   --ring: 0 0% 83.1%;
+  --outline-variant: 0 0% 30%;
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
     @apply bg-background text-foreground antialiased;
   }
@@ -69,6 +89,7 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-container: hsl(var(--primary-container));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
@@ -80,4 +101,9 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-outline-variant: hsl(var(--outline-variant));
+  --color-surface: hsl(var(--surface));
+  --color-surface-container-lowest: hsl(var(--surface-container-lowest));
+  --color-surface-container-low: hsl(var(--surface-container-low));
+  --color-surface-container-highest: hsl(var(--surface-container-highest));
 }
