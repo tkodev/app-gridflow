@@ -23,7 +23,7 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('grid grid-cols-12 gap-1'),
+  root: cva('grid grid-cols-12 gap-2'),
   item: cva('col-span-4')
 }
 

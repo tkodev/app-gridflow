@@ -6,6 +6,7 @@ import { Check, ChevronDown, Pencil, Settings } from 'lucide-react'
 import * as React from 'react'
 import { useState } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar'
 import { Button } from '@/components/atoms/button'
@@ -22,20 +23,21 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('border-border space-y-4 border-b pb-4'),
-  headerRow: cva('grid grid-cols-[1fr_2fr] items-start gap-x-4 gap-y-2 sm:grid-cols-[1fr_3fr]'),
-  avatarCol: cva('w-full justify-self-start'),
-  contentCol: cva('min-w-0 space-y-2'),
+  root: cva('space-y-4 pb-4'),
+  headerRow: cva('flex items-start gap-4'),
+  avatarCol: cva('shrink-0'),
+  contentCol: cva('min-w-0 flex-1 space-y-2'),
 
-  usernameCell: cva('flex min-w-0 items-center gap-2'),
-  nameLabelButton: cva('-ml-2.5'),
-  nameCell: cva('text-base leading-snug font-normal'),
-  statsCell: cva('flex flex-wrap justify-start gap-x-4 gap-y-1 text-sm sm:gap-x-6'),
-  bioCell: cva(
+  usernameRow: cva('flex min-w-0 items-center gap-2'),
+  usernameLabel: cva('font-serif text-xl leading-none font-bold italic'),
+  usernameLabelButton: cva('-ml-2.5'),
+  displayName: cva('text-muted-foreground text-sm'),
+  statsRow: cva('flex flex-wrap gap-x-6 gap-y-1 text-sm'),
+  bioText: cva(
     'text-muted-foreground min-w-0 text-sm leading-snug font-normal whitespace-pre-wrap'
   ),
 
-  avatar: cva('aspect-square h-auto w-full max-w-none shrink-0'),
+  avatar: cva('size-20 sm:size-24'),
   avatarFallback: cva('text-lg'),
   srOnly: cva('sr-only'),
   menuContent: cva('w-56'),
@@ -45,10 +47,9 @@ const styles = {
   menuName: cva('flex-1 truncate'),
   menuSettingsIcon: cva('mr-2'),
   dropdownChevron: cva('shrink-0 opacity-50'),
-  statItem: cva('flex flex-col sm:flex-row sm:items-end sm:gap-1'),
-  statValue: cva('font-bold'),
-  statLabel: cva('text-muted-foreground text-xs'),
-  nameLabel: cva('flex w-fit items-center rounded-sm py-1.5 text-xl leading-none font-bold')
+  statItem: cva('flex items-end gap-1'),
+  statValue: cva('text-base font-bold'),
+  statLabel: cva('text-muted-foreground text-xs uppercase tracking-wide')
 }
 
 // 2. types
@@ -56,7 +57,7 @@ type IntroViewProps = React.ComponentProps<'div'> &
   VariantProps<typeof styles.root> & {
     profile: Profile
     profiles: Profile[]
-    postsCount: number
+    posts: Post[]
     /** When true, show the username as plain text (no profile switcher or edit). */
     readOnly?: boolean
   }
@@ -64,7 +65,7 @@ type IntroViewProps = React.ComponentProps<'div'> &
 // 3. component
 const IntroView: React.FC<IntroViewProps> = (props) => {
   // a. props
-  const { profile, profiles, postsCount, readOnly = false, className, ...rest } = props
+  const { profile, profiles, posts, readOnly = false, className, ...rest } = props
 
   // b. hooks
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false)
@@ -75,7 +76,10 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
   // c. logic
   const name = profile.display_name || profile.username
   const initials = name.slice(0, 2).toUpperCase()
-  const showName = Boolean(profile.display_name) && profile.display_name !== profile.username
+
+  const totalPosts = posts.length
+  const scheduledCount = posts.filter((p) => p.status === 'scheduled').length
+  const draftCount = posts.filter((p) => p.status === 'draft').length
 
   const handleProfileSwitch = (profileId: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -124,20 +128,20 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
             </Avatar>
           </div>
           <div className={styles.contentCol()}>
-            <div className={cn(styles.usernameCell())}>
+            <div className={styles.usernameRow()}>
               {readOnly ? (
-                <p className={styles.nameLabel()}>{profile.username}</p>
+                <p className={styles.usernameLabel()}>@{profile.username}</p>
               ) : (
                 <>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         type="button"
-                        className={cn(styles.nameLabel(), styles.nameLabelButton())}
+                        className={cn(styles.usernameLabel(), styles.usernameLabelButton())}
                         size="lg"
                         variant="ghost"
                       >
-                        <span>{profile.username}</span>
+                        <span>@{profile.username}</span>
                         <Icon className={styles.dropdownChevron()} icon={ChevronDown} size="sm" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -157,22 +161,24 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
                 </>
               )}
             </div>
-            {showName ? <p className={cn(styles.nameCell())}>{profile.display_name}</p> : null}
-            <div className={styles.statsCell()}>
+            {profile.display_name ? (
+              <p className={styles.displayName()}>{profile.display_name}</p>
+            ) : null}
+            <div className={styles.statsRow()}>
               <span className={styles.statItem()}>
-                <span className={styles.statValue()}>{postsCount.toLocaleString()}</span>
-                <span className={styles.statLabel()}>posts</span>
+                <span className={styles.statValue()}>{totalPosts}</span>
+                <span className={styles.statLabel()}>Posts</span>
               </span>
               <span className={styles.statItem()}>
-                <span className={styles.statValue()}>{Number(0).toLocaleString()}</span>
-                <span className={styles.statLabel()}>followers</span>
+                <span className={styles.statValue()}>{scheduledCount}</span>
+                <span className={styles.statLabel()}>Scheduled</span>
               </span>
               <span className={styles.statItem()}>
-                <span className={styles.statValue()}>{Number(0).toLocaleString()}</span>
-                <span className={styles.statLabel()}>following</span>
+                <span className={styles.statValue()}>{draftCount}</span>
+                <span className={styles.statLabel()}>Drafts</span>
               </span>
             </div>
-            <p className={styles.bioCell()}>{profile.bio}</p>
+            {profile.bio ? <p className={styles.bioText()}>{profile.bio}</p> : null}
           </div>
         </div>
       </div>

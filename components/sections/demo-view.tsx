@@ -44,7 +44,7 @@ const DemoView: React.FC<DemoViewProps> = (props) => {
       <React.Suspense fallback={<div className={styles.previewFallback()} aria-hidden />}>
         <div className={styles.previewCard()}>
           <IntroView
-            postsCount={posts.length}
+            posts={posts}
             profile={demoProfile}
             profiles={[demoProfile]}
             readOnly

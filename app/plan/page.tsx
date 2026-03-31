@@ -70,7 +70,6 @@ const PlanPage: React.FC<PlanPageProps> = (props) => {
     <div className={cn(styles.root({ className }))}>
       <PlanView
         posts={posts || []}
-        postsCount={posts?.length || 0}
         profile={profile}
         profiles={profiles}
       />

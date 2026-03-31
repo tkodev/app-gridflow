@@ -13,7 +13,7 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('bg-muted relative cursor-grab overflow-hidden active:cursor-grabbing', {
+  root: cva('bg-muted relative cursor-grab overflow-hidden rounded-lg active:cursor-grabbing', {
     variants: {
       gridRatio: {
         square: 'aspect-square',

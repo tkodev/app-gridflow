@@ -9,7 +9,6 @@ import { PostView } from '@/components/sections/post-view'
 // 1. types
 type PlanViewProps = {
   posts: Post[]
-  postsCount: number
   profile: Profile
   profiles: Profile[]
 }
@@ -17,14 +16,12 @@ type PlanViewProps = {
 // 2. component
 const PlanView: React.FC<PlanViewProps> = (props) => {
   // a. props
-  const { posts, postsCount, profile, profiles } = props
-
-  // b. hooks
+  const { posts, profile, profiles } = props
 
   // c. component
   return (
     <>
-      <IntroView postsCount={postsCount} profile={profile} profiles={profiles} />
+      <IntroView posts={posts} profile={profile} profiles={profiles} />
       <PostView initialPosts={posts} profile={profile} />
     </>
   )
