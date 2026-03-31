@@ -11,6 +11,7 @@ import {
   supabaseStorageBucketPosts,
   supabaseStorageCacheControlPosts,
   supabaseTablePostMedia,
+  supabaseTablePostTagSets,
   supabaseTablePosts
 } from '@/constants/db'
 import { postKeys } from '@/queries/keys'
@@ -31,6 +32,7 @@ function usePostsQuery(profileId: string | undefined) {
           profile_id,
           caption,
           subtitle,
+          tagline,
           grid_position,
           status,
           scheduled_at,
@@ -58,7 +60,19 @@ function usePostsQuery(profileId: string | undefined) {
 
 async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   const supabase = createClient()
-  const { isEditing, post, profileId, nextPosition, caption, subtitle, status, mediaItems } = vars
+  const {
+    isEditing,
+    post,
+    profileId,
+    nextPosition,
+    caption,
+    subtitle,
+    tagline,
+    status,
+    scheduledAt,
+    mediaItems,
+    tagSetIds
+  } = vars
 
   let postId = post?.id
   let postData: Post
@@ -69,7 +83,9 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
       .update({
         caption: caption || null,
         subtitle: subtitle || null,
+        tagline: tagline || null,
         status,
+        scheduled_at: scheduledAt,
         updated_at: new Date().toISOString()
       })
       .eq('id', postId)
@@ -85,8 +101,10 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
         profile_id: profileId,
         caption: caption || null,
         subtitle: subtitle || null,
+        tagline: tagline || null,
         grid_position: nextPosition,
-        status: 'draft'
+        status,
+        scheduled_at: scheduledAt
       })
       .select()
       .single()
@@ -163,6 +181,17 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   }
 
   postData.media = uploadedMedia
+
+  // Sync tag set associations
+  if (postId) {
+    await supabase.from(supabaseTablePostTagSets).delete().eq('post_id', postId)
+    if (tagSetIds.length > 0) {
+      const rows = tagSetIds.map((tagSetId) => ({ post_id: postId!, tag_set_id: tagSetId }))
+      const { error: tagError } = await supabase.from(supabaseTablePostTagSets).insert(rows)
+      if (tagError) throw tagError
+    }
+  }
+
   return postData
 }
 

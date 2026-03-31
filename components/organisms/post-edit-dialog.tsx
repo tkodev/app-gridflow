@@ -1,6 +1,6 @@
 'use client'
 
-import { ImagePlus, Music, Trash2, Upload } from 'lucide-react'
+import { ImagePlus, MapPin, Music, Trash2, Upload } from 'lucide-react'
 import * as React from 'react'
 import { useEffect, useId, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -19,6 +19,7 @@ import {
 } from '@dnd-kit/sortable'
 import { cva } from 'class-variance-authority'
 import type { Post } from '@/types/post'
+import type { TagSet } from '@/types/tag-set'
 import { Button } from '@/components/atoms/button'
 import { Dialog, DialogContent, DialogFooter } from '@/components/atoms/dialog'
 import { Icon } from '@/components/atoms/icon'
@@ -26,6 +27,8 @@ import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
 import { Textarea } from '@/components/atoms/textarea'
 import { MediaSortableItem } from '@/components/molecules/media-sortable-item'
+import { SchedulePicker } from '@/components/molecules/schedule-picker'
+import { TagSetSelector } from '@/components/molecules/tag-set-selector'
 import { maxPostMediaItems } from '@/constants/storage'
 import { useMediaEdit } from '@/hooks/use-media-edit'
 import { useDeletePostMutation, useSavePostMutation } from '@/queries/posts'
@@ -35,6 +38,7 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const postEditFormId = 'post-edit-dialog-form'
+const captionMaxLength = 2200
 
 const styles = {
   dialogContent: cva('sm:max-w-lg'),
@@ -57,12 +61,12 @@ const styles = {
     'border-muted-foreground/25 bg-muted/50 hover:border-muted-foreground/50 hover:bg-muted col-span-4 flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed transition-colors'
   ),
   mutedXs: cva('text-muted-foreground text-xs'),
+  taglineGlyph: cva('text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2'),
+  taglineInput: cva('pl-9'),
   subtitleGlyph: cva('text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2'),
   subtitleInput: cva('pl-9'),
   relativeWrap: cva('relative'),
-  statusSection: cva('space-y-2'),
-  statusButtons: cva('flex gap-2'),
-  statusButton: cva('flex-1 capitalize'),
+  captionFooter: cva('text-muted-foreground flex items-center justify-end text-xs'),
   footer: cva('flex-col gap-2 sm:flex-row'),
   deleteButton: cva('w-full sm:w-auto'),
   footerActions: cva('flex flex-1 gap-2 sm:justify-end'),
@@ -74,17 +78,19 @@ const styles = {
 type PostEditFields = {
   caption: string
   subtitle: string
+  tagline: string
   status: Post['status']
 }
 
 type PostEditDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  post?: Post | null // If provided, we're editing; otherwise creating
+  post?: Post | null
   profileId: string
   nextPosition?: number
   onSave: (post: Post) => void
   onDelete?: (postId: string) => void
+  tagSets?: TagSet[]
   className?: string
 }
 
@@ -97,11 +103,16 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
   nextPosition = 0,
   onSave,
   onDelete,
+  tagSets = [],
   className
 }) => {
   const formDndId = useId()
   const isEditing = !!post
   const [error, setError] = useState<string | null>(null)
+  const [selectedTagSetIds, setSelectedTagSetIds] = useState<string[]>([])
+  const [scheduleEnabled, setScheduleEnabled] = useState(false)
+  const [scheduleDate, setScheduleDate] = useState('')
+  const [scheduleTime, setScheduleTime] = useState('')
 
   const {
     mediaItems,
@@ -117,18 +128,18 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
     register,
     handleSubmit,
     reset,
-    setValue,
     control,
     formState: { errors: fieldErrors }
   } = useForm<PostEditFields>({
     defaultValues: {
       caption: '',
       subtitle: '',
+      tagline: '',
       status: 'draft'
     }
   })
 
-  const status = useWatch({ control, name: 'status' })
+  const caption = useWatch({ control, name: 'caption' })
   const savePost = useSavePostMutation()
   const deletePost = useDeletePostMutation()
   const isBusy = savePost.isPending || deletePost.isPending
@@ -177,16 +188,38 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
     })
   )
 
+  const handleTagSetToggle = (id: string) => {
+    setSelectedTagSetIds((prev) =>
+      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
+    )
+  }
+
   // Initialize form fields when post / dialog changes
   useEffect(() => {
     if (post) {
       reset({
         caption: post.caption || '',
         subtitle: post.subtitle || '',
+        tagline: post.tagline || '',
         status: post.status
       })
+      if (post.scheduled_at) {
+        setScheduleEnabled(true)
+        const d = new Date(post.scheduled_at)
+        setScheduleDate(d.toISOString().slice(0, 10))
+        setScheduleTime(d.toISOString().slice(11, 16))
+      } else {
+        setScheduleEnabled(false)
+        setScheduleDate('')
+        setScheduleTime('')
+      }
+      setSelectedTagSetIds([])
     } else {
-      reset({ caption: '', subtitle: '', status: 'draft' })
+      reset({ caption: '', subtitle: '', tagline: '', status: 'draft' })
+      setScheduleEnabled(false)
+      setScheduleDate('')
+      setScheduleTime('')
+      setSelectedTagSetIds([])
     }
   }, [post, open, reset])
 
@@ -203,6 +236,12 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
       return
     }
 
+    const status: Post['status'] = scheduleEnabled ? 'scheduled' : values.status === 'scheduled' ? 'draft' : values.status
+    let scheduledAt: string | null = null
+    if (scheduleEnabled && scheduleDate && scheduleTime) {
+      scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
+    }
+
     try {
       const postData = await savePost.mutateAsync({
         isEditing,
@@ -211,11 +250,11 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
         nextPosition,
         caption: values.caption,
         subtitle: values.subtitle,
-        tagline: '',
-        status: values.status,
-        scheduledAt: null,
+        tagline: values.tagline,
+        status,
+        scheduledAt,
         mediaItems,
-        tagSetIds: []
+        tagSetIds: selectedTagSetIds
       })
 
       revokeNewBlobUrls(mediaItems)
@@ -349,6 +388,22 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
             </p>
           </div>
 
+          {/* Tagline */}
+          <div className={styles.fieldGroup()}>
+            <Label htmlFor="tagline">Tagline (optional)</Label>
+            <div className={styles.relativeWrap()}>
+              <Icon className={styles.taglineGlyph()} icon={MapPin} size="sm" />
+              <Input
+                id="tagline"
+                className={styles.taglineInput()}
+                aria-invalid={!!fieldErrors.tagline}
+                disabled={isBusy}
+                placeholder="Location or music..."
+                {...register('tagline')}
+              />
+            </div>
+          </div>
+
           {/* Subtitle */}
           <div className={styles.fieldGroup()}>
             <Label htmlFor="subtitle">Subtitle (optional)</Label>
@@ -359,13 +414,13 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
                 className={styles.subtitleInput()}
                 aria-invalid={!!fieldErrors.subtitle}
                 disabled={isBusy}
-                placeholder="Song name, location, or note..."
+                placeholder="Song name or note..."
                 {...register('subtitle')}
               />
             </div>
           </div>
 
-          {/* Caption */}
+          {/* Caption with character counter */}
           <div className={styles.fieldGroup()}>
             <Label htmlFor="caption">Caption (optional)</Label>
             <Textarea
@@ -374,31 +429,37 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               disabled={isBusy}
               placeholder="Write a caption..."
               rows={3}
+              maxLength={captionMaxLength}
               {...register('caption')}
             />
+            <p className={styles.captionFooter()}>
+              {caption.length}/{captionMaxLength}
+            </p>
           </div>
 
-          {/* Status (only for editing) */}
-          {isEditing && (
-            <div className={styles.statusSection()}>
-              <Label>Status</Label>
-              <div className={styles.statusButtons()}>
-                {(['draft', 'scheduled', 'published'] as const).map((s) => (
-                  <Button
-                    key={s}
-                    type="button"
-                    className={styles.statusButton()}
-                    disabled={isBusy}
-                    size="sm"
-                    variant={status === s ? 'default' : 'outline'}
-                    onClick={() => setValue('status', s)}
-                  >
-                    {s}
-                  </Button>
-                ))}
-              </div>
+          {/* Tag Sets */}
+          {tagSets.length > 0 ? (
+            <div className={styles.fieldGroup()}>
+              <Label>Tag Sets</Label>
+              <TagSetSelector
+                tagSets={tagSets}
+                selectedIds={selectedTagSetIds}
+                onToggle={handleTagSetToggle}
+                disabled={isBusy}
+              />
             </div>
-          )}
+          ) : null}
+
+          {/* Schedule */}
+          <SchedulePicker
+            enabled={scheduleEnabled}
+            onEnabledChange={setScheduleEnabled}
+            date={scheduleDate}
+            onDateChange={setScheduleDate}
+            time={scheduleTime}
+            onTimeChange={setScheduleTime}
+            disabled={isBusy}
+          />
         </form>
 
         <DialogFooter className={styles.footer()}>
