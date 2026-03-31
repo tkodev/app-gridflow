@@ -1,5 +1,7 @@
+import type { Collection } from './collection'
 import type { LocalMediaItem, Post } from './post'
 import type { Profile } from './profile'
+import type { TagSet } from './tag-set'
 
 type AddProfileMutationInput = {
   username: string
@@ -37,8 +39,11 @@ type SavePostMutationInput = {
   nextPosition: number
   caption: string
   subtitle: string
+  tagline: string
   status: Post['status']
+  scheduledAt: string | null
   mediaItems: LocalMediaItem[]
+  tagSetIds: string[]
 }
 
 type DeletePostMutationInput = {
@@ -63,14 +68,42 @@ type UpdateProfileMutationInput = {
   removeStoredAvatar: boolean
 }
 
+type SaveCollectionMutationInput = {
+  isEditing: boolean
+  collection: Collection | null | undefined
+  profileId: string
+  name: string
+  description: string
+}
+
+type DeleteCollectionMutationInput = {
+  collection: Collection
+}
+
+type SaveTagSetMutationInput = {
+  isEditing: boolean
+  tagSet: TagSet | null | undefined
+  profileId: string
+  name: string
+  tags: string
+}
+
+type DeleteTagSetMutationInput = {
+  tagSet: TagSet
+}
+
 export type {
   AddProfileMutationInput,
   ChangeEmailMutationInput,
   ChangePasswordMutationInput,
+  DeleteCollectionMutationInput,
   DeletePostMutationInput,
   DeleteProfileMutationInput,
+  DeleteTagSetMutationInput,
   ReorderPostsMutationInput,
+  SaveCollectionMutationInput,
   SavePostMutationInput,
+  SaveTagSetMutationInput,
   SignInMutationInput,
   SignUpMutationInput,
   UpdateProfileMutationInput

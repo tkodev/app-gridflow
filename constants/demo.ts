@@ -41,6 +41,7 @@ const demoPosts = ((): Post[] => {
       profile_id: demoProfile.id,
       caption: null,
       subtitle: null,
+      tagline: null,
       grid_position: i,
       status: 'published' as const,
       scheduled_at: null,

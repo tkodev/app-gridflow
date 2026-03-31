@@ -211,8 +211,11 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
         nextPosition,
         caption: values.caption,
         subtitle: values.subtitle,
+        tagline: '',
         status: values.status,
-        mediaItems
+        scheduledAt: null,
+        mediaItems,
+        tagSetIds: []
       })
 
       revokeNewBlobUrls(mediaItems)

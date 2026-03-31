@@ -12,6 +12,7 @@ type Post = {
   profile_id: string
   caption: string | null
   subtitle: string | null
+  tagline: string | null
   grid_position: number
   status: 'draft' | 'scheduled' | 'published'
   scheduled_at: string | null
