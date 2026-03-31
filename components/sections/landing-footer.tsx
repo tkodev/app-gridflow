@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { Grid3X3 } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
@@ -6,11 +8,13 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('border-t py-8'),
-  inner: cva('grid grid-cols-12 items-center gap-4'),
-  brand: cva('col-span-12 flex items-center justify-center gap-2 md:col-span-6 md:justify-start'),
-  brandText: cva('font-semibold'),
-  note: cva('text-muted-foreground col-span-12 text-center text-sm md:col-span-6 md:text-right')
+  root: cva('py-12'),
+  inner: cva('flex flex-col items-center gap-6'),
+  brand: cva('flex items-center gap-2'),
+  brandText: cva('font-serif text-lg font-bold'),
+  links: cva('text-muted-foreground flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm'),
+  link: cva('transition-colors hover:text-foreground'),
+  copyright: cva('text-muted-foreground text-xs')
 }
 
 // 2. types
@@ -24,10 +28,26 @@ const LandingFooter: React.FC<LandingFooterProps> = (props) => {
     <footer className={cn(styles.root({ className }))} {...rest}>
       <Container className={styles.inner()}>
         <div className={styles.brand()}>
-          <Icon name="grid3x3" size="md" />
+          <Icon icon={Grid3X3} size="md" />
           <span className={styles.brandText()}>GridFlow</span>
         </div>
-        <p className={styles.note()}>Built for creators who care about aesthetics.</p>
+        <nav className={styles.links()}>
+          <Link className={styles.link()} href="#">
+            Privacy Policy
+          </Link>
+          <Link className={styles.link()} href="#">
+            Terms
+          </Link>
+          <Link className={styles.link()} href="#">
+            Instagram
+          </Link>
+          <Link className={styles.link()} href="#">
+            Twitter
+          </Link>
+        </nav>
+        <p className={styles.copyright()}>
+          &copy; {new Date().getFullYear()} GridFlow. All rights reserved.
+        </p>
       </Container>
     </footer>
   )
