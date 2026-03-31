@@ -2,7 +2,17 @@
 
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, Key, Mail, Plus, Trash2, UserCircle, UserPlus } from 'lucide-react'
+import {
+  AlertTriangle,
+  ChevronRight,
+  CreditCard,
+  Key,
+  Mail,
+  Plus,
+  Trash2,
+  UserCircle,
+  UserPlus
+} from 'lucide-react'
 import * as React from 'react'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -28,28 +38,47 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva('space-y-6'),
-  card: cva('space-y-4 rounded-lg border p-4'),
+  root: cva('space-y-8 py-6'),
+  section: cva('space-y-3'),
+  sectionLabel: cva('text-muted-foreground text-xs font-semibold tracking-widest uppercase'),
+  card: cva(
+    'bg-card space-y-4 rounded-xl p-4 shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)]'
+  ),
   cardHeader: cva('flex items-center justify-between'),
-  sectionTitle: cva('font-semibold'),
+  sectionTitle: cva('text-sm font-semibold'),
   emptyState: cva('flex flex-col items-center py-8 text-center'),
   emptyText: cva('text-muted-foreground mt-2 text-sm'),
   list: cva('space-y-2'),
-  profileRow: cva('flex items-center justify-between rounded-lg border p-3'),
+  settingsRow: cva(
+    'flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors hover:bg-surface-container-low'
+  ),
+  settingsRowText: cva('flex flex-col gap-0.5'),
+  settingsRowTitle: cva('text-sm font-medium'),
+  settingsRowSubtitle: cva('text-muted-foreground text-xs'),
+  profileRow: cva(
+    'flex items-center justify-between rounded-xl p-3 transition-colors hover:bg-surface-container-low'
+  ),
   profileRowInner: cva('flex items-center gap-3'),
   profileAvatar: cva('size-10'),
   profileName: cva('font-medium'),
   profileDisplay: cva('text-muted-foreground text-sm'),
   deleteProfileBtn: cva('text-destructive hover:bg-destructive/10 hover:text-destructive'),
   srOnly: cva('sr-only'),
-  tableWrap: cva('rounded-md border'),
+  tableWrap: cva('rounded-md'),
   tableCellRight: cva('text-right'),
   mutedText: cva('text-muted-foreground'),
   accountActions: cva('flex justify-end gap-3'),
-  dangerCard: cva('border-destructive/50 space-y-4 rounded-lg border p-4'),
+  billingPlan: cva('flex items-center gap-2'),
+  billingPlanName: cva('text-sm font-medium'),
+  billingBadge: cva(
+    'rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 uppercase'
+  ),
+  dangerCard: cva(
+    'bg-destructive/5 space-y-3 rounded-xl p-4 shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)]'
+  ),
   dangerHeader: cva('flex items-center gap-2'),
-  dangerTitle: cva('text-destructive font-semibold'),
-  dangerDescription: cva('text-muted-foreground text-sm'),
+  dangerTitle: cva('text-destructive text-sm font-semibold'),
+  dangerDescription: cva('text-muted-foreground text-xs'),
   dangerActions: cva('flex justify-end'),
   dialogSm: cva('sm:max-w-md'),
   headerLeading: cva('bg-muted flex size-8 items-center justify-center rounded-full'),
@@ -69,12 +98,11 @@ const styles = {
   formActions: cva('flex justify-end gap-2'),
   deleteHighlight: cva('font-semibold'),
   deleteMono: cva('font-mono font-semibold'),
-  appearanceCard: cva('space-y-4 rounded-lg border p-4'),
-  appearanceHeader: cva('space-y-1'),
-  appearanceDescription: cva('text-muted-foreground text-sm'),
-  appearanceControls: cva('flex justify-end'),
+  appearanceRow: cva('flex items-center justify-between'),
+  appearanceDescription: cva('text-muted-foreground text-xs'),
   appearanceSkeleton: cva('bg-muted h-4 w-40 animate-pulse rounded-md'),
-  buttonIconLeading: cva('mr-1.5')
+  buttonIconLeading: cva('mr-1.5'),
+  chevron: cva('text-muted-foreground shrink-0')
 }
 
 // 2. types
@@ -247,158 +275,202 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 
   return (
     <div className={cn(styles.root({ className }))}>
-      <div className={styles.appearanceCard()}>
-        <div className={styles.appearanceHeader()}>
-          <h2 id="appearance-heading" className={styles.sectionTitle()}>
-            Appearance
-          </h2>
-          <p className={styles.appearanceDescription()}>
-            Choose a fixed theme or match your device&apos;s light or dark mode.
-          </p>
-        </div>
+      {/* ACCOUNT Section */}
+      <section className={styles.section()}>
+        <p className={styles.sectionLabel()}>Account</p>
+        <div className={styles.card()}>
+          <div className={styles.cardHeader()}>
+            <h2 className={styles.sectionTitle()}>Profiles</h2>
+            <Button size="sm" onClick={() => setShowAddDialog(true)}>
+              <Icon className={styles.buttonIconLeading()} icon={Plus} size="sm" />
+              Add Profile
+            </Button>
+          </div>
 
-        <div className={styles.appearanceControls()}>
-          {!themeMounted ? (
-            <div className={styles.appearanceSkeleton()} aria-hidden />
+          {profiles.length === 0 ? (
+            <div className={styles.emptyState()}>
+              <Icon icon={UserCircle} size="xl" tone="muted" />
+              <p className={styles.emptyText()}>
+                No profiles yet. Add your first profile to get started.
+              </p>
+            </div>
           ) : (
-            <ButtonGroup aria-labelledby="appearance-heading" role="radiogroup">
-              <Button
-                type="button"
-                aria-checked={themeValue === 'light'}
-                role="radio"
-                size="sm"
-                variant={themeValue === 'light' ? 'secondary' : 'outline'}
-                onClick={() => setTheme('light')}
-              >
-                Light
-              </Button>
-              <Button
-                type="button"
-                aria-checked={themeValue === 'dark'}
-                role="radio"
-                size="sm"
-                variant={themeValue === 'dark' ? 'secondary' : 'outline'}
-                onClick={() => setTheme('dark')}
-              >
-                Dark
-              </Button>
-              <Button
-                type="button"
-                aria-checked={themeValue === 'system'}
-                role="radio"
-                size="sm"
-                variant={themeValue === 'system' ? 'secondary' : 'outline'}
-                onClick={() => setTheme('system')}
-              >
-                System
-              </Button>
-            </ButtonGroup>
+            <div className={styles.list()}>
+              {profiles.map((profile) => (
+                <div key={profile.id} className={styles.profileRow()}>
+                  <div className={styles.profileRowInner()}>
+                    <Avatar className={styles.profileAvatar()}>
+                      <AvatarImage src={profile.avatar_url || undefined} />
+                      <AvatarFallback>
+                        {(profile.display_name || profile.username).slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className={styles.profileName()}>{profile.username}</p>
+                      {profile.display_name && (
+                        <p className={styles.profileDisplay()}>{profile.display_name}</p>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    className={styles.deleteProfileBtn()}
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => {
+                      setDeleteProfileError(null)
+                      setProfileToDelete(profile)
+                    }}
+                  >
+                    <Icon icon={Trash2} size="sm" />
+                    <span className={styles.srOnly()}>Delete profile</span>
+                  </Button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Profiles List */}
-      <div className={styles.card()}>
-        <div className={styles.cardHeader()}>
-          <h2 className={styles.sectionTitle()}>Profiles</h2>
-          <Button size="sm" onClick={() => setShowAddDialog(true)}>
-            <Icon className={styles.buttonIconLeading()} icon={Plus} size="sm" />
-            Add Profile
-          </Button>
-        </div>
-
-        {profiles.length === 0 ? (
-          <div className={styles.emptyState()}>
-            <Icon icon={UserCircle} size="xl" tone="muted" />
-            <p className={styles.emptyText()}>
-              No profiles yet. Add your first profile to get started.
-            </p>
-          </div>
-        ) : (
-          <div className={styles.list()}>
-            {profiles.map((profile) => (
-              <div key={profile.id} className={styles.profileRow()}>
-                <div className={styles.profileRowInner()}>
-                  <Avatar className={styles.profileAvatar()}>
-                    <AvatarImage src={profile.avatar_url || undefined} />
-                    <AvatarFallback>
-                      {(profile.display_name || profile.username).slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className={styles.profileName()}>{profile.username}</p>
-                    {profile.display_name && (
-                      <p className={styles.profileDisplay()}>{profile.display_name}</p>
-                    )}
-                  </div>
-                </div>
-                <Button
-                  className={styles.deleteProfileBtn()}
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => {
-                    setDeleteProfileError(null)
-                    setProfileToDelete(profile)
-                  }}
-                >
-                  <Icon icon={Trash2} size="sm" />
-                  <span className={styles.srOnly()}>Delete profile</span>
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Account Info */}
-      <div className={styles.card()}>
-        <h2 className={styles.sectionTitle()}>Account</h2>
-        <div className={styles.tableWrap()}>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableHead scope="row">Email</TableHead>
-                <TableCell className={styles.tableCellRight()}>
-                  {userEmail || (
-                    <span className={styles.mutedText()}>No email on this account</span>
-                  )}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-        <div className={styles.accountActions()}>
-          <Button
-            disabled={!userEmail}
-            size="sm"
-            variant="outline"
+        <div className={styles.card()}>
+          <h2 className={styles.sectionTitle()}>Security</h2>
+          <div
+            className={styles.settingsRow()}
+            role="button"
+            tabIndex={0}
             onClick={() => setShowEmailDialog(true)}
           >
-            <Icon className={styles.buttonIconLeading()} icon={Mail} size="sm" />
-            Change email
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => setShowPasswordDialog(true)}>
-            <Icon className={styles.buttonIconLeading()} icon={Key} size="sm" />
-            Change Password
-          </Button>
+            <div className={styles.settingsRowText()}>
+              <p className={styles.settingsRowTitle()}>Email Address</p>
+              <p className={styles.settingsRowSubtitle()}>
+                {userEmail || 'No email on this account'}
+              </p>
+            </div>
+            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+          </div>
+          <div
+            className={styles.settingsRow()}
+            role="button"
+            tabIndex={0}
+            onClick={() => setShowPasswordDialog(true)}
+          >
+            <div className={styles.settingsRowText()}>
+              <p className={styles.settingsRowTitle()}>Password</p>
+              <p className={styles.settingsRowSubtitle()}>Change your account password</p>
+            </div>
+            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Danger Zone */}
-      <div className={styles.dangerCard()}>
-        <div className={styles.dangerHeader()}>
-          <Icon icon={AlertTriangle} size="md" tone="destructive" />
-          <h2 className={styles.dangerTitle()}>Danger Zone</h2>
+      {/* BILLING Section */}
+      <section className={styles.section()}>
+        <p className={styles.sectionLabel()}>Billing</p>
+        <div className={styles.card()}>
+          <div className={styles.cardHeader()}>
+            <div>
+              <p className={styles.settingsRowSubtitle()}>Current Plan</p>
+              <div className={styles.billingPlan()}>
+                <p className={styles.billingPlanName()}>Free</p>
+                <span className={styles.billingBadge()}>Active</span>
+              </div>
+            </div>
+            <Button size="sm" variant="outline">
+              Upgrade
+            </Button>
+          </div>
+          <div
+            className={styles.settingsRow()}
+            role="button"
+            tabIndex={0}
+          >
+            <div className={styles.settingsRowText()}>
+              <p className={styles.settingsRowTitle()}>Payment Methods</p>
+              <p className={styles.settingsRowSubtitle()}>Manage your payment methods</p>
+            </div>
+            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+          </div>
+          <div
+            className={styles.settingsRow()}
+            role="button"
+            tabIndex={0}
+          >
+            <div className={styles.settingsRowText()}>
+              <p className={styles.settingsRowTitle()}>Invoices</p>
+              <p className={styles.settingsRowSubtitle()}>View billing history</p>
+            </div>
+            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+          </div>
         </div>
-        <p className={styles.dangerDescription()}>
-          Permanently delete your account and all associated data. This action cannot be undone.
-        </p>
-        <div className={styles.dangerActions()}>
-          <Button size="sm" variant="destructive" onClick={() => setShowDeleteAccountDialog(true)}>
-            Delete Account
-          </Button>
+      </section>
+
+      {/* PREFERENCES Section */}
+      <section className={styles.section()}>
+        <p className={styles.sectionLabel()}>Preferences</p>
+        <div className={styles.card()}>
+          <div className={styles.appearanceRow()}>
+            <div className={styles.settingsRowText()}>
+              <p className={styles.settingsRowTitle()} id="appearance-heading">
+                Dark Mode
+              </p>
+              <p className={styles.appearanceDescription()}>Sync with system settings</p>
+            </div>
+            {!themeMounted ? (
+              <div className={styles.appearanceSkeleton()} aria-hidden />
+            ) : (
+              <ButtonGroup aria-labelledby="appearance-heading" role="radiogroup">
+                <Button
+                  type="button"
+                  aria-checked={themeValue === 'light'}
+                  role="radio"
+                  size="xs"
+                  variant={themeValue === 'light' ? 'secondary' : 'outline'}
+                  onClick={() => setTheme('light')}
+                >
+                  Light
+                </Button>
+                <Button
+                  type="button"
+                  aria-checked={themeValue === 'dark'}
+                  role="radio"
+                  size="xs"
+                  variant={themeValue === 'dark' ? 'secondary' : 'outline'}
+                  onClick={() => setTheme('dark')}
+                >
+                  Dark
+                </Button>
+                <Button
+                  type="button"
+                  aria-checked={themeValue === 'system'}
+                  role="radio"
+                  size="xs"
+                  variant={themeValue === 'system' ? 'secondary' : 'outline'}
+                  onClick={() => setTheme('system')}
+                >
+                  System
+                </Button>
+              </ButtonGroup>
+            )}
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* DANGER ZONE Section */}
+      <section className={styles.section()}>
+        <p className={styles.sectionLabel()}>Danger Zone</p>
+        <div className={styles.dangerCard()}>
+          <div className={styles.dangerHeader()}>
+            <Icon icon={AlertTriangle} size="sm" tone="destructive" />
+            <h2 className={styles.dangerTitle()}>Delete Account</h2>
+          </div>
+          <p className={styles.dangerDescription()}>
+            Permanently delete your account and all associated data. This action cannot be undone.
+          </p>
+          <div className={styles.dangerActions()}>
+            <Button size="sm" variant="destructive" onClick={() => setShowDeleteAccountDialog(true)}>
+              Delete Account
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Add Profile Dialog */}
       <Dialog
