@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { supabaseTableCustomers } from '@/constants/db'
+import { eq } from 'drizzle-orm'
+import { customers } from '@/schema/subscriptions'
+import { db } from '@/utils/database'
 import { stripe } from '@/utils/stripe'
 import { createClient } from '@/utils/supabase-server'
 
@@ -13,18 +15,17 @@ export async function POST() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { data: customer } = await supabase
-    .from(supabaseTableCustomers)
-    .select('stripe_customer_id')
-    .eq('id', user.id)
-    .single()
+  const [customer] = await db
+    .select({ stripeCustomerId: customers.stripeCustomerId })
+    .from(customers)
+    .where(eq(customers.id, user.id))
 
-  if (!customer?.stripe_customer_id) {
+  if (!customer?.stripeCustomerId) {
     return NextResponse.json({ error: 'No subscription found' }, { status: 404 })
   }
 
   const session = await stripe.billingPortal.sessions.create({
-    customer: customer.stripe_customer_id,
+    customer: customer.stripeCustomerId,
     return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/settings`
   })
 

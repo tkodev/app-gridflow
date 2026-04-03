@@ -1,10 +1,13 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { eq, asc } from 'drizzle-orm'
 import type { Profile } from '@/types/profile'
 import type { UpdateProfileMutationInput } from '@/types/mutations'
-import { supabaseStorageBucketAvatars, supabaseTableProfiles } from '@/constants/db'
+import { supabaseStorageBucketAvatars } from '@/constants/db'
 import { profileKeys } from '@/queries/keys'
+import { profiles } from '@/schema/profiles'
+import { rlsQuery } from '@/utils/database'
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
@@ -12,14 +15,14 @@ function useProfilesQuery(userId: string | undefined) {
   return useQuery({
     queryKey: profileKeys.all(userId ?? ''),
     queryFn: async () => {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from(supabaseTableProfiles)
-        .select('*')
-        .eq('user_id', userId!)
-        .order('created_at', { ascending: true })
-      if (error) throw error
-      return (data ?? []) as Profile[]
+      const rows = await rlsQuery(userId!, async (tx) => {
+        return await tx
+          .select()
+          .from(profiles)
+          .where(eq(profiles.userId, userId!))
+          .orderBy(asc(profiles.createdAt))
+      })
+      return rows.map(toProfile)
     },
     enabled: Boolean(userId),
     staleTime: 1000 * 60 * 2
@@ -62,19 +65,23 @@ async function updateProfileMutationFn(vars: UpdateProfileMutationInput): Promis
     newAvatarUrl = null
   }
 
-  const { error: updateError } = await supabase
-    .from(supabaseTableProfiles)
-    .update({
-      username: sanitizeUsername(vars.username),
-      display_name: vars.displayName || null,
-      bio: vars.bio || null,
-      avatar_url: newAvatarUrl,
-      grid_ratio: vars.gridRatio,
-      updated_at: new Date().toISOString()
-    })
-    .eq('id', vars.profileId)
+  // DB update via Drizzle — no RLS needed, the caller is authenticated
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in')
 
-  if (updateError) throw updateError
+  await rlsQuery(user.id, async (tx) => {
+    await tx
+      .update(profiles)
+      .set({
+        username: sanitizeUsername(vars.username),
+        displayName: vars.displayName || null,
+        bio: vars.bio || null,
+        avatarUrl: newAvatarUrl,
+        gridRatio: vars.gridRatio,
+        updatedAt: new Date()
+      })
+      .where(eq(profiles.id, vars.profileId))
+  })
 }
 
 function useUpdateProfileMutation() {
@@ -85,6 +92,20 @@ function useUpdateProfileMutation() {
       queryClient.invalidateQueries({ queryKey: ['profiles'] })
     }
   })
+}
+
+function toProfile(row: typeof profiles.$inferSelect): Profile {
+  return {
+    id: row.id,
+    user_id: row.userId,
+    username: row.username,
+    display_name: row.displayName,
+    bio: row.bio,
+    avatar_url: row.avatarUrl,
+    grid_ratio: row.gridRatio,
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString()
+  }
 }
 
 export { updateProfileMutationFn, useProfilesQuery, useUpdateProfileMutation }

@@ -16,7 +16,7 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 
 **Application:** Next.js (App Router) · Tailwind CSS (theme and styling) · Shadcn UI (includes dark mode) · Radix UI (primitives when there is no shadcn/ui equivalent) · React · TanStack Query · React Hook Form · Framer Motion (scroll, animations, gestures)
 
-**Data & backend:** TanStack Query (`@tanstack/react-query`) — async state for browser Supabase calls; hooks and helpers in [`queries/`](/queries/). Supabase — Database, Auth, Storage. Cron is reserved for a post-scheduling stretch feature.
+**Data & backend:** TanStack Query (`@tanstack/react-query`) — async state; hooks and helpers in [`queries/`](/queries/). Drizzle ORM (`drizzle-orm`) — type-safe PostgreSQL queries via `postgres.js` driver; schema in [`schema/`](/schema/). Supabase — Auth, Storage, RLS (Drizzle uses `rlsQuery` to impersonate the authenticated user for RLS). Cron is reserved for a post-scheduling stretch feature.
 
 ## Next.js
 
@@ -30,7 +30,7 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 - Shared types: app-wide in [`types/<name>.ts`](/types/) or next to what they describe (e.g. component props in the same file), per usual TS practice.
 - **Component props:** Prefer **one** `ComponentNameProps` type per file for the primary export. If you would split `BaseProps` and `ComponentProps`, merge them into a single `ComponentNameProps` when the base is only used once. **Export** that type when other modules need the shape (`export type ComponentNameProps = …` or `export type { ComponentNameProps }`). Compound UI that exposes several named subcomponents (e.g. `Card` + `CardHeader`) may use one `*Props` type per subcomponent; keep those **internal** unless a consumer needs them.
 - Cross-cutting mutation/query payloads shared by hooks and callers live in [`types/mutations.ts`](/types/mutations.ts), alongside domain types such as [`types/post.ts`](/types/post.ts).
-- **Constants:** values under [`constants/`](/constants/) (and other module-level constants) use **camelCase** — e.g. `maxPostMediaItems`, `supabaseTablePosts`, `routeProfiles`. Do **not** use `SCREAMING_SNAKE_CASE` for these. Names from the runtime environment (`process.env.*`) stay as defined by the platform.
+- **Constants:** values under [`constants/`](/constants/) (and other module-level constants) use **camelCase** — e.g. `maxPostMediaItems`, `supabaseStorageBucketPosts`, `routeProfiles`. Do **not** use `SCREAMING_SNAKE_CASE` for these. Names from the runtime environment (`process.env.*`) stay as defined by the platform.
 
 ## Exports
 
@@ -46,7 +46,8 @@ Common commands: `pnpm add`, `pnpm add -D`, `pnpm remove`, `pnpm install`, `pnpm
 | [`utils/`](/utils/) | Pure helpers, formatting, small algorithms, integration glue (e.g. Supabase `createClient` for browser/server, proxy/session helpers, Tailwind `cn`). |
 | [`types/`](/types/) | Shared TypeScript shapes used in multiple places (domain models, mutation inputs, etc.). |
 | [`queries/`](/queries/) | TanStack Query only: `useMutation` / `useQuery`, `mutationFn` / `queryFn`, and [`keys.ts`](/queries/keys.ts). No React providers and no generic utilities here. |
-| [`constants/`](/constants/) | App-wide constants in **camelCase** (Supabase table and bucket names, query defaults, routes, limits such as max post media). |
+| [`schema/`](/schema/) | Drizzle ORM table definitions (one file per domain: `profiles.ts`, `posts.ts`, `collections.ts`, `tag-sets.ts`, `subscriptions.ts`). |
+| [`constants/`](/constants/) | App-wide constants in **camelCase** (Supabase storage bucket names, query defaults, routes, limits such as max post media). |
 
 **Providers:** Tree wrappers (e.g. TanStack `QueryClientProvider`) belong in [`components/providers/`](/components/providers/), not in `queries/`. Provider modules are logic/context only: they do **not** use the `cva` styling pattern or `classNames`, and exported components do **not** need a `className` prop or other presentational styling API.
 

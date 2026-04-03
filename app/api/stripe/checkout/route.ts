@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { eq } from 'drizzle-orm'
 import { stripeCreatorProPriceId } from '@/constants/stripe'
-import { supabaseTableCustomers } from '@/constants/db'
+import { customers } from '@/schema/subscriptions'
+import { db } from '@/utils/database'
 import { stripe } from '@/utils/stripe'
 import { createClient } from '@/utils/supabase-server'
 
@@ -15,13 +17,12 @@ export async function POST() {
   }
 
   // Get or create Stripe customer
-  let { data: customer } = await supabase
-    .from(supabaseTableCustomers)
-    .select('stripe_customer_id')
-    .eq('id', user.id)
-    .single()
+  const [existing] = await db
+    .select({ stripeCustomerId: customers.stripeCustomerId })
+    .from(customers)
+    .where(eq(customers.id, user.id))
 
-  let stripeCustomerId = customer?.stripe_customer_id
+  let stripeCustomerId = existing?.stripeCustomerId
 
   if (!stripeCustomerId) {
     const stripeCustomer = await stripe.customers.create({
@@ -30,10 +31,13 @@ export async function POST() {
     })
     stripeCustomerId = stripeCustomer.id
 
-    await supabase.from(supabaseTableCustomers).upsert({
-      id: user.id,
-      stripe_customer_id: stripeCustomerId
-    })
+    await db
+      .insert(customers)
+      .values({ id: user.id, stripeCustomerId })
+      .onConflictDoUpdate({
+        target: customers.id,
+        set: { stripeCustomerId }
+      })
   }
 
   const session = await stripe.checkout.sessions.create({

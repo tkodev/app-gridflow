@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { asc, eq } from 'drizzle-orm'
 import type {
   DeletePostMutationInput,
   ReorderPostsMutationInput,
@@ -9,12 +10,12 @@ import type {
 import type { Post, PostMedia } from '@/types/post'
 import {
   supabaseStorageBucketPosts,
-  supabaseStorageCacheControlPosts,
-  supabaseTablePostMedia,
-  supabaseTablePostTagSets,
-  supabaseTablePosts
+  supabaseStorageCacheControlPosts
 } from '@/constants/db'
 import { postKeys } from '@/queries/keys'
+import { postMedia, posts } from '@/schema/posts'
+import { postTagSets } from '@/schema/tag-sets'
+import { rlsQuery } from '@/utils/database'
 import { extensionForPostMediaUpload, sortPostMediaByPosition } from '@/utils/post-media'
 import { extractPostsBucketObjectPath, removePostFolderObjects } from '@/utils/post-storage'
 import { createClient } from '@/utils/supabase-browser'
@@ -24,34 +25,51 @@ function usePostsQuery(profileId: string | undefined) {
     queryKey: postKeys.all(profileId ?? ''),
     queryFn: async () => {
       const supabase = createClient()
-      const { data, error } = await supabase
-        .from(supabaseTablePosts)
-        .select(
-          `
-          id,
-          profile_id,
-          caption,
-          subtitle,
-          tagline,
-          grid_position,
-          status,
-          scheduled_at,
-          published_at,
-          created_at,
-          updated_at,
-          post_media(*)
-        `
-        )
-        .eq('profile_id', profileId!)
-        .order('grid_position', { ascending: true })
-      if (error) throw error
-      return (data ?? []).map((row) => {
-        const { post_media, ...rest } = row as typeof row & { post_media?: Post['media'] }
-        return {
-          ...rest,
-          media: sortPostMediaByPosition(post_media ?? [])
-        } as Post
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not signed in')
+
+      const rows = await rlsQuery(user.id, async (tx) => {
+        const postRows = await tx
+          .select()
+          .from(posts)
+          .where(eq(posts.profileId, profileId!))
+          .orderBy(asc(posts.gridPosition))
+
+        const mediaRows = postRows.length > 0
+          ? await tx.select().from(postMedia)
+          : []
+
+        return postRows.map((post) => ({
+          ...post,
+          media: sortPostMediaByPosition(
+            mediaRows
+              .filter((m) => m.postId === post.id)
+              .map((m) => ({
+                id: m.id,
+                post_id: m.postId,
+                media_url: m.mediaUrl,
+                media_type: m.mediaType,
+                position: m.position,
+                created_at: m.createdAt.toISOString()
+              }))
+          )
+        }))
       })
+
+      return rows.map((row) => ({
+        id: row.id,
+        profile_id: row.profileId,
+        caption: row.caption,
+        subtitle: row.subtitle,
+        tagline: row.tagline,
+        grid_position: row.gridPosition,
+        status: row.status,
+        scheduled_at: row.scheduledAt?.toISOString() ?? null,
+        published_at: row.publishedAt?.toISOString() ?? null,
+        created_at: row.createdAt.toISOString(),
+        updated_at: row.updatedAt.toISOString(),
+        media: row.media
+      })) as Post[]
     },
     enabled: Boolean(profileId),
     staleTime: 1000 * 60 * 2
@@ -60,6 +78,9 @@ function usePostsQuery(profileId: string | undefined) {
 
 async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in')
+
   const {
     isEditing,
     post,
@@ -78,48 +99,45 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   let postData: Post
 
   if (isEditing && postId) {
-    const { data, error: updateError } = await supabase
-      .from(supabaseTablePosts)
-      .update({
-        caption: caption || null,
-        subtitle: subtitle || null,
-        tagline: tagline || null,
-        status,
-        scheduled_at: scheduledAt,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', postId)
-      .select()
-      .single()
-
-    if (updateError) throw updateError
-    postData = data as unknown as Post
+    const [updated] = await rlsQuery(user.id, async (tx) => {
+      return await tx
+        .update(posts)
+        .set({
+          caption: caption || null,
+          subtitle: subtitle || null,
+          tagline: tagline || null,
+          status,
+          scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+          updatedAt: new Date()
+        })
+        .where(eq(posts.id, postId!))
+        .returning()
+    })
+    postData = toPost(updated, [])
   } else {
-    const { data, error: insertError } = await supabase
-      .from(supabaseTablePosts)
-      .insert({
-        profile_id: profileId,
-        caption: caption || null,
-        subtitle: subtitle || null,
-        tagline: tagline || null,
-        grid_position: nextPosition,
-        status,
-        scheduled_at: scheduledAt
-      })
-      .select()
-      .single()
-
-    if (insertError) throw insertError
-    postId = data.id
-    postData = data as unknown as Post
+    const [inserted] = await rlsQuery(user.id, async (tx) => {
+      return await tx
+        .insert(posts)
+        .values({
+          profileId,
+          caption: caption || null,
+          subtitle: subtitle || null,
+          tagline: tagline || null,
+          gridPosition: nextPosition,
+          status,
+          scheduledAt: scheduledAt ? new Date(scheduledAt) : null
+        })
+        .returning()
+    })
+    postId = inserted.id
+    postData = toPost(inserted, [])
   }
 
-  if (!postId) {
-    throw new Error('Missing post id')
-  }
+  if (!postId) throw new Error('Missing post id')
 
   const uploadedMedia: PostMedia[] = []
 
+  // Delete removed media (storage + DB)
   if (isEditing && post) {
     const currentIds = new Set(mediaItems.filter((m) => !m.isNew).map((m) => m.id))
     const toDelete = post.media.filter((m) => !currentIds.has(m.id))
@@ -129,10 +147,13 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
       if (path) {
         await supabase.storage.from(supabaseStorageBucketPosts).remove([path])
       }
-      await supabase.from(supabaseTablePostMedia).delete().eq('id', media.id)
+      await rlsQuery(user.id, async (tx) => {
+        await tx.delete(postMedia).where(eq(postMedia.id, media.id))
+      })
     }
   }
 
+  // Upload new media and update positions
   for (let i = 0; i < mediaItems.length; i++) {
     const item = mediaItems[i]
 
@@ -154,29 +175,27 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
         .from(supabaseStorageBucketPosts)
         .getPublicUrl(filePath)
 
-      const { data: mediaData, error: mediaError } = await supabase
-        .from(supabaseTablePostMedia)
-        .insert({
-          post_id: postId,
-          media_url: urlData.publicUrl,
-          media_type: item.type,
-          position: i
-        })
-        .select()
-        .single()
-
-      if (mediaError) throw mediaError
-      uploadedMedia.push(mediaData as PostMedia)
+      const [inserted] = await rlsQuery(user.id, async (tx) => {
+        return await tx
+          .insert(postMedia)
+          .values({
+            postId: postId!,
+            mediaUrl: urlData.publicUrl,
+            mediaType: item.type,
+            position: i
+          })
+          .returning()
+      })
+      uploadedMedia.push(toPostMedia(inserted))
     } else {
-      const { data: mediaData, error: updateError } = await supabase
-        .from(supabaseTablePostMedia)
-        .update({ position: i })
-        .eq('id', item.id)
-        .select()
-        .single()
-
-      if (updateError) throw updateError
-      uploadedMedia.push(mediaData as PostMedia)
+      const [updated] = await rlsQuery(user.id, async (tx) => {
+        return await tx
+          .update(postMedia)
+          .set({ position: i })
+          .where(eq(postMedia.id, item.id))
+          .returning()
+      })
+      uploadedMedia.push(toPostMedia(updated))
     }
   }
 
@@ -184,12 +203,13 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
 
   // Sync tag set associations
   if (postId) {
-    await supabase.from(supabaseTablePostTagSets).delete().eq('post_id', postId)
-    if (tagSetIds.length > 0) {
-      const rows = tagSetIds.map((tagSetId) => ({ post_id: postId!, tag_set_id: tagSetId }))
-      const { error: tagError } = await supabase.from(supabaseTablePostTagSets).insert(rows)
-      if (tagError) throw tagError
-    }
+    await rlsQuery(user.id, async (tx) => {
+      await tx.delete(postTagSets).where(eq(postTagSets.postId, postId!))
+      if (tagSetIds.length > 0) {
+        const rows = tagSetIds.map((tagSetId) => ({ postId: postId!, tagSetId }))
+        await tx.insert(postTagSets).values(rows)
+      }
+    })
   }
 
   return postData
@@ -207,6 +227,9 @@ function useSavePostMutation() {
 
 async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void> {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in')
+
   const { post, profileId } = vars
 
   const paths = new Set<string>()
@@ -220,8 +243,9 @@ async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void
 
   await removePostFolderObjects(supabase, profileId, post.id)
 
-  const { error } = await supabase.from(supabaseTablePosts).delete().eq('id', post.id)
-  if (error) throw error
+  await rlsQuery(user.id, async (tx) => {
+    await tx.delete(posts).where(eq(posts.id, post.id))
+  })
 }
 
 function useDeletePostMutation() {
@@ -236,13 +260,17 @@ function useDeletePostMutation() {
 
 async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<void> {
   const supabase = createClient()
-  const results = await Promise.all(
-    vars.orderedPosts.map((p, index) =>
-      supabase.from(supabaseTablePosts).update({ grid_position: index }).eq('id', p.id)
-    )
-  )
-  const persistError = results.find((r) => r.error)?.error
-  if (persistError) throw persistError
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in')
+
+  await rlsQuery(user.id, async (tx) => {
+    for (let i = 0; i < vars.orderedPosts.length; i++) {
+      await tx
+        .update(posts)
+        .set({ gridPosition: i })
+        .where(eq(posts.id, vars.orderedPosts[i].id))
+    }
+  })
 }
 
 function useReorderPostsMutation() {
@@ -253,6 +281,39 @@ function useReorderPostsMutation() {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
     }
   })
+}
+
+/** Map a Drizzle post row to the Post domain type. */
+function toPost(
+  row: typeof posts.$inferSelect,
+  media: PostMedia[]
+): Post {
+  return {
+    id: row.id,
+    profile_id: row.profileId,
+    caption: row.caption,
+    subtitle: row.subtitle,
+    tagline: row.tagline,
+    grid_position: row.gridPosition,
+    status: row.status,
+    scheduled_at: row.scheduledAt?.toISOString() ?? null,
+    published_at: row.publishedAt?.toISOString() ?? null,
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString(),
+    media
+  }
+}
+
+/** Map a Drizzle postMedia row to the PostMedia domain type. */
+function toPostMedia(row: typeof postMedia.$inferSelect): PostMedia {
+  return {
+    id: row.id,
+    post_id: row.postId,
+    media_url: row.mediaUrl,
+    media_type: row.mediaType,
+    position: row.position,
+    created_at: row.createdAt.toISOString()
+  }
 }
 
 export {

@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { eq } from 'drizzle-orm'
 import type Stripe from 'stripe'
-import { supabaseTableSubscriptions } from '@/constants/db'
+import { customers, subscriptions } from '@/schema/subscriptions'
+import { db } from '@/utils/database'
 import { stripe } from '@/utils/stripe'
-import { createClient } from '@/utils/supabase-server'
 
 export const runtime = 'nodejs'
 
@@ -10,8 +11,8 @@ export const runtime = 'nodejs'
 function extractPeriod(subscription: Stripe.Subscription) {
   const item = subscription.items.data[0]
   return {
-    start: item ? new Date(item.current_period_start * 1000).toISOString() : null,
-    end: item ? new Date(item.current_period_end * 1000).toISOString() : null
+    start: item ? new Date(item.current_period_start * 1000) : null,
+    end: item ? new Date(item.current_period_end * 1000) : null
   }
 }
 
@@ -35,8 +36,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 400 })
   }
 
-  const supabase = await createClient()
-
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
@@ -47,23 +46,35 @@ export async function POST(request: NextRequest) {
         const customerId =
           typeof session.customer === 'string' ? session.customer : session.customer.id
 
-        const { data: customerRow } = await supabase
-          .from('customers')
-          .select('id')
-          .eq('stripe_customer_id', customerId)
-          .single()
+        const [customerRow] = await db
+          .select({ id: customers.id })
+          .from(customers)
+          .where(eq(customers.stripeCustomerId, customerId))
 
         if (customerRow) {
           const period = extractPeriod(subscription)
-          await supabase.from(supabaseTableSubscriptions).upsert({
-            user_id: customerRow.id,
-            stripe_subscription_id: subscription.id,
-            stripe_price_id: subscription.items.data[0]?.price?.id ?? null,
-            status: 'active',
-            current_period_start: period.start,
-            current_period_end: period.end,
-            cancel_at_period_end: subscription.cancel_at_period_end
-          })
+          await db
+            .insert(subscriptions)
+            .values({
+              userId: customerRow.id,
+              stripeSubscriptionId: subscription.id,
+              stripePriceId: subscription.items.data[0]?.price?.id ?? null,
+              status: 'active',
+              currentPeriodStart: period.start,
+              currentPeriodEnd: period.end,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end
+            })
+            .onConflictDoUpdate({
+              target: subscriptions.stripeSubscriptionId,
+              set: {
+                stripePriceId: subscription.items.data[0]?.price?.id ?? null,
+                status: 'active',
+                currentPeriodStart: period.start,
+                currentPeriodEnd: period.end,
+                cancelAtPeriodEnd: subscription.cancel_at_period_end,
+                updatedAt: new Date()
+              }
+            })
         }
       }
       break
@@ -71,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     case 'customer.subscription.updated': {
       const subscription = event.data.object as Stripe.Subscription
-      const statusMap: Record<string, string> = {
+      const statusMap: Record<string, 'active' | 'canceled' | 'past_due' | 'inactive'> = {
         active: 'active',
         canceled: 'canceled',
         past_due: 'past_due',
@@ -83,30 +94,30 @@ export async function POST(request: NextRequest) {
       }
 
       const period = extractPeriod(subscription)
-      await supabase
-        .from(supabaseTableSubscriptions)
-        .update({
+      await db
+        .update(subscriptions)
+        .set({
           status: statusMap[subscription.status] ?? 'inactive',
-          stripe_price_id: subscription.items.data[0]?.price?.id ?? null,
-          current_period_start: period.start,
-          current_period_end: period.end,
-          cancel_at_period_end: subscription.cancel_at_period_end,
-          updated_at: new Date().toISOString()
+          stripePriceId: subscription.items.data[0]?.price?.id ?? null,
+          currentPeriodStart: period.start,
+          currentPeriodEnd: period.end,
+          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+          updatedAt: new Date()
         })
-        .eq('stripe_subscription_id', subscription.id)
+        .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
       break
     }
 
     case 'customer.subscription.deleted': {
       const subscription = event.data.object as Stripe.Subscription
-      await supabase
-        .from(supabaseTableSubscriptions)
-        .update({
+      await db
+        .update(subscriptions)
+        .set({
           status: 'canceled',
-          cancel_at_period_end: false,
-          updated_at: new Date().toISOString()
+          cancelAtPeriodEnd: false,
+          updatedAt: new Date()
         })
-        .eq('stripe_subscription_id', subscription.id)
+        .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
       break
     }
 
@@ -118,13 +129,13 @@ export async function POST(request: NextRequest) {
       } | null
       const subscriptionId = parent?.subscription_details?.subscription
       if (subscriptionId) {
-        await supabase
-          .from(supabaseTableSubscriptions)
-          .update({
+        await db
+          .update(subscriptions)
+          .set({
             status: 'past_due',
-            updated_at: new Date().toISOString()
+            updatedAt: new Date()
           })
-          .eq('stripe_subscription_id', subscriptionId)
+          .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
       }
       break
     }

@@ -1,10 +1,12 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { desc, eq } from 'drizzle-orm'
 import type { DeleteTagSetMutationInput, SaveTagSetMutationInput } from '@/types/mutations'
 import type { TagSet } from '@/types/tag-set'
-import { supabaseTableTagSets } from '@/constants/db'
 import { tagSetKeys } from '@/queries/keys'
+import { tagSets } from '@/schema/tag-sets'
+import { rlsQuery } from '@/utils/database'
 import { createClient } from '@/utils/supabase-browser'
 
 function useTagSetsQuery(profileId: string | undefined) {
@@ -12,13 +14,17 @@ function useTagSetsQuery(profileId: string | undefined) {
     queryKey: tagSetKeys.all(profileId ?? ''),
     queryFn: async () => {
       const supabase = createClient()
-      const { data, error } = await supabase
-        .from(supabaseTableTagSets)
-        .select('*')
-        .eq('profile_id', profileId!)
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return (data ?? []) as TagSet[]
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not signed in')
+
+      const rows = await rlsQuery(user.id, async (tx) => {
+        return await tx
+          .select()
+          .from(tagSets)
+          .where(eq(tagSets.profileId, profileId!))
+          .orderBy(desc(tagSets.createdAt))
+      })
+      return rows.map(toTagSet)
     },
     enabled: Boolean(profileId),
     staleTime: 1000 * 60 * 2
@@ -27,34 +33,29 @@ function useTagSetsQuery(profileId: string | undefined) {
 
 async function saveTagSetMutationFn(vars: SaveTagSetMutationInput): Promise<TagSet> {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in')
+
   const { isEditing, tagSet, profileId, name, tags } = vars
 
   if (isEditing && tagSet) {
-    const { data, error } = await supabase
-      .from(supabaseTableTagSets)
-      .update({
-        name,
-        tags,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', tagSet.id)
-      .select()
-      .single()
-    if (error) throw error
-    return data as TagSet
+    const [updated] = await rlsQuery(user.id, async (tx) => {
+      return await tx
+        .update(tagSets)
+        .set({ name, tags, updatedAt: new Date() })
+        .where(eq(tagSets.id, tagSet.id))
+        .returning()
+    })
+    return toTagSet(updated)
   }
 
-  const { data, error } = await supabase
-    .from(supabaseTableTagSets)
-    .insert({
-      profile_id: profileId,
-      name,
-      tags
-    })
-    .select()
-    .single()
-  if (error) throw error
-  return data as TagSet
+  const [inserted] = await rlsQuery(user.id, async (tx) => {
+    return await tx
+      .insert(tagSets)
+      .values({ profileId, name, tags })
+      .returning()
+  })
+  return toTagSet(inserted)
 }
 
 function useSaveTagSetMutation() {
@@ -69,12 +70,12 @@ function useSaveTagSetMutation() {
 
 async function deleteTagSetMutationFn(vars: DeleteTagSetMutationInput): Promise<void> {
   const supabase = createClient()
-  const { tagSet } = vars
-  const { error } = await supabase
-    .from(supabaseTableTagSets)
-    .delete()
-    .eq('id', tagSet.id)
-  if (error) throw error
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not signed in')
+
+  await rlsQuery(user.id, async (tx) => {
+    await tx.delete(tagSets).where(eq(tagSets.id, vars.tagSet.id))
+  })
 }
 
 function useDeleteTagSetMutation() {
@@ -85,6 +86,17 @@ function useDeleteTagSetMutation() {
       queryClient.invalidateQueries({ queryKey: ['tagSets'] })
     }
   })
+}
+
+function toTagSet(row: typeof tagSets.$inferSelect): TagSet {
+  return {
+    id: row.id,
+    profile_id: row.profileId,
+    name: row.name,
+    tags: row.tags,
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString()
+  }
 }
 
 export {

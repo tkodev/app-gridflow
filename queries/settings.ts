@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { eq } from 'drizzle-orm'
 import type {
   AddProfileMutationInput,
   ChangeEmailMutationInput,
@@ -8,11 +9,9 @@ import type {
   DeleteProfileMutationInput
 } from '@/types/mutations'
 import type { Profile } from '@/types/profile'
-import {
-  supabaseStorageBucketAvatars,
-  supabaseStorageBucketPosts,
-  supabaseTableProfiles
-} from '@/constants/db'
+import { supabaseStorageBucketAvatars, supabaseStorageBucketPosts } from '@/constants/db'
+import { profiles } from '@/schema/profiles'
+import { rlsQuery } from '@/utils/database'
 import { createClient } from '@/utils/supabase-browser'
 import { sanitizeUsername } from '@/utils/username'
 
@@ -32,23 +31,27 @@ function useAddProfileMutation() {
         throw new Error('You must be logged in')
       }
 
-      const { data, error: insertError } = await supabase
-        .from(supabaseTableProfiles)
-        .insert({
-          user_id: user.id,
-          username: sanitizeUsername(vars.username)
-        })
-        .select()
-        .single()
+      const [inserted] = await rlsQuery(user.id, async (tx) => {
+        return await tx
+          .insert(profiles)
+          .values({
+            userId: user.id,
+            username: sanitizeUsername(vars.username)
+          })
+          .returning()
+      })
 
-      if (insertError) {
-        if (insertError.message.includes('duplicate')) {
-          throw new Error('This username is already taken')
-        }
-        throw insertError
-      }
-
-      return data as Profile
+      return {
+        id: inserted.id,
+        user_id: inserted.userId,
+        username: inserted.username,
+        display_name: inserted.displayName,
+        bio: inserted.bio,
+        avatar_url: inserted.avatarUrl,
+        grid_ratio: inserted.gridRatio,
+        created_at: inserted.createdAt.toISOString(),
+        updated_at: inserted.updatedAt.toISOString()
+      } as Profile
     }
   })
 }
@@ -61,8 +64,12 @@ function useDeleteProfileMutation() {
     },
     mutationFn: async (vars: DeleteProfileMutationInput) => {
       const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not signed in')
+
       const { profile } = vars
 
+      // Clean up storage
       const { data: postFiles } = await supabase.storage
         .from(supabaseStorageBucketPosts)
         .list(profile.id)
@@ -81,12 +88,10 @@ function useDeleteProfileMutation() {
         await supabase.storage.from(supabaseStorageBucketAvatars).remove(avatarFilePaths)
       }
 
-      const { error: deleteError } = await supabase
-        .from(supabaseTableProfiles)
-        .delete()
-        .eq('id', profile.id)
-
-      if (deleteError) throw deleteError
+      // Delete profile via Drizzle (cascade deletes posts, collections, etc.)
+      await rlsQuery(user.id, async (tx) => {
+        await tx.delete(profiles).where(eq(profiles.id, profile.id))
+      })
     }
   })
 }
@@ -174,12 +179,15 @@ function useDeleteAccountMutation() {
         throw new Error('Not signed in')
       }
 
-      const { data: userProfiles } = await supabase
-        .from(supabaseTableProfiles)
-        .select('id')
-        .eq('user_id', user.id)
+      // Clean up storage for all profiles
+      const userProfiles = await rlsQuery(user.id, async (tx) => {
+        return await tx
+          .select({ id: profiles.id })
+          .from(profiles)
+          .where(eq(profiles.userId, user.id))
+      })
 
-      if (userProfiles && userProfiles.length > 0) {
+      if (userProfiles.length > 0) {
         for (const profile of userProfiles) {
           const { data: postFiles } = await supabase.storage
             .from(supabaseStorageBucketPosts)
@@ -201,12 +209,10 @@ function useDeleteAccountMutation() {
         }
       }
 
-      const { error: profilesError } = await supabase
-        .from(supabaseTableProfiles)
-        .delete()
-        .eq('user_id', user.id)
-
-      if (profilesError) throw profilesError
+      // Delete all profiles (cascade handles posts, collections, etc.)
+      await rlsQuery(user.id, async (tx) => {
+        await tx.delete(profiles).where(eq(profiles.userId, user.id))
+      })
 
       const { error: signOutError } = await supabase.auth.signOut()
       if (signOutError) throw signOutError
