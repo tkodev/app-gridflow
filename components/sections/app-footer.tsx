@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Layers, LayoutGrid, Settings } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -46,19 +45,19 @@ const AppFooter: React.FC<AppFooterProps> = (props) => {
       <nav className={styles.nav()} aria-label="App">
         <Button size="icon-lg" variant={collectActive ? 'secondary' : 'ghost'} asChild>
           <Link href={collectRoute}>
-            <Icon icon={Layers} size="md" />
+            <Icon name="layers" size="md" />
             <span className={styles.srOnly()}>Collect</span>
           </Link>
         </Button>
         <Button size="icon-lg" variant={planActive ? 'secondary' : 'ghost'} asChild>
           <Link href={planRoute}>
-            <Icon icon={LayoutGrid} size="md" />
+            <Icon name="layoutGrid" size="md" />
             <span className={styles.srOnly()}>Plan</span>
           </Link>
         </Button>
         <Button size="icon-lg" variant={settingsActive ? 'secondary' : 'ghost'} asChild>
           <Link href={settingsRoute}>
-            <Icon icon={Settings} size="md" />
+            <Icon name="settings" size="md" />
             <span className={styles.srOnly()}>Settings</span>
           </Link>
         </Button>

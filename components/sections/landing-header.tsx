@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { Grid3X3 } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -36,7 +35,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
     <header className={cn(styles.root({ className }))} {...rest}>
       <div className={styles.inner()}>
         <Link className={styles.brand()} href="/">
-          <Icon icon={Grid3X3} size="md" />
+          <Icon name="grid3x3" size="md" />
           <span className={styles.brandText()}>GridFlow</span>
         </Link>
 

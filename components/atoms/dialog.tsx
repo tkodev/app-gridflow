@@ -1,7 +1,6 @@
 'use client'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -165,7 +164,7 @@ const DialogContent = React.forwardRef<
                       size="icon"
                       variant="ghost"
                     >
-                      <Icon icon={X} size="sm" />
+                      <Icon name="x" size="sm" />
                       <span className={styles.srOnly()}>Close</span>
                     </Button>
                   </DialogClose>

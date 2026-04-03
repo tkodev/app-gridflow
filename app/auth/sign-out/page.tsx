@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogOut } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -58,7 +57,7 @@ const SignOutPage: React.FC<SignOutPageProps> = (props) => {
   return (
     <div className={cn(styles.root({ className }))}>
       <div className={styles.iconRing()}>
-        <Icon icon={LogOut} size="lg" />
+        <Icon name="logOut" size="lg" />
       </div>
       <h1 className={styles.title()}>Sign out</h1>
       {signOut.isError ? (

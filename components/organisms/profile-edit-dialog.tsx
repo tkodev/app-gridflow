@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Camera, Upload, UserRound, X } from 'lucide-react'
 import * as React from 'react'
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -175,7 +174,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
         }}
         headerLeading={
           <div className={styles.headerLeading()}>
-            <Icon icon={UserRound} size="sm" tone="muted" />
+            <Icon name="userRound" size="sm" tone="muted" />
           </div>
         }
       >
@@ -195,7 +194,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
                 disabled={updateProfile.isPending}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Icon icon={Camera} size="sm" />
+                <Icon name="camera" size="sm" />
               </button>
             </div>
             <input
@@ -214,7 +213,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Icon className={styles.buttonIconLeading()} icon={Upload} size="sm" />
+                <Icon className={styles.buttonIconLeading()} name="upload" size="sm" />
                 Upload Photo
               </Button>
               {avatarPreview && (
@@ -225,7 +224,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
                   variant="outline"
                   onClick={removeAvatar}
                 >
-                  <Icon className={styles.buttonIconLeading()} icon={X} size="sm" />
+                  <Icon className={styles.buttonIconLeading()} name="x" size="sm" />
                   Remove
                 </Button>
               )}

@@ -1,7 +1,6 @@
 'use client'
 
 import type { DragEndEvent } from '@dnd-kit/core'
-import { Grid3X3, Image as ImageIcon, List, Plus } from 'lucide-react'
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { cva } from 'class-variance-authority'
@@ -95,17 +94,17 @@ const PostView: React.FC<PostViewProps> = (props) => {
         <div className={styles.toolbar()}>
           <TabsList>
             <TabsTrigger className={styles.tabTrigger()} value="grid">
-              <Icon icon={Grid3X3} size="sm" />
+              <Icon name="grid3x3" size="sm" />
               <span className={styles.tabLabel()}>Grid</span>
             </TabsTrigger>
             <TabsTrigger className={styles.tabTrigger()} value="feed">
-              <Icon icon={List} size="sm" />
+              <Icon name="list" size="sm" />
               <span className={styles.tabLabel()}>Feed</span>
             </TabsTrigger>
           </TabsList>
           <div className={styles.actions()}>
             <Button size="lg" onClick={() => setShowAddDialog(true)}>
-              <Icon className={styles.addPostIcon()} icon={Plus} size="sm" />
+              <Icon className={styles.addPostIcon()} name="plus" size="sm" />
               Add Post
             </Button>
           </div>
@@ -114,10 +113,10 @@ const PostView: React.FC<PostViewProps> = (props) => {
         <TabsContent className={styles.tabsContent()} value="grid">
           {posts.length === 0 ? (
             <MissingView
-              ctaIcon={Plus}
+              ctaIcon="plus"
               ctaLabel="Add Your First Post"
               description="Start building your grid by adding your first post"
-              icon={ImageIcon}
+              icon="image"
               title="No posts yet"
               onClick={() => setShowAddDialog(true)}
             />
@@ -134,10 +133,10 @@ const PostView: React.FC<PostViewProps> = (props) => {
         <TabsContent className={styles.tabsContent()} value="feed">
           {posts.length === 0 ? (
             <MissingView
-              ctaIcon={Plus}
+              ctaIcon="plus"
               ctaLabel="Add Your First Post"
               description="Start building your grid by adding your first post"
-              icon={ImageIcon}
+              icon="image"
               title="No posts yet"
               onClick={() => setShowAddDialog(true)}
             />

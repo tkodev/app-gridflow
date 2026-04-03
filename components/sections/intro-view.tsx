@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Check, ChevronDown, Pencil, Settings } from 'lucide-react'
 import * as React from 'react'
 import { useState } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -103,13 +102,13 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
             </AvatarFallback>
           </Avatar>
           <span className={styles.menuName()}>{p.username}</span>
-          {profile.id === p.id && <Icon icon={Check} size="sm" />}
+          {profile.id === p.id && <Icon name="check" size="sm" />}
         </DropdownMenuItem>
       ))}
       <DropdownMenuSeparator />
       <DropdownMenuItem asChild>
         <Link href="/settings">
-          <Icon className={styles.menuSettingsIcon()} icon={Settings} size="sm" />
+          <Icon className={styles.menuSettingsIcon()} name="settings" size="sm" />
           Manage profiles
         </Link>
       </DropdownMenuItem>
@@ -142,7 +141,7 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
                         variant="ghost"
                       >
                         <span>@{profile.username}</span>
-                        <Icon className={styles.dropdownChevron()} icon={ChevronDown} size="sm" />
+                        <Icon className={styles.dropdownChevron()} name="chevronDown" size="sm" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className={styles.menuContent()} align="start">
@@ -155,7 +154,7 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
                     variant="outline"
                     onClick={() => setShowEditProfileDialog(true)}
                   >
-                    <Icon icon={Pencil} size="sm" />
+                    <Icon name="pencil" size="sm" />
                     <span className={styles.srOnly()}>Edit profile</span>
                   </Button>
                 </>

@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { Settings } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
@@ -39,7 +38,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <AppHeader user={user} title="Settings" leadingIcon={Settings} />
+      <AppHeader user={user} title="Settings" leadingIcon="settings" />
       <main className={styles.main()}>
         <Container>{children}</Container>
       </main>

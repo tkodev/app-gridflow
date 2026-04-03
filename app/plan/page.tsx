@@ -1,6 +1,5 @@
 'use client'
 
-import { UserPlus } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { useSearchParams } from 'next/navigation'
@@ -54,7 +53,7 @@ const PlanPage: React.FC<PlanPageProps> = (props) => {
       <MissingView
         ctaLabel="Create Your First Profile"
         description="Create your first profile to start planning your Instagram grid. You can add multiple profiles for different accounts."
-        icon={UserPlus}
+        icon="userPlus"
         title="No Profiles Yet"
         href="/settings"
       />

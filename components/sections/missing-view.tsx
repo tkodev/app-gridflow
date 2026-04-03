@@ -1,11 +1,10 @@
 'use client'
 
-import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
-import { Icon } from '@/components/atoms/icon'
+import { Icon, type IconName } from '@/components/atoms/icon'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -23,9 +22,9 @@ type MissingViewProps = React.ComponentProps<'div'> &
   VariantProps<typeof styles.root> & {
     title: string
     description: string
-    icon: LucideIcon
+    icon: IconName
     ctaLabel: string
-    ctaIcon?: LucideIcon
+    ctaIcon?: IconName
   } & ({ href: string; onClick?: never } | { onClick: () => void; href?: never })
 
 // 3. component
@@ -49,20 +48,20 @@ const MissingView: React.FC<MissingViewProps> = (props) => {
   return (
     <div className={cn(styles.root({ className }))} {...rest}>
       <div className={styles.iconRing()}>
-        <Icon icon={icon} size="lg" tone="muted" />
+        <Icon name={icon} size="lg" tone="muted" />
       </div>
       <h2 className={styles.title()}>{title}</h2>
       <p className={styles.description()}>{description}</p>
       {href != null ? (
         <Button className={styles.cta()} asChild>
           <Link href={href}>
-            <Icon className={styles.ctaIcon()} icon={ctaIcon} size="sm" />
+            <Icon className={styles.ctaIcon()} name={ctaIcon} size="sm" />
             {ctaLabel}
           </Link>
         </Button>
       ) : (
         <Button className={styles.cta()} onClick={onClick}>
-          <Icon className={styles.ctaIcon()} icon={ctaIcon} size="sm" />
+          <Icon className={styles.ctaIcon()} name={ctaIcon} size="sm" />
           {ctaLabel}
         </Button>
       )}

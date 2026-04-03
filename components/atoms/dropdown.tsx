@@ -1,7 +1,6 @@
 'use client'
 
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
-import { Check, ChevronRight, Circle } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Icon } from '@/components/atoms/icon'
@@ -123,7 +122,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <Icon className={styles.subTriggerChevron()} icon={ChevronRight} size="sm" />
+    <Icon className={styles.subTriggerChevron()} name="chevronRight" size="sm" />
   </DropdownMenuPrimitive.SubTrigger>
 ))
 DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName
@@ -179,7 +178,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   >
     <span className={styles.indicatorSpan()}>
       <DropdownMenuPrimitive.ItemIndicator>
-        <Icon icon={Check} size="sm" />
+        <Icon name="check" size="sm" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -198,7 +197,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   >
     <span className={styles.indicatorSpan()}>
       <DropdownMenuPrimitive.ItemIndicator>
-        <Icon className={styles.radioIndicatorIcon()} icon={Circle} size="xs" />
+        <Icon className={styles.radioIndicatorIcon()} name="circle" size="xs" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}

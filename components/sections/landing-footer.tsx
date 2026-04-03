@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Grid3X3 } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
@@ -28,7 +27,7 @@ const LandingFooter: React.FC<LandingFooterProps> = (props) => {
     <footer className={cn(styles.root({ className }))} {...rest}>
       <Container className={styles.inner()}>
         <div className={styles.brand()}>
-          <Icon icon={Grid3X3} size="md" />
+          <Icon name="grid3x3" size="md" />
           <span className={styles.brandText()}>GridFlow</span>
         </div>
         <nav className={styles.links()}>

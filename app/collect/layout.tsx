@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { Layers } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
@@ -39,7 +38,7 @@ const CollectLayout: React.FC<CollectLayoutProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <AppHeader user={user} title="Collections" leadingIcon={Layers} />
+      <AppHeader user={user} title="Collections" leadingIcon="layers" />
       <main className={styles.main()}>
         <Container>{children}</Container>
       </main>

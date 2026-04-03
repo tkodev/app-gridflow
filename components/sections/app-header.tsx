@@ -3,13 +3,11 @@
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import type { LucideIcon } from 'lucide-react'
-import { Grid3X3, LogIn, LogOut } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
 import { Container } from '@/components/atoms/container'
-import { Icon } from '@/components/atoms/icon'
+import { Icon, type IconName } from '@/components/atoms/icon'
 import { planRoute, rootRoute, signInRoute } from '@/constants/routes'
 import { useSignOutMutation } from '@/queries/auth'
 import { cn } from '@/utils/tailwind'
@@ -22,7 +20,8 @@ const styles = {
   inner: cva('flex h-12 items-center justify-between px-4'),
   leading: cva('flex items-center gap-2'),
   title: cva('text-base font-semibold'),
-  actions: cva('flex items-center gap-2')
+  actions: cva('flex items-center gap-2'),
+  srOnly: cva('sr-only')
 }
 
 // 2. types
@@ -30,7 +29,7 @@ type AppHeaderProps = React.ComponentProps<'header'> &
   VariantProps<typeof styles.root> & {
     user?: User | null
     title?: string
-    leadingIcon?: LucideIcon
+    leadingIcon?: IconName
     trailingAction?: React.ReactNode
   }
 
@@ -40,7 +39,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
   const {
     user,
     title,
-    leadingIcon = Grid3X3,
+    leadingIcon = 'grid3x3',
     trailingAction,
     className,
     ...rest
@@ -68,7 +67,7 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
       <Container className={styles.inner()} size="full">
         <div className={styles.leading()}>
           <Link href={isAuthed ? planRoute : rootRoute}>
-            <Icon icon={leadingIcon} size="md" />
+            <Icon name={leadingIcon} size="md" />
           </Link>
           {title && <span className={styles.title()}>{title}</span>}
         </div>
@@ -77,13 +76,13 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
           {trailingAction}
           {isAuthed ? (
             <Button disabled={signOut.isPending} variant="ghost" size="icon" onClick={handleSignOut}>
-              <Icon icon={LogOut} size="sm" />
-              <span className={cn(cva('sr-only')())}>Sign out</span>
+              <Icon name="logOut" size="sm" />
+              <span className={styles.srOnly()}>Sign out</span>
             </Button>
           ) : (
             <Button variant="ghost" asChild>
               <Link href={signInRoute}>
-                <Icon icon={LogIn} size="sm" />
+                <Icon name="logIn" size="sm" />
                 Sign in
               </Link>
             </Button>

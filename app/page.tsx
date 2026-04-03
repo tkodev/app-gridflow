@@ -1,14 +1,4 @@
 import Link from 'next/link'
-import {
-  BarChart3,
-  Eye,
-  Layers,
-  Lightbulb,
-  Palette,
-  Sparkles,
-  Sun,
-  Zap
-} from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -84,30 +74,30 @@ const styles = {
 
 const insightCards = [
   {
-    icon: Palette,
+    name: 'palette' as const,
     bg: 'bg-pink-100 dark:bg-pink-900/30',
     title: 'Color Imbalance',
     description: 'Detects monotone streaks or clashing hues across adjacent tiles.'
   },
   {
-    icon: Eye,
+    name: 'eye' as const,
     bg: 'bg-amber-100 dark:bg-amber-900/30',
     title: 'Pattern Detection',
     description: 'Spots unintentional repetition in your grid layout.'
   },
   {
-    icon: Sun,
+    name: 'sun' as const,
     bg: 'bg-emerald-100 dark:bg-emerald-900/30',
     title: 'Luminance Flow',
     description: 'Ensures a natural light-to-dark rhythm row by row.'
   },
   {
-    icon: Sparkles,
+    name: 'sparkles' as const,
     bg: 'bg-sky-100 dark:bg-sky-900/30',
     title: 'AI Suggestions',
     description: 'Recommends optimal placement for your next upload.'
   }
-] as const
+]
 
 // 2. types
 type LandingPageProps = {
@@ -198,19 +188,19 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
                 <div className={styles.orgFeatureList()}>
                   <div className={styles.orgFeatureItem()}>
                     <div className={styles.orgFeatureIconWrap()}>
-                      <Icon icon={Layers} size="sm" />
+                      <Icon name="layers" size="sm" />
                     </div>
                     <span>Smart Tag Sets — group and reuse hashtags across posts</span>
                   </div>
                   <div className={styles.orgFeatureItem()}>
                     <div className={styles.orgFeatureIconWrap()}>
-                      <Icon icon={BarChart3} size="sm" />
+                      <Icon name="barChart3" size="sm" />
                     </div>
                     <span>Moodboard integration — collect inspiration visually</span>
                   </div>
                   <div className={styles.orgFeatureItem()}>
                     <div className={styles.orgFeatureIconWrap()}>
-                      <Icon icon={Zap} size="sm" />
+                      <Icon name="zap" size="sm" />
                     </div>
                     <span>Sync across devices — your grid, everywhere</span>
                   </div>
@@ -233,7 +223,7 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
               {insightCards.map((card) => (
                 <div key={card.title} className={styles.insightCard()}>
                   <div className={cn(styles.insightIconWrap(), card.bg)}>
-                    <Icon icon={card.icon} size="sm" />
+                    <Icon name={card.name} size="sm" />
                   </div>
                   <p className={styles.insightCardTitle()}>{card.title}</p>
                   <p className={styles.insightCardDescription()}>{card.description}</p>

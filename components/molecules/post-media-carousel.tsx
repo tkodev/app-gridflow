@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { PostMedia } from '@/types/post'
@@ -141,7 +140,7 @@ const PostMediaCarousel: React.FC<PostMediaCarouselProps> = (props) => {
                 goToPrevious()
               }}
             >
-              <Icon icon={ChevronLeft} size="md" />
+              <Icon name="chevronLeft" size="md" />
             </button>
           )}
           {!atEnd && (
@@ -153,7 +152,7 @@ const PostMediaCarousel: React.FC<PostMediaCarouselProps> = (props) => {
                 goToNext()
               }}
             >
-              <Icon icon={ChevronRight} size="md" />
+              <Icon name="chevronRight" size="md" />
             </button>
           )}
         </>

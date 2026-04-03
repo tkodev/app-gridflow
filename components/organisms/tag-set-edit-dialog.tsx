@@ -1,6 +1,5 @@
 'use client'
 
-import { Tags } from 'lucide-react'
 import * as React from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -104,7 +103,7 @@ const TagSetEditDialog: React.FC<TagSetEditDialogProps> = (props) => {
         headerDescription="Group related hashtags for quick reuse"
         headerLeading={
           <div className={styles.headerLeading()}>
-            <Icon icon={Tags} size="sm" />
+            <Icon name="tags" size="sm" />
           </div>
         }
         headerCloseDisabled={isBusy}

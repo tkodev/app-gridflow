@@ -2,17 +2,6 @@
 
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
-import {
-  AlertTriangle,
-  ChevronRight,
-  CreditCard,
-  Key,
-  Mail,
-  Plus,
-  Trash2,
-  UserCircle,
-  UserPlus
-} from 'lucide-react'
 import * as React from 'react'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -282,14 +271,14 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           <div className={styles.cardHeader()}>
             <h2 className={styles.sectionTitle()}>Profiles</h2>
             <Button size="sm" onClick={() => setShowAddDialog(true)}>
-              <Icon className={styles.buttonIconLeading()} icon={Plus} size="sm" />
+              <Icon className={styles.buttonIconLeading()} name="plus" size="sm" />
               Add Profile
             </Button>
           </div>
 
           {profiles.length === 0 ? (
             <div className={styles.emptyState()}>
-              <Icon icon={UserCircle} size="xl" tone="muted" />
+              <Icon name="userCircle" size="xl" tone="muted" />
               <p className={styles.emptyText()}>
                 No profiles yet. Add your first profile to get started.
               </p>
@@ -321,7 +310,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                       setProfileToDelete(profile)
                     }}
                   >
-                    <Icon icon={Trash2} size="sm" />
+                    <Icon name="trash2" size="sm" />
                     <span className={styles.srOnly()}>Delete profile</span>
                   </Button>
                 </div>
@@ -344,7 +333,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 {userEmail || 'No email on this account'}
               </p>
             </div>
-            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
           </div>
           <div
             className={styles.settingsRow()}
@@ -356,7 +345,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
               <p className={styles.settingsRowTitle()}>Password</p>
               <p className={styles.settingsRowSubtitle()}>Change your account password</p>
             </div>
-            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
           </div>
         </div>
       </section>
@@ -386,7 +375,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
               <p className={styles.settingsRowTitle()}>Payment Methods</p>
               <p className={styles.settingsRowSubtitle()}>Manage your payment methods</p>
             </div>
-            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
           </div>
           <div
             className={styles.settingsRow()}
@@ -397,7 +386,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
               <p className={styles.settingsRowTitle()}>Invoices</p>
               <p className={styles.settingsRowSubtitle()}>View billing history</p>
             </div>
-            <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
           </div>
         </div>
       </section>
@@ -458,7 +447,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
         <p className={styles.sectionLabel()}>Danger Zone</p>
         <div className={styles.dangerCard()}>
           <div className={styles.dangerHeader()}>
-            <Icon icon={AlertTriangle} size="sm" tone="destructive" />
+            <Icon name="alertTriangle" size="sm" tone="destructive" />
             <h2 className={styles.dangerTitle()}>Delete Account</h2>
           </div>
           <p className={styles.dangerDescription()}>
@@ -489,7 +478,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           headerTitle="Add New Profile"
           headerLeading={
             <div className={styles.headerLeading()}>
-              <Icon icon={UserPlus} size="sm" tone="muted" />
+              <Icon name="userPlus" size="sm" tone="muted" />
             </div>
           }
         >
@@ -546,7 +535,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           headerTitle="Change Password"
           headerLeading={
             <div className={styles.headerLeading()}>
-              <Icon icon={Key} size="sm" tone="muted" />
+              <Icon name="key" size="sm" tone="muted" />
             </div>
           }
         >
@@ -654,7 +643,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           headerTitle="Change email"
           headerLeading={
             <div className={styles.headerLeading()}>
-              <Icon icon={Mail} size="sm" tone="muted" />
+              <Icon name="mail" size="sm" tone="muted" />
             </div>
           }
         >
@@ -800,7 +789,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           headerTitleClassName="text-destructive"
           headerLeading={
             <div className={styles.headerLeadingDanger()}>
-              <Icon icon={AlertTriangle} size="sm" tone="destructive" />
+              <Icon name="alertTriangle" size="sm" tone="destructive" />
             </div>
           }
         >

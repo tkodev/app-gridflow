@@ -1,6 +1,5 @@
 'use client'
 
-import { ImagePlus, MapPin, Music, Trash2, Upload } from 'lucide-react'
 import * as React from 'react'
 import { useEffect, useId, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -310,7 +309,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
         }
         headerLeading={
           <div className={styles.headerLeading()}>
-            <Icon icon={ImagePlus} size="sm" tone="muted" />
+            <Icon name="imagePlus" size="sm" tone="muted" />
           </div>
         }
       >
@@ -361,12 +360,12 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
                     {mediaItems.length < maxPostMediaItems &&
                       (savePost.isPending ? (
                         <div className={styles.addSlotDisabled()} aria-hidden>
-                          <Icon icon={Upload} size="md" tone="muted" />
+                          <Icon name="upload" size="md" tone="muted" />
                           <span className={styles.mutedXs()}>Add</span>
                         </div>
                       ) : (
                         <label className={styles.addSlot()} htmlFor="media-upload">
-                          <Icon icon={Upload} size="md" tone="muted" />
+                          <Icon name="upload" size="md" tone="muted" />
                           <span className={styles.mutedXs()}>Add</span>
                         </label>
                       ))}
@@ -376,7 +375,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
 
               {isFileDragOver && !isBusy && (
                 <div className={styles.mediaDropOverlay()} aria-hidden>
-                  <Icon icon={Upload} size="lg" tone="muted" />
+                  <Icon name="upload" size="lg" tone="muted" />
                   <span>Drop to add</span>
                 </div>
               )}
@@ -392,7 +391,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
           <div className={styles.fieldGroup()}>
             <Label htmlFor="tagline">Tagline (optional)</Label>
             <div className={styles.relativeWrap()}>
-              <Icon className={styles.taglineGlyph()} icon={MapPin} size="sm" />
+              <Icon className={styles.taglineGlyph()} name="mapPin" size="sm" />
               <Input
                 id="tagline"
                 className={styles.taglineInput()}
@@ -408,7 +407,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
           <div className={styles.fieldGroup()}>
             <Label htmlFor="subtitle">Subtitle (optional)</Label>
             <div className={styles.relativeWrap()}>
-              <Icon className={styles.subtitleGlyph()} icon={Music} size="sm" />
+              <Icon className={styles.subtitleGlyph()} name="music" size="sm" />
               <Input
                 id="subtitle"
                 className={styles.subtitleInput()}
@@ -471,7 +470,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               variant="destructive"
               onClick={handleDelete}
             >
-              <Icon className={styles.deleteIconLeading()} icon={Trash2} size="sm" />
+              <Icon className={styles.deleteIconLeading()} name="trash2" size="sm" />
               {deletePost.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           )}

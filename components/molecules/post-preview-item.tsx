@@ -1,6 +1,5 @@
 'use client'
 
-import { MoreHorizontal, Music, Share2, X } from 'lucide-react'
 import * as React from 'react'
 import { useCallback, useRef } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -105,7 +104,7 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
             <p className={styles.username()}>{profile.username}</p>
             {post.subtitle && (
               <div className={styles.subtitleRow()}>
-                <Icon icon={Music} size="sm" />
+                <Icon name="music" size="sm" />
                 <span className={styles.subtitleText()}>{post.subtitle}</span>
               </div>
             )}
@@ -119,7 +118,7 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
               variant="ghost"
               onClick={handleShare}
             >
-              <Icon icon={Share2} size="md" />
+              <Icon name="share2" size="md" />
               <span className={styles.srOnly()}>Share post</span>
             </Button>
           )}
@@ -130,7 +129,7 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
             variant="ghost"
             onClick={() => onEditClick(post)}
           >
-            <Icon icon={MoreHorizontal} size="md" />
+            <Icon name="moreHorizontal" size="md" />
             <span className={styles.srOnly()}>Edit post</span>
           </Button>
           {onClose && (
@@ -141,7 +140,7 @@ const PostPreviewItem = React.forwardRef<HTMLElement, PostPreviewItemProps>(
               variant="ghost"
               onClick={onClose}
             >
-              <Icon icon={X} size="sm" />
+              <Icon name="x" size="sm" />
               <span className={styles.srOnly()}>Close</span>
             </Button>
           )}

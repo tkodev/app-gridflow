@@ -1,7 +1,54 @@
 'use client'
 
 import type { LucideIcon } from 'lucide-react'
-import { AlertCircle, ArrowRight, Eye, Grid3X3, Mail, MoveVertical } from 'lucide-react'
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Camera,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Circle,
+  Copy,
+  CreditCard,
+  Eye,
+  Filter,
+  FolderPlus,
+  Grid3X3,
+  Image as ImageIcon,
+  ImagePlus,
+  Key,
+  Layers,
+  LayoutGrid,
+  Lightbulb,
+  List,
+  LogIn,
+  LogOut,
+  Mail,
+  MapPin,
+  MoreHorizontal,
+  MoveVertical,
+  Music,
+  Palette,
+  Pencil,
+  Play,
+  Plus,
+  Settings,
+  Share2,
+  Sparkles,
+  Sun,
+  Tags,
+  Trash2,
+  Upload,
+  UserCircle,
+  UserPlus,
+  UserRound,
+  X,
+  Zap
+} from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils/tailwind'
@@ -9,11 +56,51 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const icons = {
   alertCircle: AlertCircle,
+  alertTriangle: AlertTriangle,
   arrowRight: ArrowRight,
+  barChart3: BarChart3,
+  camera: Camera,
+  check: Check,
+  chevronDown: ChevronDown,
+  chevronLeft: ChevronLeft,
+  chevronRight: ChevronRight,
+  circle: Circle,
+  copy: Copy,
+  creditCard: CreditCard,
   eye: Eye,
+  filter: Filter,
+  folderPlus: FolderPlus,
   grid3x3: Grid3X3,
+  image: ImageIcon,
+  imagePlus: ImagePlus,
+  key: Key,
+  layers: Layers,
+  layoutGrid: LayoutGrid,
+  lightbulb: Lightbulb,
+  list: List,
+  logIn: LogIn,
+  logOut: LogOut,
   mail: Mail,
-  moveVertical: MoveVertical
+  mapPin: MapPin,
+  moreHorizontal: MoreHorizontal,
+  moveVertical: MoveVertical,
+  music: Music,
+  palette: Palette,
+  pencil: Pencil,
+  play: Play,
+  plus: Plus,
+  settings: Settings,
+  share2: Share2,
+  sparkles: Sparkles,
+  sun: Sun,
+  tags: Tags,
+  trash2: Trash2,
+  upload: Upload,
+  userCircle: UserCircle,
+  userPlus: UserPlus,
+  userRound: UserRound,
+  x: X,
+  zap: Zap
 } as const satisfies Record<string, LucideIcon>
 
 const styles = {
@@ -43,22 +130,14 @@ const styles = {
 
 // 2. types
 type IconName = keyof typeof icons
-type IconProps =
-  | (VariantProps<typeof styles.root> &
-      Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'> & {
-        name: IconName
-        icon?: undefined
-      })
-  | (VariantProps<typeof styles.root> &
-      Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'> & {
-        icon: LucideIcon
-        name?: undefined
-      })
+type IconProps = VariantProps<typeof styles.root> &
+  Omit<React.ComponentPropsWithoutRef<LucideIcon>, 'size'> & {
+    name: IconName
+  }
 
 // 3. component
 const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref) {
   const {
-    icon,
     name,
     size = 'sm',
     tone = 'default',
@@ -67,7 +146,7 @@ const Icon = React.forwardRef<SVGSVGElement, IconProps>(function Icon(props, ref
     ...rest
   } = props
 
-  const IconComponent = name != null ? icons[name] : icon
+  const IconComponent = icons[name]
 
   return (
     <IconComponent

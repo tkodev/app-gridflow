@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import { Play, X } from 'lucide-react'
 import * as React from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { cva } from 'class-variance-authority'
@@ -91,7 +90,7 @@ const MediaSortableItem: React.FC<MediaSortableItemProps> = (props) => {
         <div className={styles.videoWrap()}>
           <video className={styles.video()} src={item.url} muted />
           <div className={styles.videoOverlay()}>
-            <Icon icon={Play} size="lg" tone="inverse" />
+            <Icon name="play" size="lg" tone="inverse" />
           </div>
         </div>
       ) : (
@@ -112,7 +111,7 @@ const MediaSortableItem: React.FC<MediaSortableItemProps> = (props) => {
         onClick={onRemove}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <Icon icon={X} size="sm" />
+        <Icon name="x" size="sm" />
       </button>
 
       {item.type === 'video' && <span className={styles.typeBadge()}>VIDEO</span>}

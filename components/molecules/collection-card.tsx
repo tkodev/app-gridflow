@@ -1,6 +1,5 @@
 'use client'
 
-import { ImageIcon } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Collection, CollectionMedia } from '@/types/collection'
@@ -49,7 +48,7 @@ const CollectionCard: React.FC<CollectionCardProps> = (props) => {
           <img src={coverUrl} alt={collection.name} className={styles.image()} />
         ) : (
           <div className={styles.placeholder()}>
-            <Icon icon={ImageIcon} size="lg" tone="muted" />
+            <Icon name="image" size="lg" tone="muted" />
           </div>
         )}
         <span className={styles.badge()}>{mediaCount} Items</span>

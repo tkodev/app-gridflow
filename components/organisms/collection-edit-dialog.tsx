@@ -1,6 +1,5 @@
 'use client'
 
-import { FolderPlus } from 'lucide-react'
 import * as React from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -103,7 +102,7 @@ const CollectionEditDialog: React.FC<CollectionEditDialogProps> = (props) => {
         headerDescription="Organize your media into curated groups"
         headerLeading={
           <div className={styles.headerLeading()}>
-            <Icon icon={FolderPlus} size="sm" />
+            <Icon name="folderPlus" size="sm" />
           </div>
         }
         headerCloseDisabled={isBusy}

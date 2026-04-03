@@ -1,6 +1,5 @@
 'use client'
 
-import { ChevronRight } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { TagSet } from '@/types/tag-set'
@@ -57,7 +56,7 @@ const TagSetCard: React.FC<TagSetCardProps> = (props) => {
           </div>
         ) : null}
       </div>
-      <Icon icon={ChevronRight} size="sm" className={styles.chevron()} />
+      <Icon name="chevronRight" size="sm" className={styles.chevron()} />
     </div>
   )
 }

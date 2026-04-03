@@ -1,6 +1,5 @@
 'use client'
 
-import { Filter, Plus } from 'lucide-react'
 import * as React from 'react'
 import { useState } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -131,7 +130,7 @@ const CollectView: React.FC<CollectViewProps> = (props) => {
             <h2 className={styles.sectionTitle()}>Tag Sets</h2>
           </div>
           <Button variant="ghost" size="icon-sm" onClick={openNewTagSet}>
-            <Icon icon={Plus} size="sm" />
+            <Icon name="plus" size="sm" />
           </Button>
         </div>
         {tagSets.length > 0 ? (
@@ -154,7 +153,7 @@ const CollectView: React.FC<CollectViewProps> = (props) => {
       {/* FAB */}
       <div className={styles.fab()}>
         <Button size="icon-lg" onClick={onFabClick}>
-          <Icon icon={Plus} size="sm" />
+          <Icon name="plus" size="sm" />
           <span className="sr-only">Add new</span>
         </Button>
       </div>

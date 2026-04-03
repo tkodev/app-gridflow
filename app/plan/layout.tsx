@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import { LayoutGrid } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Container } from '@/components/atoms/container'
@@ -39,7 +38,7 @@ const PlanLayout: React.FC<PlanLayoutProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <AppHeader user={user} title="Plan" leadingIcon={LayoutGrid} />
+      <AppHeader user={user} title="Plan" leadingIcon="layoutGrid" />
       <main className={styles.main()}>
         <Container size="md">{children}</Container>
       </main>

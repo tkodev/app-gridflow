@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import { Copy } from 'lucide-react'
 import * as React from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -108,7 +107,7 @@ const PostSortableItem: React.FC<PostSortableItemProps> = (props) => {
       )}
       {post.media.length > 1 && (
         <div className={styles.stackIconWrap()}>
-          <Icon icon={Copy} size="sm" tone="inverseElevated" />
+          <Icon name="copy" size="sm" tone="inverseElevated" />
         </div>
       )}
       {(post.status === 'draft' || post.status === 'scheduled') && (

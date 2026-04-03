@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { Check } from 'lucide-react'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Button } from '@/components/atoms/button'
@@ -77,7 +76,7 @@ const PricingCard: React.FC<PricingCardProps> = (props) => {
       <ul className={styles.featureList()}>
         {features.map((feature) => (
           <li key={feature} className={styles.featureItem()}>
-            <Icon icon={Check} size="sm" className={styles.checkIcon()} />
+            <Icon name="check" size="sm" className={styles.checkIcon()} />
             {feature}
           </li>
         ))}
