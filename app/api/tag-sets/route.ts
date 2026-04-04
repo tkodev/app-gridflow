@@ -72,7 +72,10 @@ async function POST(request: Request) {
 
   try {
     const [inserted] = await rlsQuery(user.id, async (tx) => {
-      return await tx.insert(tagSets).values({ profileId: body.profileId, name: body.name, tags: body.tags }).returning()
+      return await tx
+        .insert(tagSets)
+        .values({ profileId: body.profileId, name: body.name, tags: body.tags })
+        .returning()
     })
 
     return NextResponse.json({ tagSet: toTagSet(inserted) })

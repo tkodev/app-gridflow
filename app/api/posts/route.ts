@@ -37,9 +37,7 @@ async function GET(request: Request) {
 
     return postRows.map((post) => {
       const media = sortPostMediaByPosition(
-        mediaRows
-          .filter((m) => m.postId === post.id)
-          .map((m) => postMediaRowToPostMedia(m))
+        mediaRows.filter((m) => m.postId === post.id).map((m) => postMediaRowToPostMedia(m))
       )
       return postRowToPost(post, media)
     })

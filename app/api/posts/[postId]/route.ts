@@ -21,10 +21,7 @@ type PatchPostBody = {
   mediaItems: MediaSyncItem[]
 }
 
-async function PATCH(
-  request: Request,
-  context: { params: Promise<{ postId: string }> }
-) {
+async function PATCH(request: Request, context: { params: Promise<{ postId: string }> }) {
   const supabase = await createClient()
   const {
     data: { user }
@@ -86,16 +83,15 @@ async function PATCH(
             position: m.position
           })
         } else {
-          await tx
-            .update(postMedia)
-            .set({ position: m.position })
-            .where(eq(postMedia.id, m.id))
+          await tx.update(postMedia).set({ position: m.position }).where(eq(postMedia.id, m.id))
         }
       }
 
       await tx.delete(postTagSets).where(eq(postTagSets.postId, postId))
       if (body.tagSetIds.length > 0) {
-        await tx.insert(postTagSets).values(body.tagSetIds.map((tagSetId) => ({ postId, tagSetId })))
+        await tx
+          .insert(postTagSets)
+          .values(body.tagSetIds.map((tagSetId) => ({ postId, tagSetId })))
       }
 
       const mediaRows = await tx.select().from(postMedia).where(eq(postMedia.postId, postId))
@@ -115,10 +111,7 @@ async function PATCH(
   }
 }
 
-async function DELETE(
-  _request: Request,
-  context: { params: Promise<{ postId: string }> }
-) {
+async function DELETE(_request: Request, context: { params: Promise<{ postId: string }> }) {
   const supabase = await createClient()
   const {
     data: { user }

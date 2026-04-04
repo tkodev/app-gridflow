@@ -22,10 +22,7 @@ type PatchBody = {
   description: string
 }
 
-async function PATCH(
-  request: Request,
-  context: { params: Promise<{ collectionId: string }> }
-) {
+async function PATCH(request: Request, context: { params: Promise<{ collectionId: string }> }) {
   const supabase = await createClient()
   const {
     data: { user }
@@ -68,10 +65,7 @@ async function PATCH(
   }
 }
 
-async function DELETE(
-  _request: Request,
-  context: { params: Promise<{ collectionId: string }> }
-) {
+async function DELETE(_request: Request, context: { params: Promise<{ collectionId: string }> }) {
   const supabase = await createClient()
   const {
     data: { user }

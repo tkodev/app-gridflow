@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { eq } from 'drizzle-orm'
-import { rlsQuery } from '@/databases/client'
 import { supabaseStorageBucketAvatars, supabaseStorageBucketPosts } from '@/constants/db'
+import { rlsQuery } from '@/databases/client'
 import { profiles } from '@/schemas/profiles'
 import { createClient } from '@/utils/supabase-server'
 
@@ -16,21 +16,22 @@ async function DELETE() {
   }
 
   const userProfiles = await rlsQuery(user.id, async (tx) => {
-    return await tx
-      .select({ id: profiles.id })
-      .from(profiles)
-      .where(eq(profiles.userId, user.id))
+    return await tx.select({ id: profiles.id }).from(profiles).where(eq(profiles.userId, user.id))
   })
 
   for (const profile of userProfiles) {
-    const { data: postFiles } = await supabase.storage.from(supabaseStorageBucketPosts).list(profile.id)
+    const { data: postFiles } = await supabase.storage
+      .from(supabaseStorageBucketPosts)
+      .list(profile.id)
 
     if (postFiles && postFiles.length > 0) {
       const postFilePaths = postFiles.map((f) => `${profile.id}/${f.name}`)
       await supabase.storage.from(supabaseStorageBucketPosts).remove(postFilePaths)
     }
 
-    const { data: avatarFiles } = await supabase.storage.from(supabaseStorageBucketAvatars).list(profile.id)
+    const { data: avatarFiles } = await supabase.storage
+      .from(supabaseStorageBucketAvatars)
+      .list(profile.id)
 
     if (avatarFiles && avatarFiles.length > 0) {
       const avatarFilePaths = avatarFiles.map((f) => `${profile.id}/${f.name}`)
