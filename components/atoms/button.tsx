@@ -11,11 +11,11 @@ const styles = {
       variants: {
         variant: {
           default:
-            'bg-gradient-to-br from-primary to-primary-container text-primary-foreground hover:opacity-90',
+            'from-primary to-primary-container text-primary-foreground bg-gradient-to-br hover:opacity-90',
           outline:
-            'border border-outline-variant/15 bg-surface-container-lowest hover:bg-surface-container-low dark:border-outline-variant/15 dark:bg-surface-container-low dark:hover:bg-surface-container-highest',
+            'border-outline-variant/15 bg-surface-container-lowest hover:bg-surface-container-low dark:border-outline-variant/15 dark:bg-surface-container-low dark:hover:bg-surface-container-highest border',
           secondary:
-            'rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
+            'bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground rounded-md',
           ghost:
             'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
           destructive:

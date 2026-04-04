@@ -99,14 +99,14 @@ const TagSetEditDialog: React.FC<TagSetEditDialogProps> = (props) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(styles.dialogContent({ className }))}
-        headerTitle={isEditing ? 'Edit Tag Set' : 'New Tag Set'}
+        headerCloseDisabled={isBusy}
         headerDescription="Group related hashtags for quick reuse"
+        headerTitle={isEditing ? 'Edit Tag Set' : 'New Tag Set'}
         headerLeading={
           <div className={styles.headerLeading()}>
             <Icon name="tags" size="sm" />
           </div>
         }
-        headerCloseDisabled={isBusy}
       >
         <form id={tagSetEditFormId} className={styles.form()} onSubmit={onSubmit}>
           {error ? <div className={styles.errorBanner()}>{error}</div> : null}
@@ -114,8 +114,8 @@ const TagSetEditDialog: React.FC<TagSetEditDialogProps> = (props) => {
             <Label htmlFor="tag-set-name">Name</Label>
             <Input
               id="tag-set-name"
-              placeholder="e.g. Minimalist Vibes"
               disabled={isBusy}
+              placeholder="e.g. Minimalist Vibes"
               {...register('name', { required: true })}
             />
           </div>
@@ -123,8 +123,8 @@ const TagSetEditDialog: React.FC<TagSetEditDialogProps> = (props) => {
             <Label htmlFor="tag-set-tags">Tags</Label>
             <Textarea
               id="tag-set-tags"
-              placeholder="#minimalist #monochrome #cleanfeed"
               disabled={isBusy}
+              placeholder="#minimalist #monochrome #cleanfeed"
               {...register('tags')}
             />
             <p className={styles.hint()}>Separate hashtags with spaces</p>
@@ -136,16 +136,16 @@ const TagSetEditDialog: React.FC<TagSetEditDialogProps> = (props) => {
               {isEditing ? (
                 <Button
                   type="button"
-                  variant="destructive"
-                  size="sm"
                   disabled={isBusy}
+                  size="sm"
+                  variant="destructive"
                   onClick={onDelete}
                 >
                   Delete
                 </Button>
               ) : null}
             </div>
-            <Button type="submit" form={tagSetEditFormId} size="sm" disabled={isBusy}>
+            <Button type="submit" disabled={isBusy} form={tagSetEditFormId} size="sm">
               {isEditing ? 'Save Changes' : 'Create Tag Set'}
             </Button>
           </div>

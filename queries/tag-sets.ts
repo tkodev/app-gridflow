@@ -14,7 +14,9 @@ function useTagSetsQuery(profileId: string | undefined) {
     queryKey: tagSetKeys.all(profileId ?? ''),
     queryFn: async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not signed in')
 
       const rows = await rlsQuery(user.id, async (tx) => {
@@ -33,7 +35,9 @@ function useTagSetsQuery(profileId: string | undefined) {
 
 async function saveTagSetMutationFn(vars: SaveTagSetMutationInput): Promise<TagSet> {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   const { isEditing, tagSet, profileId, name, tags } = vars
@@ -50,10 +54,7 @@ async function saveTagSetMutationFn(vars: SaveTagSetMutationInput): Promise<TagS
   }
 
   const [inserted] = await rlsQuery(user.id, async (tx) => {
-    return await tx
-      .insert(tagSets)
-      .values({ profileId, name, tags })
-      .returning()
+    return await tx.insert(tagSets).values({ profileId, name, tags }).returning()
   })
   return toTagSet(inserted)
 }
@@ -70,7 +71,9 @@ function useSaveTagSetMutation() {
 
 async function deleteTagSetMutationFn(vars: DeleteTagSetMutationInput): Promise<void> {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   await rlsQuery(user.id, async (tx) => {

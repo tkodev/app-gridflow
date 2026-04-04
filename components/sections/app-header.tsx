@@ -1,10 +1,10 @@
 'use client'
 
-import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import type { User } from '@supabase/supabase-js'
 import { Button } from '@/components/atoms/button'
 import { Container } from '@/components/atoms/container'
 import { Icon, type IconName } from '@/components/atoms/icon'
@@ -15,7 +15,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva(
-    'bg-background/85 fixed top-0 right-0 left-0 z-50 mx-4 mt-3 rounded-2xl backdrop-blur-xl shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)]'
+    'bg-background/85 fixed top-0 right-0 left-0 z-50 mx-4 mt-3 rounded-2xl shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)] backdrop-blur-xl'
   ),
   inner: cva('flex h-12 items-center justify-between px-4'),
   leading: cva('flex items-center gap-2'),
@@ -36,14 +36,7 @@ type AppHeaderProps = React.ComponentProps<'header'> &
 // 3. component
 const AppHeader: React.FC<AppHeaderProps> = (props) => {
   // a. props
-  const {
-    user,
-    title,
-    leadingIcon = 'grid3x3',
-    trailingAction,
-    className,
-    ...rest
-  } = props
+  const { user, title, leadingIcon = 'grid3x3', trailingAction, className, ...rest } = props
 
   // b. hooks
   const router = useRouter()
@@ -75,7 +68,12 @@ const AppHeader: React.FC<AppHeaderProps> = (props) => {
         <div className={styles.actions()}>
           {trailingAction}
           {isAuthed ? (
-            <Button disabled={signOut.isPending} variant="ghost" size="icon" onClick={handleSignOut}>
+            <Button
+              disabled={signOut.isPending}
+              size="icon"
+              variant="ghost"
+              onClick={handleSignOut}
+            >
               <Icon name="logOut" size="sm" />
               <span className={styles.srOnly()}>Sign out</span>
             </Button>

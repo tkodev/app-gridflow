@@ -38,7 +38,7 @@ const CollectLayout: React.FC<CollectLayoutProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <AppHeader user={user} title="Collections" leadingIcon="layers" />
+      <AppHeader leadingIcon="layers" title="Collections" user={user} />
       <main className={styles.main()}>
         <Container>{children}</Container>
       </main>

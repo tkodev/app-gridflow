@@ -21,8 +21,8 @@ const styles = {
   sectionHeader: cva('flex items-center justify-between'),
   sectionLabel: cva('text-muted-foreground text-xs font-semibold tracking-widest uppercase'),
   sectionTitle: cva('text-lg font-semibold'),
-  viewAll: cva('text-muted-foreground text-xs font-medium uppercase tracking-wide'),
-  collectionsScroll: cva('flex gap-3 overflow-x-auto pb-2 -mx-1 px-1'),
+  viewAll: cva('text-muted-foreground text-xs font-medium tracking-wide uppercase'),
+  collectionsScroll: cva('-mx-1 flex gap-3 overflow-x-auto px-1 pb-2'),
   tagSetList: cva('flex flex-col gap-2'),
   emptyState: cva('text-muted-foreground py-8 text-center text-sm'),
   fab: cva('fixed right-4 bottom-24 z-40')
@@ -93,11 +93,7 @@ const CollectView: React.FC<CollectViewProps> = (props) => {
             <p className={styles.sectionLabel()}>Library</p>
             <h2 className={styles.sectionTitle()}>Collections</h2>
           </div>
-          <button
-            type="button"
-            className={styles.viewAll()}
-            onClick={openNewCollection}
-          >
+          <button type="button" className={styles.viewAll()} onClick={openNewCollection}>
             + New
           </button>
         </div>
@@ -129,18 +125,14 @@ const CollectView: React.FC<CollectViewProps> = (props) => {
             <p className={styles.sectionLabel()}>Taxonomy</p>
             <h2 className={styles.sectionTitle()}>Tag Sets</h2>
           </div>
-          <Button variant="ghost" size="icon-sm" onClick={openNewTagSet}>
+          <Button size="icon-sm" variant="ghost" onClick={openNewTagSet}>
             <Icon name="plus" size="sm" />
           </Button>
         </div>
         {tagSets.length > 0 ? (
           <div className={styles.tagSetList()}>
             {tagSets.map((ts) => (
-              <TagSetCard
-                key={ts.id}
-                tagSet={ts}
-                onClick={() => openEditTagSet(ts)}
-              />
+              <TagSetCard key={ts.id} tagSet={ts} onClick={() => openEditTagSet(ts)} />
             ))}
           </div>
         ) : (
@@ -160,16 +152,16 @@ const CollectView: React.FC<CollectViewProps> = (props) => {
 
       {/* Dialogs */}
       <CollectionEditDialog
-        open={collectionDialogOpen}
-        onOpenChange={setCollectionDialogOpen}
         collection={editingCollection}
+        open={collectionDialogOpen}
         profileId={profileId}
+        onOpenChange={setCollectionDialogOpen}
       />
       <TagSetEditDialog
         open={tagSetDialogOpen}
-        onOpenChange={setTagSetDialogOpen}
-        tagSet={editingTagSet}
         profileId={profileId}
+        tagSet={editingTagSet}
+        onOpenChange={setTagSetDialogOpen}
       />
     </div>
   )

@@ -38,7 +38,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <AppHeader user={user} title="Settings" leadingIcon="settings" />
+      <AppHeader leadingIcon="settings" title="Settings" user={user} />
       <main className={styles.main()}>
         <Container>{children}</Container>
       </main>

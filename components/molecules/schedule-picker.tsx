@@ -43,7 +43,7 @@ const SchedulePicker: React.FC<SchedulePickerProps> = (props) => {
           <Label className={styles.toggleLabel()}>Schedule Post</Label>
           <p className={styles.toggleHint()}>Choose a future publishing time</p>
         </div>
-        <Switch checked={enabled} onCheckedChange={onEnabledChange} disabled={disabled} />
+        <Switch checked={enabled} disabled={disabled} onCheckedChange={onEnabledChange} />
       </div>
       {enabled ? (
         <div className={styles.dateTimeRow()}>
@@ -52,9 +52,9 @@ const SchedulePicker: React.FC<SchedulePickerProps> = (props) => {
             <Input
               id="schedule-date"
               type="date"
+              disabled={disabled}
               value={date}
               onChange={(e) => onDateChange(e.target.value)}
-              disabled={disabled}
             />
           </div>
           <div>
@@ -62,9 +62,9 @@ const SchedulePicker: React.FC<SchedulePickerProps> = (props) => {
             <Input
               id="schedule-time"
               type="time"
+              disabled={disabled}
               value={time}
               onChange={(e) => onTimeChange(e.target.value)}
-              disabled={disabled}
             />
           </div>
         </div>

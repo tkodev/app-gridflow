@@ -55,13 +55,13 @@ const MissingView: React.FC<MissingViewProps> = (props) => {
       {href != null ? (
         <Button className={styles.cta()} asChild>
           <Link href={href}>
-            <Icon className={styles.ctaIcon()} name={ctaIcon} size="sm" />
+            <Icon name={ctaIcon} className={styles.ctaIcon()} size="sm" />
             {ctaLabel}
           </Link>
         </Button>
       ) : (
         <Button className={styles.cta()} onClick={onClick}>
-          <Icon className={styles.ctaIcon()} name={ctaIcon} size="sm" />
+          <Icon name={ctaIcon} className={styles.ctaIcon()} size="sm" />
           {ctaLabel}
         </Button>
       )}

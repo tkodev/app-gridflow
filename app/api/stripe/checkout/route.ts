@@ -6,7 +6,7 @@ import { db } from '@/utils/database'
 import { stripe } from '@/utils/stripe'
 import { createClient } from '@/utils/supabase-server'
 
-export async function POST() {
+async function POST() {
   const supabase = await createClient()
   const {
     data: { user }
@@ -31,13 +31,10 @@ export async function POST() {
     })
     stripeCustomerId = stripeCustomer.id
 
-    await db
-      .insert(customers)
-      .values({ id: user.id, stripeCustomerId })
-      .onConflictDoUpdate({
-        target: customers.id,
-        set: { stripeCustomerId }
-      })
+    await db.insert(customers).values({ id: user.id, stripeCustomerId }).onConflictDoUpdate({
+      target: customers.id,
+      set: { stripeCustomerId }
+    })
   }
 
   const session = await stripe.checkout.sessions.create({
@@ -50,3 +47,5 @@ export async function POST() {
 
   return NextResponse.json({ url: session.url })
 }
+
+export { POST }

@@ -2,11 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { desc, eq } from 'drizzle-orm'
-import type {
-  DeleteCollectionMutationInput,
-  SaveCollectionMutationInput
-} from '@/types/mutations'
 import type { Collection, CollectionMedia } from '@/types/collection'
+import type { DeleteCollectionMutationInput, SaveCollectionMutationInput } from '@/types/mutations'
 import { collectionKeys } from '@/queries/keys'
 import { collectionMedia, collections } from '@/schema/collections'
 import { rlsQuery } from '@/utils/database'
@@ -17,7 +14,9 @@ function useCollectionsQuery(profileId: string | undefined) {
     queryKey: collectionKeys.all(profileId ?? ''),
     queryFn: async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not signed in')
 
       return await rlsQuery(user.id, async (tx) => {
@@ -27,9 +26,7 @@ function useCollectionsQuery(profileId: string | undefined) {
           .where(eq(collections.profileId, profileId!))
           .orderBy(desc(collections.createdAt))
 
-        const mediaRows = collectionRows.length > 0
-          ? await tx.select().from(collectionMedia)
-          : []
+        const mediaRows = collectionRows.length > 0 ? await tx.select().from(collectionMedia) : []
 
         return collectionRows.map((c) => {
           const media = mediaRows
@@ -62,11 +59,11 @@ function useCollectionsQuery(profileId: string | undefined) {
   })
 }
 
-async function saveCollectionMutationFn(
-  vars: SaveCollectionMutationInput
-): Promise<Collection> {
+async function saveCollectionMutationFn(vars: SaveCollectionMutationInput): Promise<Collection> {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   const { isEditing, collection, profileId, name, description } = vars
@@ -109,11 +106,11 @@ function useSaveCollectionMutation() {
   })
 }
 
-async function deleteCollectionMutationFn(
-  vars: DeleteCollectionMutationInput
-): Promise<void> {
+async function deleteCollectionMutationFn(vars: DeleteCollectionMutationInput): Promise<void> {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   await rlsQuery(user.id, async (tx) => {

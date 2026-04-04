@@ -42,10 +42,10 @@ const CollectionCard: React.FC<CollectionCardProps> = (props) => {
 
   // d. component
   return (
-    <div className={cn(styles.root({ className }))} onClick={onClick} role="button" tabIndex={0}>
+    <div className={cn(styles.root({ className }))} role="button" tabIndex={0} onClick={onClick}>
       <div className={styles.imageWrap()}>
         {coverUrl ? (
-          <img src={coverUrl} alt={collection.name} className={styles.image()} />
+          <img className={styles.image()} alt={collection.name} src={coverUrl} />
         ) : (
           <div className={styles.placeholder()}>
             <Icon name="image" size="lg" tone="muted" />

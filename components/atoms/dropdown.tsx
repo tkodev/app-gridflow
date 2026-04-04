@@ -1,7 +1,7 @@
 'use client'
 
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import * as React from 'react'
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Icon } from '@/components/atoms/icon'
 import { cn } from '@/utils/tailwind'
@@ -122,7 +122,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <Icon className={styles.subTriggerChevron()} name="chevronRight" size="sm" />
+    <Icon name="chevronRight" className={styles.subTriggerChevron()} size="sm" />
   </DropdownMenuPrimitive.SubTrigger>
 ))
 DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName
@@ -197,7 +197,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   >
     <span className={styles.indicatorSpan()}>
       <DropdownMenuPrimitive.ItemIndicator>
-        <Icon className={styles.radioIndicatorIcon()} name="circle" size="xs" />
+        <Icon name="circle" className={styles.radioIndicatorIcon()} size="xs" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}

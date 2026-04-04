@@ -1,7 +1,7 @@
-import type { DragEndEvent } from '@dnd-kit/core'
 import type { CSSProperties } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import type { DragEndEvent } from '@dnd-kit/core'
 
 /**
  * If the drag ended on a new position, returns a new array with that order.

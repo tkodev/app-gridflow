@@ -1,6 +1,7 @@
 'use client'
 
-import type { LucideIcon } from 'lucide-react'
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
 import {
   AlertCircle,
   AlertTriangle,
@@ -49,8 +50,7 @@ import {
   X,
   Zap
 } from 'lucide-react'
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants

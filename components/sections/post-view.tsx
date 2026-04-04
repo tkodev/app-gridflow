@@ -1,11 +1,11 @@
 'use client'
 
-import type { DragEndEvent } from '@dnd-kit/core'
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { cva } from 'class-variance-authority'
 import type { Post } from '@/types/post'
 import type { Profile } from '@/types/profile'
+import type { DragEndEvent } from '@dnd-kit/core'
 import { Button } from '@/components/atoms/button'
 import { Icon } from '@/components/atoms/icon'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/atoms/tabs'
@@ -104,7 +104,7 @@ const PostView: React.FC<PostViewProps> = (props) => {
           </TabsList>
           <div className={styles.actions()}>
             <Button size="lg" onClick={() => setShowAddDialog(true)}>
-              <Icon className={styles.addPostIcon()} name="plus" size="sm" />
+              <Icon name="plus" className={styles.addPostIcon()} size="sm" />
               Add Post
             </Button>
           </div>

@@ -12,7 +12,7 @@ const styles = {
   brand: cva('flex items-center gap-2'),
   brandText: cva('font-serif text-lg font-bold'),
   links: cva('text-muted-foreground flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm'),
-  link: cva('transition-colors hover:text-foreground'),
+  link: cva('hover:text-foreground transition-colors'),
   copyright: cva('text-muted-foreground text-xs')
 }
 

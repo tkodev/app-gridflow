@@ -18,7 +18,9 @@ const styles = {
 
   // Hero
   hero: cva('flex flex-col items-center text-center'),
-  headline: cva('font-serif text-4xl leading-tight font-bold tracking-tight text-balance md:text-6xl lg:text-7xl'),
+  headline: cva(
+    'font-serif text-4xl leading-tight font-bold tracking-tight text-balance md:text-6xl lg:text-7xl'
+  ),
   headlineItalic: cva('font-serif italic'),
   subhead: cva('text-muted-foreground mt-6 max-w-2xl text-lg text-pretty md:text-xl'),
   ctaRow: cva('mt-10 flex flex-col gap-4 sm:flex-row'),
@@ -27,18 +29,20 @@ const styles = {
 
   // Section shared
   sectionLabel: cva('text-muted-foreground text-xs font-semibold tracking-widest uppercase'),
-  sectionTitle: cva('font-serif mt-2 text-3xl font-bold tracking-tight md:text-4xl'),
+  sectionTitle: cva('mt-2 font-serif text-3xl font-bold tracking-tight md:text-4xl'),
   sectionDescription: cva('text-muted-foreground mt-4 max-w-xl text-lg'),
 
   // Features — Visual Planning
   featureSection: cva(''),
-  featureGrid: cva('grid grid-cols-12 gap-8 items-center'),
+  featureGrid: cva('grid grid-cols-12 items-center gap-8'),
   featureTextCol: cva('col-span-12 md:col-span-5'),
   featurePreviewCol: cva('col-span-12 md:col-span-7'),
-  featureLearnMore: cva('text-foreground mt-4 inline-flex text-sm font-medium underline-offset-4 hover:underline'),
+  featureLearnMore: cva(
+    'text-foreground mt-4 inline-flex text-sm font-medium underline-offset-4 hover:underline'
+  ),
 
   // Features — Content Organization
-  orgGrid: cva('grid grid-cols-12 gap-8 items-center'),
+  orgGrid: cva('grid grid-cols-12 items-center gap-8'),
   orgPreviewCol: cva('col-span-12 md:col-span-6'),
   orgTextCol: cva('col-span-12 md:col-span-6'),
   orgFeatureList: cva('mt-6 flex flex-col gap-3'),
@@ -52,9 +56,7 @@ const styles = {
   insightCard: cva(
     'bg-card col-span-12 flex flex-col gap-2 rounded-xl p-4 shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)] sm:col-span-6 lg:col-span-3'
   ),
-  insightIconWrap: cva(
-    'flex size-10 items-center justify-center rounded-full'
-  ),
+  insightIconWrap: cva('flex size-10 items-center justify-center rounded-full'),
   insightCardTitle: cva('text-sm font-semibold'),
   insightCardDescription: cva('text-muted-foreground text-xs'),
 
@@ -245,14 +247,14 @@ const LandingPage: React.FC<LandingPageProps> = (props) => {
               {plans.map((plan) => (
                 <div key={plan.id} className={styles.pricingCol()}>
                   <PricingCard
-                    planName={plan.name}
-                    price={plan.price}
-                    period={plan.period}
-                    features={plan.features}
-                    ctaLabel={plan.id === 'creator_pro' ? 'Get Creator Pro' : 'Get Started Free'}
                     ctaHref="/auth/sign-up"
+                    ctaLabel={plan.id === 'creator_pro' ? 'Get Creator Pro' : 'Get Started Free'}
+                    features={plan.features}
                     highlighted={'popular' in plan && plan.popular === true}
+                    period={plan.period}
+                    planName={plan.name}
                     popular={'popular' in plan && plan.popular === true}
+                    price={plan.price}
                   />
                 </div>
               ))}

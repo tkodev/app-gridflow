@@ -1,6 +1,5 @@
 'use client'
 
-import type { DragEndEvent } from '@dnd-kit/core'
 import {
   startTransition,
   useCallback,
@@ -14,6 +13,7 @@ import {
 } from 'react'
 import type { LocalMediaItem } from '@/types/post'
 import type { Post } from '@/types/post'
+import type { DragEndEvent } from '@dnd-kit/core'
 import { maxPostMediaFileBytes, maxPostMediaItems } from '@/constants/storage'
 import { reorderItemsFromDragEnd } from '@/utils/dnd-kit'
 import { revokeNewBlobUrls } from '@/utils/local-media'

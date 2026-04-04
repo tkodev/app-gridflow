@@ -1,8 +1,8 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { useSearchParams } from 'next/navigation'
 import { MissingView } from '@/components/sections/missing-view'
 import { PlanView } from '@/components/sections/plan-view'
 import { usePostsQuery } from '@/queries/posts'
@@ -13,7 +13,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('py-6'),
-  loading: cva('flex items-center justify-center py-20 text-muted-foreground')
+  loading: cva('text-muted-foreground flex items-center justify-center py-20')
 }
 
 // 2. types
@@ -67,11 +67,7 @@ const PlanPage: React.FC<PlanPageProps> = (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <PlanView
-        posts={posts || []}
-        profile={profile}
-        profiles={profiles}
-      />
+      <PlanView posts={posts || []} profile={profile} profiles={profiles} />
     </div>
   )
 }

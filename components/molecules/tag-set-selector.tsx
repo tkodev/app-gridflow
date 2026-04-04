@@ -8,7 +8,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('space-y-2'),
-  scrollRow: cva('flex gap-2 overflow-x-auto pb-1 -mx-1 px-1'),
+  scrollRow: cva('-mx-1 flex gap-2 overflow-x-auto px-1 pb-1'),
   chip: cva(
     'shrink-0 cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-colors select-none',
     {
@@ -23,7 +23,7 @@ const styles = {
       }
     }
   ),
-  manage: cva('text-muted-foreground shrink-0 text-xs font-medium uppercase tracking-wide')
+  manage: cva('text-muted-foreground shrink-0 text-xs font-medium tracking-wide uppercase')
 }
 
 // 2. types
@@ -51,15 +51,15 @@ const TagSetSelector: React.FC<TagSetSelectorProps> = (props) => {
           <button
             key={ts.id}
             type="button"
-            disabled={disabled}
             className={styles.chip({ selected: selectedIds.includes(ts.id) })}
+            disabled={disabled}
             onClick={() => onToggle(ts.id)}
           >
             {ts.name}
           </button>
         ))}
         {onManage ? (
-          <button type="button" className={styles.manage()} onClick={onManage} disabled={disabled}>
+          <button type="button" className={styles.manage()} disabled={disabled} onClick={onManage}>
             Manage &gt;
           </button>
         ) : null}

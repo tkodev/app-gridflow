@@ -14,7 +14,7 @@ const styles = {
     {
       variants: {
         highlighted: {
-          true: 'ring-2 ring-primary',
+          true: 'ring-primary ring-2',
           false: ''
         }
       },
@@ -76,16 +76,12 @@ const PricingCard: React.FC<PricingCardProps> = (props) => {
       <ul className={styles.featureList()}>
         {features.map((feature) => (
           <li key={feature} className={styles.featureItem()}>
-            <Icon name="check" size="sm" className={styles.checkIcon()} />
+            <Icon name="check" className={styles.checkIcon()} size="sm" />
             {feature}
           </li>
         ))}
       </ul>
-      <Button
-        className={styles.cta()}
-        variant={highlighted ? 'default' : 'outline'}
-        asChild
-      >
+      <Button className={styles.cta()} variant={highlighted ? 'default' : 'outline'} asChild>
         <Link href={ctaHref}>{ctaLabel}</Link>
       </Button>
     </div>

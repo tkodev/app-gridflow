@@ -1,9 +1,9 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { eq, asc } from 'drizzle-orm'
-import type { Profile } from '@/types/profile'
+import { asc, eq } from 'drizzle-orm'
 import type { UpdateProfileMutationInput } from '@/types/mutations'
+import type { Profile } from '@/types/profile'
 import { supabaseStorageBucketAvatars } from '@/constants/db'
 import { profileKeys } from '@/queries/keys'
 import { profiles } from '@/schema/profiles'
@@ -66,7 +66,9 @@ async function updateProfileMutationFn(vars: UpdateProfileMutationInput): Promis
   }
 
   // DB update via Drizzle — no RLS needed, the caller is authenticated
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   await rlsQuery(user.id, async (tx) => {

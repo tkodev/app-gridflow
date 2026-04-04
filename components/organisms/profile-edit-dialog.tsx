@@ -213,7 +213,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Icon className={styles.buttonIconLeading()} name="upload" size="sm" />
+                <Icon name="upload" className={styles.buttonIconLeading()} size="sm" />
                 Upload Photo
               </Button>
               {avatarPreview && (
@@ -224,7 +224,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({
                   variant="outline"
                   onClick={removeAvatar}
                 >
-                  <Icon className={styles.buttonIconLeading()} name="x" size="sm" />
+                  <Icon name="x" className={styles.buttonIconLeading()} size="sm" />
                   Remove
                 </Button>
               )}

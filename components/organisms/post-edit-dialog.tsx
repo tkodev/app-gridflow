@@ -93,6 +93,18 @@ type PostEditDialogProps = {
   className?: string
 }
 
+type ScheduleState = { date: string; enabled: boolean; time: string }
+
+function scheduleFromPost(p: Post | null | undefined): ScheduleState {
+  if (!p?.scheduled_at) return { date: '', enabled: false, time: '' }
+  const d = new Date(p.scheduled_at)
+  return {
+    date: d.toISOString().slice(0, 10),
+    enabled: true,
+    time: d.toISOString().slice(11, 16)
+  }
+}
+
 // 3. component — post create/edit dialog
 const PostEditDialog: React.FC<PostEditDialogProps> = ({
   open,
@@ -109,9 +121,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
   const isEditing = !!post
   const [error, setError] = useState<string | null>(null)
   const [selectedTagSetIds, setSelectedTagSetIds] = useState<string[]>([])
-  const [scheduleEnabled, setScheduleEnabled] = useState(false)
-  const [scheduleDate, setScheduleDate] = useState('')
-  const [scheduleTime, setScheduleTime] = useState('')
+  const [schedule, setSchedule] = useState<ScheduleState>(() => scheduleFromPost(post))
 
   const {
     mediaItems,
@@ -193,7 +203,8 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
     )
   }
 
-  // Initialize form fields when post / dialog changes
+  // Initialize form fields when post / dialog changes (local state must follow server post when opening)
+  /* eslint-disable react-hooks/set-state-in-effect -- reset() and schedule/tag state mirror props when dialog opens */
   useEffect(() => {
     if (post) {
       reset({
@@ -202,25 +213,15 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
         tagline: post.tagline || '',
         status: post.status
       })
-      if (post.scheduled_at) {
-        setScheduleEnabled(true)
-        const d = new Date(post.scheduled_at)
-        setScheduleDate(d.toISOString().slice(0, 10))
-        setScheduleTime(d.toISOString().slice(11, 16))
-      } else {
-        setScheduleEnabled(false)
-        setScheduleDate('')
-        setScheduleTime('')
-      }
+      setSchedule(scheduleFromPost(post))
       setSelectedTagSetIds([])
     } else {
       reset({ caption: '', subtitle: '', tagline: '', status: 'draft' })
-      setScheduleEnabled(false)
-      setScheduleDate('')
-      setScheduleTime('')
+      setSchedule({ date: '', enabled: false, time: '' })
       setSelectedTagSetIds([])
     }
   }, [post, open, reset])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const onSubmit = handleSubmit(async (values) => {
     setError(null)
@@ -235,10 +236,14 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
       return
     }
 
-    const status: Post['status'] = scheduleEnabled ? 'scheduled' : values.status === 'scheduled' ? 'draft' : values.status
+    const status: Post['status'] = schedule.enabled
+      ? 'scheduled'
+      : values.status === 'scheduled'
+        ? 'draft'
+        : values.status
     let scheduledAt: string | null = null
-    if (scheduleEnabled && scheduleDate && scheduleTime) {
-      scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString()
+    if (schedule.enabled && schedule.date && schedule.time) {
+      scheduledAt = new Date(`${schedule.date}T${schedule.time}`).toISOString()
     }
 
     try {
@@ -391,7 +396,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
           <div className={styles.fieldGroup()}>
             <Label htmlFor="tagline">Tagline (optional)</Label>
             <div className={styles.relativeWrap()}>
-              <Icon className={styles.taglineGlyph()} name="mapPin" size="sm" />
+              <Icon name="mapPin" className={styles.taglineGlyph()} size="sm" />
               <Input
                 id="tagline"
                 className={styles.taglineInput()}
@@ -407,7 +412,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
           <div className={styles.fieldGroup()}>
             <Label htmlFor="subtitle">Subtitle (optional)</Label>
             <div className={styles.relativeWrap()}>
-              <Icon className={styles.subtitleGlyph()} name="music" size="sm" />
+              <Icon name="music" className={styles.subtitleGlyph()} size="sm" />
               <Input
                 id="subtitle"
                 className={styles.subtitleInput()}
@@ -426,9 +431,9 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               id="caption"
               aria-invalid={!!fieldErrors.caption}
               disabled={isBusy}
+              maxLength={captionMaxLength}
               placeholder="Write a caption..."
               rows={3}
-              maxLength={captionMaxLength}
               {...register('caption')}
             />
             <p className={styles.captionFooter()}>
@@ -441,23 +446,23 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
             <div className={styles.fieldGroup()}>
               <Label>Tag Sets</Label>
               <TagSetSelector
-                tagSets={tagSets}
-                selectedIds={selectedTagSetIds}
-                onToggle={handleTagSetToggle}
                 disabled={isBusy}
+                selectedIds={selectedTagSetIds}
+                tagSets={tagSets}
+                onToggle={handleTagSetToggle}
               />
             </div>
           ) : null}
 
           {/* Schedule */}
           <SchedulePicker
-            enabled={scheduleEnabled}
-            onEnabledChange={setScheduleEnabled}
-            date={scheduleDate}
-            onDateChange={setScheduleDate}
-            time={scheduleTime}
-            onTimeChange={setScheduleTime}
+            date={schedule.date}
             disabled={isBusy}
+            enabled={schedule.enabled}
+            time={schedule.time}
+            onDateChange={(date) => setSchedule((s) => ({ ...s, date }))}
+            onEnabledChange={(enabled) => setSchedule((s) => ({ ...s, enabled }))}
+            onTimeChange={(time) => setSchedule((s) => ({ ...s, time }))}
           />
         </form>
 
@@ -470,7 +475,7 @@ const PostEditDialog: React.FC<PostEditDialogProps> = ({
               variant="destructive"
               onClick={handleDelete}
             >
-              <Icon className={styles.deleteIconLeading()} name="trash2" size="sm" />
+              <Icon name="trash2" className={styles.deleteIconLeading()} size="sm" />
               {deletePost.isPending ? 'Deleting...' : 'Delete'}
             </Button>
           )}

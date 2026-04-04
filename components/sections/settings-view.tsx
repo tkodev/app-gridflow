@@ -1,11 +1,11 @@
 'use client'
 
-import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { cva } from 'class-variance-authority'
+import { useTheme } from 'next-themes'
 import type { Profile } from '@/types/profile'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/atoms/avatar'
 import { Button } from '@/components/atoms/button'
@@ -39,13 +39,13 @@ const styles = {
   emptyText: cva('text-muted-foreground mt-2 text-sm'),
   list: cva('space-y-2'),
   settingsRow: cva(
-    'flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors hover:bg-surface-container-low'
+    'hover:bg-surface-container-low flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors'
   ),
   settingsRowText: cva('flex flex-col gap-0.5'),
   settingsRowTitle: cva('text-sm font-medium'),
   settingsRowSubtitle: cva('text-muted-foreground text-xs'),
   profileRow: cva(
-    'flex items-center justify-between rounded-xl p-3 transition-colors hover:bg-surface-container-low'
+    'hover:bg-surface-container-low flex items-center justify-between rounded-xl p-3 transition-colors'
   ),
   profileRowInner: cva('flex items-center gap-3'),
   profileAvatar: cva('size-10'),
@@ -271,7 +271,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           <div className={styles.cardHeader()}>
             <h2 className={styles.sectionTitle()}>Profiles</h2>
             <Button size="sm" onClick={() => setShowAddDialog(true)}>
-              <Icon className={styles.buttonIconLeading()} name="plus" size="sm" />
+              <Icon name="plus" className={styles.buttonIconLeading()} size="sm" />
               Add Profile
             </Button>
           </div>
@@ -333,7 +333,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 {userEmail || 'No email on this account'}
               </p>
             </div>
-            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" className={styles.chevron()} size="sm" />
           </div>
           <div
             className={styles.settingsRow()}
@@ -345,7 +345,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
               <p className={styles.settingsRowTitle()}>Password</p>
               <p className={styles.settingsRowSubtitle()}>Change your account password</p>
             </div>
-            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" className={styles.chevron()} size="sm" />
           </div>
         </div>
       </section>
@@ -366,27 +366,19 @@ const SettingsView: React.FC<SettingsViewProps> = ({
               Upgrade
             </Button>
           </div>
-          <div
-            className={styles.settingsRow()}
-            role="button"
-            tabIndex={0}
-          >
+          <div className={styles.settingsRow()} role="button" tabIndex={0}>
             <div className={styles.settingsRowText()}>
               <p className={styles.settingsRowTitle()}>Payment Methods</p>
               <p className={styles.settingsRowSubtitle()}>Manage your payment methods</p>
             </div>
-            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" className={styles.chevron()} size="sm" />
           </div>
-          <div
-            className={styles.settingsRow()}
-            role="button"
-            tabIndex={0}
-          >
+          <div className={styles.settingsRow()} role="button" tabIndex={0}>
             <div className={styles.settingsRowText()}>
               <p className={styles.settingsRowTitle()}>Invoices</p>
               <p className={styles.settingsRowSubtitle()}>View billing history</p>
             </div>
-            <Icon name="chevronRight" size="sm" className={styles.chevron()} />
+            <Icon name="chevronRight" className={styles.chevron()} size="sm" />
           </div>
         </div>
       </section>
@@ -397,7 +389,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
         <div className={styles.card()}>
           <div className={styles.appearanceRow()}>
             <div className={styles.settingsRowText()}>
-              <p className={styles.settingsRowTitle()} id="appearance-heading">
+              <p id="appearance-heading" className={styles.settingsRowTitle()}>
                 Dark Mode
               </p>
               <p className={styles.appearanceDescription()}>Sync with system settings</p>
@@ -454,7 +446,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({
             Permanently delete your account and all associated data. This action cannot be undone.
           </p>
           <div className={styles.dangerActions()}>
-            <Button size="sm" variant="destructive" onClick={() => setShowDeleteAccountDialog(true)}>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => setShowDeleteAccountDialog(true)}
+            >
               Delete Account
             </Button>
           </div>

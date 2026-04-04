@@ -38,7 +38,7 @@ const PlanLayout: React.FC<PlanLayoutProps> = async (props) => {
   // d. component
   return (
     <div className={cn(styles.root({ className }))}>
-      <AppHeader user={user} title="Plan" leadingIcon="layoutGrid" />
+      <AppHeader leadingIcon="layoutGrid" title="Plan" user={user} />
       <main className={styles.main()}>
         <Container size="md">{children}</Container>
       </main>

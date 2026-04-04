@@ -10,7 +10,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva('py-6'),
-  loading: cva('flex items-center justify-center py-20 text-muted-foreground')
+  loading: cva('text-muted-foreground flex items-center justify-center py-20')
 }
 
 // 2. types

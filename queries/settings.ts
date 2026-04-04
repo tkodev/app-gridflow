@@ -64,7 +64,9 @@ function useDeleteProfileMutation() {
     },
     mutationFn: async (vars: DeleteProfileMutationInput) => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not signed in')
 
       const { profile } = vars

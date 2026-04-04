@@ -12,13 +12,13 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva(
-    'bg-background/85 fixed top-0 right-0 left-0 z-50 mx-4 mt-3 rounded-2xl backdrop-blur-xl shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)]'
+    'bg-background/85 fixed top-0 right-0 left-0 z-50 mx-4 mt-3 rounded-2xl shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)] backdrop-blur-xl'
   ),
   inner: cva('flex h-14 items-center justify-between px-4'),
   brand: cva('flex items-center gap-2'),
   brandText: cva('font-serif text-lg font-bold'),
   nav: cva('hidden items-center gap-6 md:flex'),
-  navLink: cva('text-muted-foreground text-sm font-medium transition-colors hover:text-foreground'),
+  navLink: cva('text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'),
   actions: cva('flex items-center gap-2')
 }
 
@@ -49,7 +49,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = (props) => {
         </nav>
 
         <div className={styles.actions()}>
-          <Button variant="ghost" size="sm" asChild>
+          <Button size="sm" variant="ghost" asChild>
             <Link href={signInRoute}>Sign In</Link>
           </Button>
           <Button size="sm" asChild>

@@ -5,7 +5,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva(
-    'group/card bg-card text-card-foreground flex flex-col overflow-hidden rounded-lg shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)] text-sm has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg',
+    'group/card bg-card text-card-foreground flex flex-col overflow-hidden rounded-lg text-sm shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg',
     {
       variants: {
         size: {

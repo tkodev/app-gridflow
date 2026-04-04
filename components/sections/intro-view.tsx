@@ -48,7 +48,7 @@ const styles = {
   dropdownChevron: cva('shrink-0 opacity-50'),
   statItem: cva('flex items-end gap-1'),
   statValue: cva('text-base font-bold'),
-  statLabel: cva('text-muted-foreground text-xs uppercase tracking-wide')
+  statLabel: cva('text-muted-foreground text-xs tracking-wide uppercase')
 }
 
 // 2. types
@@ -108,7 +108,7 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
       <DropdownMenuSeparator />
       <DropdownMenuItem asChild>
         <Link href="/settings">
-          <Icon className={styles.menuSettingsIcon()} name="settings" size="sm" />
+          <Icon name="settings" className={styles.menuSettingsIcon()} size="sm" />
           Manage profiles
         </Link>
       </DropdownMenuItem>
@@ -141,7 +141,7 @@ const IntroView: React.FC<IntroViewProps> = (props) => {
                         variant="ghost"
                       >
                         <span>@{profile.username}</span>
-                        <Icon className={styles.dropdownChevron()} name="chevronDown" size="sm" />
+                        <Icon name="chevronDown" className={styles.dropdownChevron()} size="sm" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className={styles.menuContent()} align="start">

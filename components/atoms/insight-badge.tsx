@@ -7,7 +7,7 @@ import { cn } from '@/utils/tailwind'
 // 1. styles & constants
 const styles = {
   root: cva(
-    'pointer-events-none absolute right-1.5 bottom-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold leading-tight shadow-sm',
+    'pointer-events-none absolute right-1.5 bottom-1.5 rounded-full px-2 py-0.5 text-[10px] leading-tight font-semibold shadow-sm',
     {
       variants: {
         tone: {

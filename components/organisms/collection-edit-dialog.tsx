@@ -98,14 +98,14 @@ const CollectionEditDialog: React.FC<CollectionEditDialogProps> = (props) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(styles.dialogContent({ className }))}
-        headerTitle={isEditing ? 'Edit Collection' : 'New Collection'}
+        headerCloseDisabled={isBusy}
         headerDescription="Organize your media into curated groups"
+        headerTitle={isEditing ? 'Edit Collection' : 'New Collection'}
         headerLeading={
           <div className={styles.headerLeading()}>
             <Icon name="folderPlus" size="sm" />
           </div>
         }
-        headerCloseDisabled={isBusy}
       >
         <form id={collectionEditFormId} className={styles.form()} onSubmit={onSubmit}>
           {error ? <div className={styles.errorBanner()}>{error}</div> : null}
@@ -113,8 +113,8 @@ const CollectionEditDialog: React.FC<CollectionEditDialogProps> = (props) => {
             <Label htmlFor="collection-name">Name</Label>
             <Input
               id="collection-name"
-              placeholder="e.g. Archived Moments"
               disabled={isBusy}
+              placeholder="e.g. Archived Moments"
               {...register('name', { required: true })}
             />
           </div>
@@ -122,8 +122,8 @@ const CollectionEditDialog: React.FC<CollectionEditDialogProps> = (props) => {
             <Label htmlFor="collection-description">Description</Label>
             <Textarea
               id="collection-description"
-              placeholder="What is this collection about?"
               disabled={isBusy}
+              placeholder="What is this collection about?"
               {...register('description')}
             />
           </div>
@@ -134,16 +134,16 @@ const CollectionEditDialog: React.FC<CollectionEditDialogProps> = (props) => {
               {isEditing ? (
                 <Button
                   type="button"
-                  variant="destructive"
-                  size="sm"
                   disabled={isBusy}
+                  size="sm"
+                  variant="destructive"
                   onClick={onDelete}
                 >
                   Delete
                 </Button>
               ) : null}
             </div>
-            <Button type="submit" form={collectionEditFormId} size="sm" disabled={isBusy}>
+            <Button type="submit" disabled={isBusy} form={collectionEditFormId} size="sm">
               {isEditing ? 'Save Changes' : 'Create Collection'}
             </Button>
           </div>

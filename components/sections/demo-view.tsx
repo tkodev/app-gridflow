@@ -1,10 +1,10 @@
 'use client'
 
-import type { DragEndEvent } from '@dnd-kit/core'
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Post } from '@/types/post'
+import type { DragEndEvent } from '@dnd-kit/core'
 import { IntroView } from '@/components/sections/intro-view'
 import { PostGridView } from '@/components/sections/post-grid-view'
 import { demoPosts, demoProfile } from '@/constants/demo'
@@ -43,12 +43,7 @@ const DemoView: React.FC<DemoViewProps> = (props) => {
     <div className={cn(styles.root(), className)} {...rest}>
       <React.Suspense fallback={<div className={styles.previewFallback()} aria-hidden />}>
         <div className={styles.previewCard()}>
-          <IntroView
-            posts={posts}
-            profile={demoProfile}
-            profiles={[demoProfile]}
-            readOnly
-          />
+          <IntroView posts={posts} profile={demoProfile} profiles={[demoProfile]} readOnly />
           <hr className={styles.previewDivider()} />
           <PostGridView
             posts={posts}

@@ -1,7 +1,7 @@
 'use client'
 
-import * as SeparatorPrimitive from '@radix-ui/react-separator'
 import * as React from 'react'
+import * as SeparatorPrimitive from '@radix-ui/react-separator'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils/tailwind'
 

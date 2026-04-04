@@ -1,7 +1,7 @@
+import { sql, type ExtractTablesWithRelations } from 'drizzle-orm'
 import { drizzle, type PostgresJsQueryResultHKT } from 'drizzle-orm/postgres-js'
-import { type ExtractTablesWithRelations, sql } from 'drizzle-orm'
-import type { PgTransaction } from 'drizzle-orm/pg-core'
 import postgres from 'postgres'
+import type { PgTransaction } from 'drizzle-orm/pg-core'
 
 /**
  * Direct PostgreSQL connection via postgres.js / Supavisor.
@@ -31,9 +31,7 @@ type QueryInTransaction<T> = (tx: DrizzleTransaction) => Promise<T>
  */
 async function rlsQuery<T>(userId: string, txFunc: QueryInTransaction<T>): Promise<T> {
   return await db.transaction(async (tx) => {
-    await tx.execute(
-      sql`SELECT set_config('request.jwt.claim.sub', ${userId}, TRUE)`
-    )
+    await tx.execute(sql`SELECT set_config('request.jwt.claim.sub', ${userId}, TRUE)`)
     await tx.execute(sql`SET LOCAL ROLE authenticated`)
     return await txFunc(tx)
   })

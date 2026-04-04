@@ -5,7 +5,7 @@ import { db } from '@/utils/database'
 import { stripe } from '@/utils/stripe'
 import { createClient } from '@/utils/supabase-server'
 
-export async function POST() {
+async function POST() {
   const supabase = await createClient()
   const {
     data: { user }
@@ -31,3 +31,5 @@ export async function POST() {
 
   return NextResponse.json({ url: session.url })
 }
+
+export { POST }

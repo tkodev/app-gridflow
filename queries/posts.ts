@@ -8,10 +8,7 @@ import type {
   SavePostMutationInput
 } from '@/types/mutations'
 import type { Post, PostMedia } from '@/types/post'
-import {
-  supabaseStorageBucketPosts,
-  supabaseStorageCacheControlPosts
-} from '@/constants/db'
+import { supabaseStorageBucketPosts, supabaseStorageCacheControlPosts } from '@/constants/db'
 import { postKeys } from '@/queries/keys'
 import { postMedia, posts } from '@/schema/posts'
 import { postTagSets } from '@/schema/tag-sets'
@@ -25,7 +22,9 @@ function usePostsQuery(profileId: string | undefined) {
     queryKey: postKeys.all(profileId ?? ''),
     queryFn: async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not signed in')
 
       const rows = await rlsQuery(user.id, async (tx) => {
@@ -35,9 +34,7 @@ function usePostsQuery(profileId: string | undefined) {
           .where(eq(posts.profileId, profileId!))
           .orderBy(asc(posts.gridPosition))
 
-        const mediaRows = postRows.length > 0
-          ? await tx.select().from(postMedia)
-          : []
+        const mediaRows = postRows.length > 0 ? await tx.select().from(postMedia) : []
 
         return postRows.map((post) => ({
           ...post,
@@ -78,7 +75,9 @@ function usePostsQuery(profileId: string | undefined) {
 
 async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   const {
@@ -227,7 +226,9 @@ function useSavePostMutation() {
 
 async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void> {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   const { post, profileId } = vars
@@ -260,15 +261,14 @@ function useDeletePostMutation() {
 
 async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<void> {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
   await rlsQuery(user.id, async (tx) => {
     for (let i = 0; i < vars.orderedPosts.length; i++) {
-      await tx
-        .update(posts)
-        .set({ gridPosition: i })
-        .where(eq(posts.id, vars.orderedPosts[i].id))
+      await tx.update(posts).set({ gridPosition: i }).where(eq(posts.id, vars.orderedPosts[i].id))
     }
   })
 }
@@ -284,10 +284,7 @@ function useReorderPostsMutation() {
 }
 
 /** Map a Drizzle post row to the Post domain type. */
-function toPost(
-  row: typeof posts.$inferSelect,
-  media: PostMedia[]
-): Post {
+function toPost(row: typeof posts.$inferSelect, media: PostMedia[]): Post {
   return {
     id: row.id,
     profile_id: row.profileId,

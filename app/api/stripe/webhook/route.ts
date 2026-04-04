@@ -5,7 +5,7 @@ import { customers, subscriptions } from '@/schema/subscriptions'
 import { db } from '@/utils/database'
 import { stripe } from '@/utils/stripe'
 
-export const runtime = 'nodejs'
+const runtime = 'nodejs'
 
 /** Extract period timestamps from a subscription's first item. */
 function extractPeriod(subscription: Stripe.Subscription) {
@@ -16,7 +16,7 @@ function extractPeriod(subscription: Stripe.Subscription) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POST(request: NextRequest) {
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
 
@@ -26,11 +26,7 @@ export async function POST(request: NextRequest) {
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    )
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Invalid signature'
     return NextResponse.json({ error: message }, { status: 400 })
@@ -40,9 +36,7 @@ export async function POST(request: NextRequest) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       if (session.mode === 'subscription' && session.subscription && session.customer) {
-        const subscription = await stripe.subscriptions.retrieve(
-          session.subscription as string
-        )
+        const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
         const customerId =
           typeof session.customer === 'string' ? session.customer : session.customer.id
 
@@ -143,3 +137,5 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ received: true })
 }
+
+export { POST, runtime }

@@ -11,11 +11,9 @@ import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
 const styles = {
-  root: cva(
-    'fixed right-0 bottom-0 left-0 z-50 mx-4 mb-3'
-  ),
+  root: cva('fixed right-0 bottom-0 left-0 z-50 mx-4 mb-3'),
   nav: cva(
-    'bg-surface-container-lowest/85 mx-auto flex h-14 max-w-xs items-center justify-center gap-4 rounded-2xl px-4 backdrop-blur-xl shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)]'
+    'bg-surface-container-lowest/85 mx-auto flex h-14 max-w-xs items-center justify-center gap-4 rounded-2xl px-4 shadow-[0_2px_16px_-2px_hsl(var(--foreground)/0.04)] backdrop-blur-xl'
   ),
   srOnly: cva('sr-only')
 }
