@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test'
-import { signIn } from './helpers/auth'
 
 test.describe('Auth flows', () => {
   test('sign in page loads', async ({ page }) => {

@@ -1,12 +1,11 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { desc, eq } from 'drizzle-orm'
 import type { Subscription } from '@/types/subscription'
 import { subscriptionKeys } from '@/queries/keys'
 import { subscriptions } from '@/schema/subscriptions'
 import { rlsQuery } from '@/utils/database'
-import { createClient } from '@/utils/supabase-browser'
 
 function useSubscriptionQuery(userId: string | undefined) {
   return useQuery({

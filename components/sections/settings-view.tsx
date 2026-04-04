@@ -14,7 +14,6 @@ import { Dialog, DialogContent } from '@/components/atoms/dialog'
 import { Icon } from '@/components/atoms/icon'
 import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/atoms/table'
 import { rootRoute } from '@/constants/routes'
 import {
   useAddProfileMutation,

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { Collection, CollectionMedia } from '@/types/collection'
@@ -45,7 +46,13 @@ const CollectionCard: React.FC<CollectionCardProps> = (props) => {
     <div className={cn(styles.root({ className }))} role="button" tabIndex={0} onClick={onClick}>
       <div className={styles.imageWrap()}>
         {coverUrl ? (
-          <img className={styles.image()} alt={collection.name} src={coverUrl} />
+          <Image
+            className={styles.image()}
+            sizes="176px"
+            alt={collection.name}
+            src={coverUrl}
+            fill
+          />
         ) : (
           <div className={styles.placeholder()}>
             <Icon name="image" size="lg" tone="muted" />

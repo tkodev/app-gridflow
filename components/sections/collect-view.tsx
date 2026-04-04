@@ -49,8 +49,6 @@ const CollectView: React.FC<CollectViewProps> = (props) => {
   const [tagSetDialogOpen, setTagSetDialogOpen] = useState(false)
   const [editingTagSet, setEditingTagSet] = useState<TagSet | null>(null)
 
-  const [fabMode, setFabMode] = useState<'collection' | 'tagSet'>('collection')
-
   // c. logic
   const collections = collectionsQuery.data ?? []
   const tagSets = tagSetsQuery.data ?? []
@@ -76,11 +74,7 @@ const CollectView: React.FC<CollectViewProps> = (props) => {
   }
 
   const onFabClick = () => {
-    if (fabMode === 'collection') {
-      openNewCollection()
-    } else {
-      openNewTagSet()
-    }
+    openNewCollection()
   }
 
   // d. component
