@@ -29,15 +29,4 @@ All data fetching uses TanStack Query for cross-platform portability.
 
 ## Database Migrations
 
-Run these in order against your Supabase project:
-
-1. `scripts/001_create_tables.sql` — Initial schema
-2. `scripts/002_restructure_profiles.sql` — Multi-profile per user
-3. `scripts/003_create_storage_bucket.sql` — Storage buckets
-4. `scripts/004_add_subtitle_grid_ratio_avatars.sql` — Column additions
-5. `scripts/005_drop_posts_image_url.sql` — Schema cleanup
-6. `scripts/006_drop_posts_location_music.sql` — Schema cleanup
-7. `scripts/007_create_collections.sql` — Collections & collection_media
-8. `scripts/008_create_tag_sets.sql` — Tag sets & post_tag_sets junction
-9. `scripts/009_create_subscriptions.sql` — Customers & subscriptions
-10. `scripts/010_add_tagline_to_posts.sql` — Tagline column on posts
+Apply schema with Drizzle: `pnpm db:migrate` (see `databases/migrations/`). The `posts` storage bucket and `storage.objects` policies live in `databases/migrations/0001_posts_storage_bucket.sql`.

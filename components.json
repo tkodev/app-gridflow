@@ -16,7 +16,7 @@
     "components": "@/components",
     "utils": "@/utils/tailwind",
     "ui": "@/components/atoms",
-    "lib": "@/lib",
+    "lib": "@/utils",
     "hooks": "@/hooks"
   },
   "menuColor": "default",

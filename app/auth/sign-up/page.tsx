@@ -10,6 +10,7 @@ import { Input } from '@/components/atoms/input'
 import { Label } from '@/components/atoms/label'
 import { planRoute, signInRoute } from '@/constants/routes'
 import { useSignUpMutation } from '@/queries/auth'
+import { SignUpMutationInput } from '@/types/mutations'
 import { cn } from '@/utils/tailwind'
 
 // 1. styles & constants
@@ -31,12 +32,6 @@ const styles = {
 }
 
 // 2. types
-type SignUpFormValues = {
-  username: string
-  email: string
-  password: string
-}
-
 type SignUpPageProps = {
   className?: string
 } & VariantProps<typeof styles.root>
@@ -54,17 +49,17 @@ const SignUpPage: React.FC<SignUpPageProps> = (props) => {
     handleSubmit,
     setError,
     formState: { errors }
-  } = useForm<SignUpFormValues>({
-    defaultValues: { username: '', email: '', password: '' }
+  } = useForm<SignUpMutationInput>({
+    defaultValues: { displayName: '', email: '', password: '' }
   })
 
   // c. logic
   const onSubmit = handleSubmit(async (data) => {
     try {
       await signUp.mutateAsync({
+        displayName: data.displayName,
         email: data.email,
-        password: data.password,
-        username: data.username
+        password: data.password
       })
       router.push(planRoute)
       router.refresh()
@@ -87,16 +82,18 @@ const SignUpPage: React.FC<SignUpPageProps> = (props) => {
         {errors.root && <div className={styles.errorBanner()}>{errors.root.message}</div>}
 
         <div className={styles.fieldGroup()}>
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="displayName">Display Name</Label>
           <Input
-            id="username"
+            id="displayName"
             type="text"
-            aria-invalid={!!errors.username}
-            autoComplete="username"
-            placeholder="your_username"
-            {...register('username', { required: 'Username is required' })}
+            aria-invalid={!!errors.displayName}
+            autoComplete="displayName"
+            placeholder="John Doe"
+            {...register('displayName', { required: 'Display Name is required' })}
           />
-          {errors.username && <p className={styles.fieldError()}>{errors.username.message}</p>}
+          {errors.displayName && (
+            <p className={styles.fieldError()}>{errors.displayName.message}</p>
+          )}
         </div>
 
         <div className={styles.fieldGroup()}>

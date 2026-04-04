@@ -1,77 +1,40 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { asc, eq } from 'drizzle-orm'
 import type {
   DeletePostMutationInput,
   ReorderPostsMutationInput,
   SavePostMutationInput
 } from '@/types/mutations'
-import type { Post, PostMedia } from '@/types/post'
+import type { Post } from '@/types/post'
 import { supabaseStorageBucketPosts, supabaseStorageCacheControlPosts } from '@/constants/db'
 import { postKeys } from '@/queries/keys'
-import { postMedia, posts } from '@/schema/posts'
-import { postTagSets } from '@/schema/tag-sets'
-import { rlsQuery } from '@/utils/database'
-import { extensionForPostMediaUpload, sortPostMediaByPosition } from '@/utils/post-media'
+import { extensionForPostMediaUpload } from '@/utils/post-media'
 import { extractPostsBucketObjectPath, removePostFolderObjects } from '@/utils/post-storage'
 import { createClient } from '@/utils/supabase-browser'
+
+async function fetchPosts(profileId: string): Promise<Post[]> {
+  const res = await fetch(`/api/posts?profileId=${encodeURIComponent(profileId)}`)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to load posts')
+  }
+  const data = (await res.json()) as { posts: Post[] }
+  return data.posts
+}
 
 function usePostsQuery(profileId: string | undefined) {
   return useQuery({
     queryKey: postKeys.all(profileId ?? ''),
-    queryFn: async () => {
-      const supabase = createClient()
-      const {
-        data: { user }
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not signed in')
-
-      const rows = await rlsQuery(user.id, async (tx) => {
-        const postRows = await tx
-          .select()
-          .from(posts)
-          .where(eq(posts.profileId, profileId!))
-          .orderBy(asc(posts.gridPosition))
-
-        const mediaRows = postRows.length > 0 ? await tx.select().from(postMedia) : []
-
-        return postRows.map((post) => ({
-          ...post,
-          media: sortPostMediaByPosition(
-            mediaRows
-              .filter((m) => m.postId === post.id)
-              .map((m) => ({
-                id: m.id,
-                post_id: m.postId,
-                media_url: m.mediaUrl,
-                media_type: m.mediaType,
-                position: m.position,
-                created_at: m.createdAt.toISOString()
-              }))
-          )
-        }))
-      })
-
-      return rows.map((row) => ({
-        id: row.id,
-        profile_id: row.profileId,
-        caption: row.caption,
-        subtitle: row.subtitle,
-        tagline: row.tagline,
-        grid_position: row.gridPosition,
-        status: row.status,
-        scheduled_at: row.scheduledAt?.toISOString() ?? null,
-        published_at: row.publishedAt?.toISOString() ?? null,
-        created_at: row.createdAt.toISOString(),
-        updated_at: row.updatedAt.toISOString(),
-        media: row.media
-      })) as Post[]
-    },
+    queryFn: () => fetchPosts(profileId!),
     enabled: Boolean(profileId),
     staleTime: 1000 * 60 * 2
   })
 }
+
+type MediaSyncItem =
+  | { isNew: true; mediaUrl: string; mediaType: 'image' | 'video'; position: number }
+  | { isNew: false; id: string; position: number }
 
 async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   const supabase = createClient()
@@ -95,67 +58,48 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
   } = vars
 
   let postId = post?.id
-  let postData: Post
 
-  if (isEditing && postId) {
-    const [updated] = await rlsQuery(user.id, async (tx) => {
-      return await tx
-        .update(posts)
-        .set({
-          caption: caption || null,
-          subtitle: subtitle || null,
-          tagline: tagline || null,
-          status,
-          scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
-          updatedAt: new Date()
-        })
-        .where(eq(posts.id, postId!))
-        .returning()
+  if (!isEditing) {
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profileId,
+        nextPosition,
+        caption: caption || null,
+        subtitle: subtitle || null,
+        tagline: tagline || null,
+        status,
+        scheduledAt
+      })
     })
-    postData = toPost(updated, [])
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(typeof err.error === 'string' ? err.error : 'Failed to create post')
+    }
+    const data = (await res.json()) as { post: Post }
+    postId = data.post.id
   } else {
-    const [inserted] = await rlsQuery(user.id, async (tx) => {
-      return await tx
-        .insert(posts)
-        .values({
-          profileId,
-          caption: caption || null,
-          subtitle: subtitle || null,
-          tagline: tagline || null,
-          gridPosition: nextPosition,
-          status,
-          scheduledAt: scheduledAt ? new Date(scheduledAt) : null
-        })
-        .returning()
-    })
-    postId = inserted.id
-    postData = toPost(inserted, [])
+    postId = post!.id
   }
 
   if (!postId) throw new Error('Missing post id')
 
-  const uploadedMedia: PostMedia[] = []
-
-  // Delete removed media (storage + DB)
   if (isEditing && post) {
     const currentIds = new Set(mediaItems.filter((m) => !m.isNew).map((m) => m.id))
     const toDelete = post.media.filter((m) => !currentIds.has(m.id))
-
     for (const media of toDelete) {
       const path = extractPostsBucketObjectPath(media.media_url)
       if (path) {
         await supabase.storage.from(supabaseStorageBucketPosts).remove([path])
       }
-      await rlsQuery(user.id, async (tx) => {
-        await tx.delete(postMedia).where(eq(postMedia.id, media.id))
-      })
     }
   }
 
-  // Upload new media and update positions
+  const apiMedia: MediaSyncItem[] = []
+
   for (let i = 0; i < mediaItems.length; i++) {
     const item = mediaItems[i]
-
     if (item.isNew && item.file) {
       const ext = extensionForPostMediaUpload(item.file)
       const filePath = `${profileId}/${postId}/${crypto.randomUUID()}.${ext}`
@@ -174,44 +118,33 @@ async function savePostMutationFn(vars: SavePostMutationInput): Promise<Post> {
         .from(supabaseStorageBucketPosts)
         .getPublicUrl(filePath)
 
-      const [inserted] = await rlsQuery(user.id, async (tx) => {
-        return await tx
-          .insert(postMedia)
-          .values({
-            postId: postId!,
-            mediaUrl: urlData.publicUrl,
-            mediaType: item.type,
-            position: i
-          })
-          .returning()
-      })
-      uploadedMedia.push(toPostMedia(inserted))
-    } else {
-      const [updated] = await rlsQuery(user.id, async (tx) => {
-        return await tx
-          .update(postMedia)
-          .set({ position: i })
-          .where(eq(postMedia.id, item.id))
-          .returning()
-      })
-      uploadedMedia.push(toPostMedia(updated))
+      apiMedia.push({ isNew: true, mediaUrl: urlData.publicUrl, mediaType: item.type, position: i })
+    } else if (!item.isNew) {
+      apiMedia.push({ isNew: false, id: item.id, position: i })
     }
   }
 
-  postData.media = uploadedMedia
-
-  // Sync tag set associations
-  if (postId) {
-    await rlsQuery(user.id, async (tx) => {
-      await tx.delete(postTagSets).where(eq(postTagSets.postId, postId!))
-      if (tagSetIds.length > 0) {
-        const rows = tagSetIds.map((tagSetId) => ({ postId: postId!, tagSetId }))
-        await tx.insert(postTagSets).values(rows)
-      }
+  const res = await fetch(`/api/posts/${postId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      caption,
+      subtitle,
+      tagline,
+      status,
+      scheduledAt,
+      tagSetIds,
+      mediaItems: apiMedia
     })
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to save post')
   }
 
-  return postData
+  const data = (await res.json()) as { post: Post }
+  return data.post
 }
 
 function useSavePostMutation() {
@@ -244,9 +177,11 @@ async function deletePostMutationFn(vars: DeletePostMutationInput): Promise<void
 
   await removePostFolderObjects(supabase, profileId, post.id)
 
-  await rlsQuery(user.id, async (tx) => {
-    await tx.delete(posts).where(eq(posts.id, post.id))
-  })
+  const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to delete post')
+  }
 }
 
 function useDeletePostMutation() {
@@ -260,17 +195,16 @@ function useDeletePostMutation() {
 }
 
 async function reorderPostsMutationFn(vars: ReorderPostsMutationInput): Promise<void> {
-  const supabase = createClient()
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not signed in')
-
-  await rlsQuery(user.id, async (tx) => {
-    for (let i = 0; i < vars.orderedPosts.length; i++) {
-      await tx.update(posts).set({ gridPosition: i }).where(eq(posts.id, vars.orderedPosts[i].id))
-    }
+  const res = await fetch('/api/posts/reorder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderedPosts: vars.orderedPosts })
   })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to reorder posts')
+  }
 }
 
 function useReorderPostsMutation() {
@@ -281,36 +215,6 @@ function useReorderPostsMutation() {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
     }
   })
-}
-
-/** Map a Drizzle post row to the Post domain type. */
-function toPost(row: typeof posts.$inferSelect, media: PostMedia[]): Post {
-  return {
-    id: row.id,
-    profile_id: row.profileId,
-    caption: row.caption,
-    subtitle: row.subtitle,
-    tagline: row.tagline,
-    grid_position: row.gridPosition,
-    status: row.status,
-    scheduled_at: row.scheduledAt?.toISOString() ?? null,
-    published_at: row.publishedAt?.toISOString() ?? null,
-    created_at: row.createdAt.toISOString(),
-    updated_at: row.updatedAt.toISOString(),
-    media
-  }
-}
-
-/** Map a Drizzle postMedia row to the PostMedia domain type. */
-function toPostMedia(row: typeof postMedia.$inferSelect): PostMedia {
-  return {
-    id: row.id,
-    post_id: row.postId,
-    media_url: row.mediaUrl,
-    media_type: row.mediaType,
-    position: row.position,
-    created_at: row.createdAt.toISOString()
-  }
 }
 
 export {

@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { eq } from 'drizzle-orm'
 import type Stripe from 'stripe'
-import { customers, subscriptions } from '@/schema/subscriptions'
-import { db } from '@/utils/database'
+import { db } from '@/databases/client'
+import { customers, subscriptions } from '@/schemas/subscriptions'
 import { stripe } from '@/utils/stripe'
 
 const runtime = 'nodejs'

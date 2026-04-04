@@ -1,33 +1,25 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { desc, eq } from 'drizzle-orm'
 import type { DeleteTagSetMutationInput, SaveTagSetMutationInput } from '@/types/mutations'
 import type { TagSet } from '@/types/tag-set'
 import { tagSetKeys } from '@/queries/keys'
-import { tagSets } from '@/schema/tag-sets'
-import { rlsQuery } from '@/utils/database'
 import { createClient } from '@/utils/supabase-browser'
+
+async function fetchTagSets(profileId: string): Promise<TagSet[]> {
+  const res = await fetch(`/api/tag-sets?profileId=${encodeURIComponent(profileId)}`)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to load tag sets')
+  }
+  const data = (await res.json()) as { tagSets: TagSet[] }
+  return data.tagSets
+}
 
 function useTagSetsQuery(profileId: string | undefined) {
   return useQuery({
     queryKey: tagSetKeys.all(profileId ?? ''),
-    queryFn: async () => {
-      const supabase = createClient()
-      const {
-        data: { user }
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not signed in')
-
-      const rows = await rlsQuery(user.id, async (tx) => {
-        return await tx
-          .select()
-          .from(tagSets)
-          .where(eq(tagSets.profileId, profileId!))
-          .orderBy(desc(tagSets.createdAt))
-      })
-      return rows.map(toTagSet)
-    },
+    queryFn: () => fetchTagSets(profileId!),
     enabled: Boolean(profileId),
     staleTime: 1000 * 60 * 2
   })
@@ -43,20 +35,30 @@ async function saveTagSetMutationFn(vars: SaveTagSetMutationInput): Promise<TagS
   const { isEditing, tagSet, profileId, name, tags } = vars
 
   if (isEditing && tagSet) {
-    const [updated] = await rlsQuery(user.id, async (tx) => {
-      return await tx
-        .update(tagSets)
-        .set({ name, tags, updatedAt: new Date() })
-        .where(eq(tagSets.id, tagSet.id))
-        .returning()
+    const res = await fetch(`/api/tag-sets/${tagSet.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, tags })
     })
-    return toTagSet(updated)
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(typeof err.error === 'string' ? err.error : 'Failed to save tag set')
+    }
+    const data = (await res.json()) as { tagSet: TagSet }
+    return data.tagSet
   }
 
-  const [inserted] = await rlsQuery(user.id, async (tx) => {
-    return await tx.insert(tagSets).values({ profileId, name, tags }).returning()
+  const res = await fetch('/api/tag-sets', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ profileId, name, tags })
   })
-  return toTagSet(inserted)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to create tag set')
+  }
+  const data = (await res.json()) as { tagSet: TagSet }
+  return data.tagSet
 }
 
 function useSaveTagSetMutation() {
@@ -70,15 +72,11 @@ function useSaveTagSetMutation() {
 }
 
 async function deleteTagSetMutationFn(vars: DeleteTagSetMutationInput): Promise<void> {
-  const supabase = createClient()
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not signed in')
-
-  await rlsQuery(user.id, async (tx) => {
-    await tx.delete(tagSets).where(eq(tagSets.id, vars.tagSet.id))
-  })
+  const res = await fetch(`/api/tag-sets/${vars.tagSet.id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to delete tag set')
+  }
 }
 
 function useDeleteTagSetMutation() {
@@ -89,17 +87,6 @@ function useDeleteTagSetMutation() {
       queryClient.invalidateQueries({ queryKey: ['tagSets'] })
     }
   })
-}
-
-function toTagSet(row: typeof tagSets.$inferSelect): TagSet {
-  return {
-    id: row.id,
-    profile_id: row.profileId,
-    name: row.name,
-    tags: row.tags,
-    created_at: row.createdAt.toISOString(),
-    updated_at: row.updatedAt.toISOString()
-  }
 }
 
 export {

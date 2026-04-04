@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { eq } from 'drizzle-orm'
-import { customers } from '@/schema/subscriptions'
-import { db } from '@/utils/database'
+import { db } from '@/databases/client'
+import { customers } from '@/schemas/subscriptions'
 import { stripe } from '@/utils/stripe'
 import { createClient } from '@/utils/supabase-server'
 

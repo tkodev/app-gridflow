@@ -12,14 +12,7 @@ GridFlow is a visual Instagram content planning platform. Plan and arrange your 
 
 ## Docs
 
-| File | Owns | Ask when… |
-| --- | --- | --- |
-| [tech.md](/docs/tech.md) | Tech stack, routes, page structure, and code conventions | How do I build it? |
-| [design.md](/docs/design.md) | Visual design principles and Figma references | What should it look like? |
-| [git.md](/docs/git.md) | Branch naming, commit conventions, and PR guidelines | How do I commit/PR? |
-| [features.md](/docs/features.md) | Feature entrypoints and migration list | Where does feature X live? |
-
-For developer & agent onboarding, read [CONTRIBUTING.md](/CONTRIBUTING.md).
+For developer & agent onboarding, read [CLAUDE.md](/CLAUDE.md).
 
 ## Preview Environments
 

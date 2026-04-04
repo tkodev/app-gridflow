@@ -1,6 +1,6 @@
 # Git Standards
 
-> This file defines **how we use git** — branch naming, commit conventions, and PR guidelines. For a full overview of the project, see [CONTRIBUTING.md](/CONTRIBUTING.md).
+> This file defines **how we use git** — branch naming, commit conventions, and PR guidelines. For a full overview of the project, see [CLAUDE.md](/CLAUDE.md).
 
 ## Branch Naming
 

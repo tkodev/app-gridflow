@@ -1,29 +1,26 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { asc, eq } from 'drizzle-orm'
 import type { UpdateProfileMutationInput } from '@/types/mutations'
 import type { Profile } from '@/types/profile'
 import { supabaseStorageBucketAvatars } from '@/constants/db'
 import { profileKeys } from '@/queries/keys'
-import { profiles } from '@/schema/profiles'
-import { rlsQuery } from '@/utils/database'
 import { createClient } from '@/utils/supabase-browser'
-import { sanitizeUsername } from '@/utils/username'
+
+async function fetchProfiles(): Promise<Profile[]> {
+  const res = await fetch('/api/profiles')
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to load profiles')
+  }
+  const data = (await res.json()) as { profiles: Profile[] }
+  return data.profiles
+}
 
 function useProfilesQuery(userId: string | undefined) {
   return useQuery({
     queryKey: profileKeys.all(userId ?? ''),
-    queryFn: async () => {
-      const rows = await rlsQuery(userId!, async (tx) => {
-        return await tx
-          .select()
-          .from(profiles)
-          .where(eq(profiles.userId, userId!))
-          .orderBy(asc(profiles.createdAt))
-      })
-      return rows.map(toProfile)
-    },
+    queryFn: fetchProfiles,
     enabled: Boolean(userId),
     staleTime: 1000 * 60 * 2
   })
@@ -65,25 +62,27 @@ async function updateProfileMutationFn(vars: UpdateProfileMutationInput): Promis
     newAvatarUrl = null
   }
 
-  // DB update via Drizzle — no RLS needed, the caller is authenticated
   const {
     data: { user }
   } = await supabase.auth.getUser()
   if (!user) throw new Error('Not signed in')
 
-  await rlsQuery(user.id, async (tx) => {
-    await tx
-      .update(profiles)
-      .set({
-        username: sanitizeUsername(vars.username),
-        displayName: vars.displayName || null,
-        bio: vars.bio || null,
-        avatarUrl: newAvatarUrl,
-        gridRatio: vars.gridRatio,
-        updatedAt: new Date()
-      })
-      .where(eq(profiles.id, vars.profileId))
+  const res = await fetch(`/api/profiles/${vars.profileId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: vars.username,
+      displayName: vars.displayName,
+      bio: vars.bio,
+      gridRatio: vars.gridRatio,
+      avatarUrl: newAvatarUrl
+    })
   })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(typeof err.error === 'string' ? err.error : 'Failed to update profile')
+  }
 }
 
 function useUpdateProfileMutation() {
@@ -94,20 +93,6 @@ function useUpdateProfileMutation() {
       queryClient.invalidateQueries({ queryKey: ['profiles'] })
     }
   })
-}
-
-function toProfile(row: typeof profiles.$inferSelect): Profile {
-  return {
-    id: row.id,
-    user_id: row.userId,
-    username: row.username,
-    display_name: row.displayName,
-    bio: row.bio,
-    avatar_url: row.avatarUrl,
-    grid_ratio: row.gridRatio,
-    created_at: row.createdAt.toISOString(),
-    updated_at: row.updatedAt.toISOString()
-  }
 }
 
 export { updateProfileMutationFn, useProfilesQuery, useUpdateProfileMutation }
