@@ -53,7 +53,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
-    "@tkodev/config-eslint-next": "github:tkodev/config-eslint-next#af14790501654ad67dfd749a4da76775309e9392",
+    "@tkodev/config-eslint-next": "github:tkodev/config-eslint-next#253f4f6",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
@@ -61,7 +61,11 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-perfectionist": "^5.8.0",
+    "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
