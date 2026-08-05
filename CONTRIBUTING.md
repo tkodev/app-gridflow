@@ -4,10 +4,9 @@ Everything a developer needs to understand and work on GridFlow.
 
 ## Docs
 
-You must read the following files before contributing.
+You must read the following before contributing.
 
-| File | Owns | Ask when… |
+| What | Owns | Ask when… |
 | --- | --- | --- |
-| [tech.md](/docs/tech.md) | Tech stack, routes, page structure, style, react, and code conventions | How do I build it? |
-| [design.md](/docs/design.md) | Visual design principles and Figma references | What should it look like? |
-| [git.md](/docs/git.md) | Branch naming, commit conventions, and PR guidelines | How do I commit/PR? |
+| [`docs/prd/`](/docs/prd/) | Product intent, design tokens, architecture, and the delivery plan | What are we building, and why? |
+| [`.claude/skills/`](/.claude/skills/) / [`.agents/skills/`](/.agents/skills/) | House standards: tech stack conventions, component style, data handling, git workflow, and more (vendored from [software-skills](https://github.com/tkodev/software-skills)) | How do I build it / commit / PR? |
