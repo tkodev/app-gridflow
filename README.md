@@ -12,7 +12,7 @@ GridFlow is a visual Instagram content planning platform. Plan and arrange your 
 
 Product intent, design tokens, architecture, and the delivery plan live in
 [`docs/prd/`](/docs/prd/). House standards (tech stack conventions, component style, data
-handling, git workflow) are vendored from [harness-skills](https://github.com/tkodev/harness-skills)
+handling, git workflow) are vendored from [software-skills](https://github.com/tkodev/software-skills)
 at [`.claude/skills/`](/.claude/skills/) / [`.agents/skills/`](/.agents/skills/).
 
 For developer & agent onboarding, read [CONTRIBUTING.md](/CONTRIBUTING.md).
